@@ -9,3 +9,5 @@ onlyBuiltDependencies:
   - "@swc/core"
   - esbuild
   - sharp
+
+verifyDepsBeforeRun: false
