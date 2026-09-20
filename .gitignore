@@ -40,3 +40,4 @@ dist/
 /playwright/.cache/
 /e2e/artifacts/
 /e2e/fixtures/*.png
+/e2e/.env.e2e

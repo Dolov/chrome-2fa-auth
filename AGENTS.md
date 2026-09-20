@@ -35,7 +35,13 @@ feat/test-e2e   → E2E 全绿 → feat/migrate-wxt → 阶段化迁移 → rele
 - 模拟用户操作（点按钮、输文本）
 - 断言 DOM、剪贴板、`chrome.storage`、扩展 ID 注入
 - TOTP 用独立 `otplib` 算期望值对比，不调用项目 `utils/auth.ts`
-- Content Script 用本地 mock 页面，不打真 GitHub / NPM
+
+**真实 / Mock 边界**：
+
+- ✅ **真实**：浏览器（Playwright bundled chromium）、扩展加载、MV3 SW、`chrome.*` API、DOM 交互、chrome.storage 持久化、Content Script 注入、OTP 计算、**GitHub / NPM 第三方页面（用专用 test 账号 + TOTP secret）**
+- 🔶 **Mock**：仅 QR 扫描（用 `qrcode` 库生成 PNG 测试 4 条路径，不接真手机摄像头）
+
+**凭证管理**：GitHub / NPM test 账号写入 `e2e/.env.e2e`（gitignore），跑 spec 前由 `e2e/setup/reset-2fa.ts` 自动 disable 现有 2FA，保证 idempotent。
 
 **不写单元测试**。
 
@@ -53,9 +59,10 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 
 ## 待办
 
-- [ ] 装 playwright + 跑通 hello-popup 测试
-- [ ] 写 P0 5 个 spec
-- [ ] 写 P1 7 个 spec（含 mock 页面）
-- [ ] 写 P2 5 个 spec
-- [ ] CI 接入
+- [x] 装 playwright + 跑通 hello-popup 测试
+- [ ] 写 P0 5 个 spec（不含第三方）
+- [ ] 用户提供 GitHub / NPM test 账号后，写 F8 / F9 真实集成 spec
+- [ ] 写 F7 QR 扫描 4 条路径（mock 摄像头）
+- [ ] F1-F6 + F10-F12 主体 spec 全绿
+- [ ] CI 接入（GitHub Actions secrets 注入 test 账号）
 - [ ] 复核 spec 数是否覆盖真实分支密度（必要时增减）

@@ -33,12 +33,20 @@ e2e/
 
 ## 2. 全局约定
 
-- **加载方式**：`pnpm build` 产物路径 `build/chrome-mv3`（Plasmo）；迁移到 WXT 后改为 `.output/chrome-mv3`
+### 真实 / Mock 边界
+
+- ✅ **真实**：浏览器（Playwright bundled chromium）、扩展加载、MV3 SW、`chrome.*` API、DOM 交互、chrome.storage 持久化、Content Script 注入、OTP 计算
+- ✅ **真实第三方**：GitHub / NPM 用**专用 test 账号 + TOTP secret** 走真 enable/disable 2FA 流程（凭证在 `e2e/.env.e2e`，已 gitignore）
+- 🔶 **Mock**：仅 F7 QR 扫描（用 `qrcode` 库生成 PNG，不接真手机摄像头）
+
+### 技术约定
+
+- **加载方式**：`pnpm build` 产物路径 `build/chrome-mv3-prod`（Plasmo）；迁移到 WXT 后改为 `.output/chrome-mv3`
 - **userDataDir**：每个 spec 用独立 `userDataDir`（隔离 storage）；持久化相关 case 用固定 dir
 - **OTP 断言**：用 `otplib` 独立库计算期望值，`±1s` 容差（不 import 项目 `utils/auth.ts`）
-- **Content Script 测试**：用 `page.route` 拦截 URL → 返回本地 mock HTML（不依赖真 GitHub/NPM）
+- **第三方测试前重置**：`e2e/setup/reset-2fa.ts` 读 env → 自动 disable GitHub / NPM 现有 2FA → 保证 idempotent
 - **时间控制**：用 `page.clock.install()` 控制 fake 时钟；或容忍 ±1s
-- **截图 / 选区**：用 `fakeMediaStream` 注入视频流；手动截图选区用 `page.mouse.down/move/up`
+- **摄像头 / 选区**：用 `fakeMediaStream` 注入视频流；手动截图选区用 `page.mouse.down/move/up`
 
 ## 3. Spec 清单（93 条）
 
