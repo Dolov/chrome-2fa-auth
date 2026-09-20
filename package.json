@@ -15,19 +15,18 @@
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build && plasmo package",
-    "package": "plasmo build && plasmo package"
+    "package": "plasmo build && plasmo package",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  },
+  "pnpm": {},
   "dependencies": {
     "@plasmohq/storage": "^1.9.3",
     "clsx": "^2.1.1",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.483.0",
-    "otplib": "^12.0.1",
     "plasmo": "0.88.0",
     "qier-progress": "^1.0.4",
     "qrcode.react": "^4.2.0",
@@ -36,12 +35,16 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@playwright/test": "^1.63.0",
     "@types/chrome": "0.0.258",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "autoprefixer": "^10.4.21",
-    "daisyui": "4",
+    "culori": "3.0.0",
+    "daisyui": "^4.12.24",
+    "otplib": "^12.0.1",
+    "playwright": "^1.63.0",
     "postcss": "^8.5.3",
     "prettier": "3.2.4",
     "tailwindcss": "3",
