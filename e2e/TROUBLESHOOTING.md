@@ -125,7 +125,39 @@ export default async function globalSetup() { ... }
    ```
 3. `global-setup` 自动跑 patch
 
-## 10. pnpm 11 不再读 `package.json` 里的 `pnpm.onlyBuiltDependencies`
+## 10. plasmo `@plasmohq/storage` 1.15.0 双重 JSON 序列化 bug（项目 bug，非测试 bug）
+
+**现象**：
+- 在 popup context 里读 `chrome.storage.sync.get("data")` 返回 `{data: "[json string]"}`（字符串，不是对象）
+- plasmo hook 的 `parseValue({data: "[json string]"})` 调用 `JSON.parse({...})` 抛错 → `console.error: SyntaxError: "[object Object]" is not valid JSON`
+- 后果：useStorage 的 initial get 返回 undefined → state 永远 = defaultValue → list 永远不渲染
+- 连用户走 UI 添加账户后也会触发 `Minified React error #130`（element type undefined）→ popup 变空白
+
+**根因**：
+```js
+// plasmo Storage.set 内部
+set=async(e,t)=>{
+  let s=this.serde.serializer(t);  // JSON.stringify(value)
+  return this.rawSet(r,s);  // chrome.storage.sync.set({key: s})
+};
+// chrome.storage 内部又自动 JSON.stringify 一次 → 双重编码
+// chrome.storage.get 还原后 plasmo 试图 JSON.parse({key: "string"}) 失败
+```
+
+**影响范围**：
+- 项目当前在 Playwright chromium 下**完全 broken**：popup 加载后即使 UI 添加账户也会 React #130
+- 用户可能没意识到，因为：
+  1. 真 Chrome 默认 storage quota 100KB，plasmo set 一直在失败但被静默 catch
+  2. React error #130 后整个 popup 空白，用户可能刷新页面后短暂看到 list
+
+**测试策略调整**：
+- F1-F3 所有依赖 list 渲染的 case 暂时无法验证
+- 验证 storage 写入**实际成功**（chrome.storage.sync.get 拿到的 raw 值正确）
+- 等 WXT 迁移修复 plasmo bug 后重新跑 spec
+
+**bug 位置**：plasmo-fx/plasmo `packages/storage/hook.ts` + `Storage` 类的 `set/get` 双重序列化
+
+## 11. pnpm 11 不再读 `package.json` 里的 `pnpm.onlyBuiltDependencies`
 
 **现象**：即使配 `"pnpm": { "onlyBuiltDependencies": [...] }`，build scripts 仍被 ignore。
 
