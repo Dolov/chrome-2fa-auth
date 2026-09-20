@@ -8,13 +8,13 @@ import {
 } from "lucide-react"
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "~/utils/storage-hook"
 
-import OtpRemaining from "~components/otp-remaining"
-import OtpText from "~components/otp-text"
-import Button from "~components/ui/button"
-import message from "~components/ui/message"
-import Modal from "~components/ui/modal"
+import OtpRemaining from "~/components/otp-remaining"
+import OtpText from "~/components/otp-text"
+import Button from "~/components/ui/button"
+import message from "~/components/ui/message"
+import Modal from "~/components/ui/modal"
 import {
   canInjectContentScript,
   checkOtpAuthConfigExist,
@@ -23,8 +23,8 @@ import {
   readQRCodeFromFile,
   saveOTP,
   sleep
-} from "~utils"
-import { ActionType, StorageKey, type DataProps } from "~utils/constant"
+} from "~/utils"
+import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
 
 import { GlobalContext } from "./context"
 import { useModalWidth } from "./hooks"

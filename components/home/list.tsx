@@ -1,15 +1,16 @@
 import clsx from "clsx"
-import noData from "data-base64:~assets/no-data.svg"
 import { FileCog } from "lucide-react"
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import noData from "~/assets/no-data.svg"
+
+import { useStorage } from "~/utils/storage-hook"
 
 import { type DataProps } from "~/utils/constant"
-import Favicon from "~components/favicons"
-import OtpRemaining from "~components/otp-remaining"
-import OtpText from "~components/otp-text"
-import { StorageKey } from "~utils/constant"
+import Favicon from "~/components/favicons"
+import OtpRemaining from "~/components/otp-remaining"
+import OtpText from "~/components/otp-text"
+import { StorageKey } from "~/utils/constant"
 
 import { GlobalContext } from "./context"
 import ItemActions from "./item-actions"

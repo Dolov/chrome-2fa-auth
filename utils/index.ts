@@ -26,8 +26,8 @@ export {
   displayRecoveryCodeSaveMessage
 } from "./ui"
 
-// Re-export other modules
+// Re-export constants and helpers (no React hooks here — hooks depend on @wxt-dev/storage/react
+// which is not exported under content-script build conditions)
 export * from "./constant"
-export * from "./hooks"
 export { default as message } from "./message"
 export * from "./helpers"

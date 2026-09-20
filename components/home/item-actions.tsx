@@ -12,13 +12,13 @@ import {
 import { QRCodeCanvas } from "qrcode.react"
 import React, { Fragment } from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "~/utils/storage-hook"
 
-import { FaviconMinimal } from "~components/favicons"
-import message from "~components/ui/message"
-import Modal from "~components/ui/modal"
-import { copyTextToClipboardV2, generateOtpAuthUrl } from "~utils"
-import { StorageKey, type DataProps } from "~utils/constant"
+import { FaviconMinimal } from "~/components/favicons"
+import message from "~/components/ui/message"
+import Modal from "~/components/ui/modal"
+import { copyTextToClipboardV2, generateOtpAuthUrl } from "~/utils"
+import { StorageKey, type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"
 import EditModal from "./otp-form"

@@ -2,10 +2,10 @@ import clsx from "clsx"
 import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "~/utils/storage-hook"
 
-import Dropdown from "~components/ui/dropdown"
-import { StorageKey, type DataProps } from "~utils"
+import Dropdown from "~/components/ui/dropdown"
+import { StorageKey, type DataProps } from "~/utils"
 
 import { GlobalContext } from "./context"
 

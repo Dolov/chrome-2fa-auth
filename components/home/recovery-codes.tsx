@@ -2,10 +2,10 @@ import clsx from "clsx"
 import { ClipboardCopy, CopyCheck } from "lucide-react"
 import React, { useState } from "react"
 
-import Modal from "~components/ui/modal"
-import { type DataProps } from "~utils/constant"
-import { useUpdateCopiedCodeStatus } from "~utils/hooks"
-import { copyTextToClipboardV2 } from "~utils/index"
+import Modal from "~/components/ui/modal"
+import { type DataProps } from "~/utils/constant"
+import { useUpdateCopiedCodeStatus } from "~/utils/hooks"
+import { copyTextToClipboardV2 } from "~/utils/index"
 
 import { useModalWidth } from "./hooks"
 

@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "~/utils/storage-hook"
 
 import { DEFAULT_SETTINGS, StorageKey, type DataProps } from "./constant"
 

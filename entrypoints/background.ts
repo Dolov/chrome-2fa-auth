@@ -1,4 +1,4 @@
-import { Storage } from "@plasmohq/storage"
+import { storage } from "@wxt-dev/storage"
 
 import { ActionType, StorageKey } from "~/utils/constant"
 
@@ -32,53 +32,27 @@ const menuList: (chrome.contextMenus.CreateProperties & {
     contexts: ["action"],
     action() {
       chrome.tabs.create({
-        url: "tabs/settings.html"
+        url: browser.runtime.getURL("/settings.html")
       })
     }
   }
 ]
 
-/** 创建右键菜单 */
-menuList.forEach((item) => {
-  const { action, ...menuProps } = item
-  chrome.contextMenus.create(menuProps)
-})
-
-/** 监听右键菜单的点击事件，执行对应的行为 */
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  const { menuItemId } = info
-  const menu = menuList.find((item) => item.id === menuItemId)
-  if (!menu) return
-  const { action } = menu
-  action && action(tab)
-})
-
-export {}
-
-// 监听来自 content script 的消息，进行截图，并返回截图结果，让 content script 获取对应区域的二维码
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === ActionType.CAPTURE_SCREENSHOT) {
-    chrome.tabs.captureVisibleTab(null, { format: "png" }, (dataUrl) => {
-      sendResponse({ success: !!dataUrl, image: dataUrl })
-    })
-    return true
-  }
-})
-
 // 将 v1 版本的数据迁移到新数据格式
-const adptLegacyData = async () => {
-  const storage = new Storage()
-  const data = await storage.get(StorageKey.DATA)
+const adaptLegacyData = async () => {
+  const data = await storage.getItem<DataProps[]>(StorageKey.DATA)
   if (Array.isArray(data) && data.length) return
 
-  const legacyData = await storage.get(StorageKey.LEGACY_DATA)
+  const legacyData = await storage.getItem<Record<string, any>>(
+    StorageKey.LEGACY_DATA
+  )
   if (!legacyData) return
   const keys = Object.keys(legacyData)
   if (!keys.length) return
+
   const list = keys
     .map((key) => {
       const item = legacyData[key]
-      // 需要检查必要字段是否存在
       if (!item?.secret || !item?.issuer || !item?.account) {
         return null
       }
@@ -90,29 +64,60 @@ const adptLegacyData = async () => {
         issuer,
         secret,
         account,
-        id: `${key}-${Date.now()}`, // 多个数据同时迁移时可能会有重复ID的问题
-        type: "totp",
+        id: `${key}-${Date.now()}`,
+        type: "totp" as const,
         recoveryCodes: recoveryCodes
-          .map((code) => {
+          .map((code: any) => {
             if (!code?.value) return null
             const { value, copyed } = code
             return {
               value,
-              copied: !!copyed // 确保是布尔值
+              copied: !!copyed
             }
           })
-          .filter(Boolean) // 过滤掉无效的恢复码
+          .filter(Boolean)
       }
     })
-    .filter(Boolean) // 过滤掉无效的数据项
+    .filter(Boolean)
 
   if (list.length) {
     try {
-      await storage.set(StorageKey.DATA, list)
+      await storage.setItem(StorageKey.DATA, list)
     } catch (error) {
       console.error("Legacy data migration failed:", error)
     }
   }
 }
 
-adptLegacyData()
+export default defineBackground(() => {
+  // 初始化右键菜单
+  chrome.runtime.onInstalled.addListener(() => {
+    menuList.forEach((item) => {
+      const { action, ...menuProps } = item
+      chrome.contextMenus.create(menuProps)
+    })
+    adaptLegacyData()
+  })
+
+  // 监听右键菜单点击
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    const menu = menuList.find((item) => item.id === info.menuItemId)
+    if (!menu) return
+    menu.action?.(tab!)
+  })
+
+  // 内容脚本消息路由
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === ActionType.CAPTURE_SCREENSHOT) {
+      chrome.tabs.captureVisibleTab(
+        sender.tab?.windowId,
+        { format: "png" },
+        (dataUrl) => {
+          sendResponse({ success: !!dataUrl, image: dataUrl })
+        }
+      )
+      return true
+    }
+    return false
+  })
+})

@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import React from "react"
 
-import { ContainerType } from "~utils/constant"
+import { ContainerType } from "~/utils/constant"
 
 import { GlobalContext } from "../context"
 import Phone from "./phone"

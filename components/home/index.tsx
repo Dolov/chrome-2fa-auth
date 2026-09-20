@@ -1,6 +1,6 @@
 import React from "react"
 
-import { ContainerType, SourceType } from "~utils/constant"
+import { ContainerType, SourceType } from "~/utils/constant"
 
 import Container from "./container"
 import { Provider } from "./context"

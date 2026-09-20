@@ -1,9 +1,10 @@
 import { clsx } from "clsx"
-import cloudflare from "data-base64:~assets/cloudflare.png"
-import github from "data-base64:~assets/github.png"
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import cloudflare from "~/assets/cloudflare.png"
+import github from "~/assets/github.png"
+
+import { useStorage } from "~/utils/storage-hook"
 
 import {
   DeviconAzure,
@@ -24,8 +25,8 @@ import {
   SkillIconsGmailLight,
   SkillIconsInstagram,
   VscodeIconsFileTypeOutlook
-} from "~components/ui/icon"
-import { DEFAULT_SETTINGS, Issuers, StorageKey } from "~utils/constant"
+} from "~/components/ui/icon"
+import { DEFAULT_SETTINGS, Issuers, StorageKey } from "~/utils/constant"
 
 export const minimalIconMap: Record<
   string,
@@ -64,9 +65,12 @@ const Favicon = ({
   className?: string
 }) => {
   const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
-  const minimal = settings.faviconType === "minimal"
+  const minimal = settings?.faviconType === "minimal"
   const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
+
+  // 未知 issuer 降级：不渲染图标（避免 React #130: element type undefined）
+  if (!Icon) return null
 
   if (minimal) {
     return <Icon className={clsx("text-xl", className)} />

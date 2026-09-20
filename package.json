@@ -1,34 +1,29 @@
 {
   "name": "2fa-auth-otp-authenticator",
-  "displayName": "2FA Auth - 现代化双因素认证工具",
-  "version": "1.7.0",
   "description": "一款专为安全与效率打造的开源免费 2FA 扩展，支持二维码自动扫描、选区扫描、表单输入与上传二维码，轻松应对多平台账户管理，界面优雅、体验出色。",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
   "author": "shisongyan. <songyan_shi@163.com>",
-  "keywords": [
-    "2fa",
-    "otp",
-    "auth",
-    "github",
-    "authenticator",
-    "双因素认证"
-  ],
   "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build && plasmo package",
-    "package": "plasmo build && plasmo package"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "postinstall": "wxt prepare"
   },
   "dependencies": {
-    "@plasmohq/storage": "^1.9.3",
+    "@wxt-dev/storage": "^1.2.9",
     "clsx": "^2.1.1",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.483.0",
-    "otplib": "^12.0.1",
-    "plasmo": "0.88.0",
     "qier-progress": "^1.0.4",
     "qrcode.react": "^4.2.0",
     "react": "18.2.0",
@@ -36,26 +31,21 @@
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/chrome": "0.0.258",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
-    "autoprefixer": "^10.4.21",
-    "daisyui": "4",
-    "postcss": "^8.5.3",
+    "@wxt-dev/module-react": "^1.1.5",
+    "daisyui": "^5.7.42",
+    "otplib": "^12.0.1",
+    "playwright": "^1.63.0",
     "prettier": "3.2.4",
-    "tailwindcss": "3",
-    "typescript": "5.3.3"
-  },
-  "manifest": {
-    "permissions": [
-      "tabs",
-      "scripting",
-      "activeTab",
-      "contextMenus"
-    ],
-    "host_permissions": [
-      "https://*/*"
-    ]
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.3.3",
+    "vite-plugin-node-polyfills": "^0.28.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "wxt": "^0.21.4"
   }
 }

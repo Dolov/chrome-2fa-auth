@@ -1,9 +1,9 @@
 import React from "react"
 
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "~/utils/storage-hook"
 
-import Modal from "~components/ui/modal"
-import { StorageKey, type DataProps } from "~utils/constant"
+import Modal from "~/components/ui/modal"
+import { StorageKey, type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"
 

@@ -1,9 +1,7 @@
-import { Storage } from "@plasmohq/storage"
+import { storage } from "@wxt-dev/storage"
 
 import type { DataProps, OtpAuthConfig } from "./constant"
 import { StorageKey } from "./constant"
-
-const storage = new Storage()
 
 export const saveOTP = async (otpData: DataProps) => {
   if (
@@ -15,7 +13,8 @@ export const saveOTP = async (otpData: DataProps) => {
   ) {
     throw new Error(`otpData is invalid: ${JSON.stringify(otpData, null, 2)}`)
   }
-  const existingData = (await storage.get<DataProps[]>(StorageKey.DATA)) || []
+  const existingData =
+    (await storage.getItem<DataProps[]>(StorageKey.DATA)) || []
 
   const sameItemIndex = existingData.findIndex(
     (item) =>
@@ -31,7 +30,7 @@ export const saveOTP = async (otpData: DataProps) => {
       ...existingData[sameItemIndex],
       ...otpData
     }
-    return await storage.set(StorageKey.DATA, existingData)
+    return await storage.setItem(StorageKey.DATA, existingData)
   }
 
   const oldItemIndex = existingData.findIndex(
@@ -48,18 +47,18 @@ export const saveOTP = async (otpData: DataProps) => {
       recoveryCodes: existingData[oldItemIndex].recoveryCodes || [],
       ...otpData
     })
-    return await storage.set(StorageKey.DATA, existingData)
+    return await storage.setItem(StorageKey.DATA, existingData)
   }
 
   existingData.push(otpData)
-  return await storage.set(StorageKey.DATA, existingData)
+  return await storage.setItem(StorageKey.DATA, existingData)
 }
 
 export const getOTPList = async (
   issuer: string,
   account?: string
 ): Promise<DataProps[]> => {
-  const data = await storage.get<DataProps[]>(StorageKey.DATA)
+  const data = await storage.getItem<DataProps[]>(StorageKey.DATA)
   if (!data) return []
 
   if (!account) {
@@ -80,7 +79,8 @@ export const getOTPList = async (
 export const isRecoveryCodesSaved = async (
   parsedData: DataProps
 ): Promise<boolean> => {
-  const storedData = (await storage.get<DataProps[]>(StorageKey.DATA)) || []
+  const storedData =
+    (await storage.getItem<DataProps[]>(StorageKey.DATA)) || []
   const { account, issuer, secret, recoveryCodes } = parsedData
 
   const matchedAccount = storedData.find(
@@ -102,7 +102,9 @@ export const isRecoveryCodesSaved = async (
   )
 }
 
-export const checkOtpAuthConfigExist = async (otpAuthConfig: OtpAuthConfig) => {
+export const checkOtpAuthConfigExist = async (
+  otpAuthConfig: OtpAuthConfig
+) => {
   const list = await getOTPList(otpAuthConfig.issuer, otpAuthConfig.account)
   const isExist = list.some((item) => {
     return (
