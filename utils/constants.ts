@@ -5,13 +5,10 @@
  * 单独成文件是为了让 `types.ts`（模型契约）保持零值依赖。
  */
 
+import type { Settings } from "./types"
 import { ContainerType, FaviconType } from "./types"
 
-export const DEFAULT_SETTINGS: {
-  theme: string
-  faviconType: FaviconType
-  containerType: ContainerType
-} = {
+export const DEFAULT_SETTINGS: Settings = {
   theme: "light",
   faviconType: FaviconType.ELEGANT,
   containerType: ContainerType.DEFAULT

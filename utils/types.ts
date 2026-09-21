@@ -21,6 +21,13 @@ export enum FaviconType {
   MINIMAL = "minimal"
 }
 
+/** `chrome.storage.sync.settings` 的形状；默认值见 `constants.ts` 的 DEFAULT_SETTINGS */
+export interface Settings {
+  theme: string
+  faviconType: FaviconType
+  containerType: ContainerType
+}
+
 export enum ActionType {
   AUTOSCAN = "AUTOSCAN",
   MANUAL_SCREENSHOT = "MANUAL_SCREENSHOT",

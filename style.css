@@ -38,11 +38,3 @@
 @source "./components/**/*.{ts,tsx}";
 @source "./utils/**/*.{ts,tsx}";
 @source "./entrypoints/**/*.{ts,tsx,html}";
-
-.item-border {
-  border: 2px solid hsl(var(--bc) / 0.2);
-}
-
-.item-border-active {
-  border: 2px solid hsl(var(--p));
-}

@@ -1,24 +1,16 @@
 import React from "react"
 
-import { useStorage } from "./use-storage"
+import { useSettings } from "./use-settings"
 
-import { DEFAULT_SETTINGS } from "~/utils/constants"
-import { StorageKey } from "~/utils/types"
-
+/**
+ * 读取并应用主题：把选定主题写到 `<html data-theme>`。
+ *
+ * popup / settings 都调用它来保证「存储里的主题」= 「页面上的主题」；
+ * 副作用集中在这里，调用方只关心当前值与设置函数。
+ */
 export const useThemeChange = () => {
-  const [settings, setSettings] = useStorage(
-    StorageKey.SETTINGS,
-    DEFAULT_SETTINGS
-  )
-
+  const [settings, patchSettings] = useSettings()
   const { theme } = settings
-
-  const setTheme = (theme: string) => {
-    setSettings({
-      ...settings,
-      theme
-    })
-  }
 
   React.useEffect(() => {
     if (!theme) return
@@ -26,6 +18,10 @@ export const useThemeChange = () => {
     if (!html) return
     html.setAttribute("data-theme", theme)
   }, [theme])
+
+  const setTheme = (next: string) => {
+    void patchSettings({ theme: next })
+  }
 
   return [theme, setTheme] as const
 }

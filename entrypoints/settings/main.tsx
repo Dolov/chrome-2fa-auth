@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <div
       className={cn(
-        "w-screen h-screen overflow-hidden bg-base-100"
+        "flex flex-col w-full h-screen overflow-hidden bg-base-100"
       )}>
       <Setting />
     </div>

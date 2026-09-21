@@ -23,7 +23,7 @@ import {
 import { useStorage } from "~/features/ui-state/use-storage"
 import { cn } from "~/utils/cn"
 import { DEFAULT_SETTINGS } from "~/utils/constants"
-import { StorageKey } from "~/utils/types"
+import { FaviconType, StorageKey } from "~/utils/types"
 
 const minimalIconMap: Record<
   string,
@@ -64,15 +64,16 @@ const elegantIconMap: Record<
   cloudflare: DeviconCloudflare
 }
 
-const Favicon = ({
-  issuer,
-  className
-}: {
+interface FaviconProps {
   issuer: string
+  /** 显式指定形态；缺省时跟随存储里的设置（设置页预览两种形态时用得到） */
+  variant?: FaviconType
   className?: string
-}) => {
+}
+
+const Favicon = ({ issuer, variant, className }: FaviconProps) => {
   const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
-  const isMinimal = settings?.faviconType === "minimal"
+  const isMinimal = (variant ?? settings?.faviconType) === FaviconType.MINIMAL
   const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
 
