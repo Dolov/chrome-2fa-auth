@@ -8,7 +8,7 @@ export default defineContentScript({
   allFrames: false,
   main() {
     // 监听消息并确保发送响应
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === ActionType.AUTOSCAN) {
         scanQRCode()
           .then((result) => {

@@ -54,9 +54,9 @@ const Create: React.FC<CreateProps> = (props) => {
 
   const handleAutoScan = () => {
     // 发送消息给 content.js
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) return
-      chrome.tabs.sendMessage(
+      browser.tabs.sendMessage(
         tabs[0].id,
         {
           action: ActionType.AUTOSCAN
@@ -112,9 +112,9 @@ const Create: React.FC<CreateProps> = (props) => {
   }
 
   const sendManualScanMessage = (messageText: string) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) return
-      chrome.tabs.sendMessage(tabs[0].id, {
+      browser.tabs.sendMessage(tabs[0].id, {
         action: ActionType.MANUAL_SCREENSHOT,
         message: messageText
       })

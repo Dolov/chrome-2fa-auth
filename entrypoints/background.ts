@@ -3,15 +3,15 @@ import { storage } from "@wxt-dev/storage"
 import { ActionType, StorageKey } from "~/utils/constant"
 
 /** 定义右键菜单列表 */
-const menuList: (chrome.contextMenus.CreateProperties & {
-  action?(tab: chrome.tabs.Tab): void
+const menuList: (browser.contextMenus.CreateProperties & {
+  action?(tab: browser.tabs.Tab): void
 })[] = [
   {
     id: "issue",
     title: "Issues & 需求",
     contexts: ["action"],
     action() {
-      chrome.tabs.create({
+      browser.tabs.create({
         url: "https://github.com/Dolov/chrome-github-2fa/issues"
       })
     }
@@ -21,7 +21,7 @@ const menuList: (chrome.contextMenus.CreateProperties & {
     title: "查看源码",
     contexts: ["action"],
     action() {
-      chrome.tabs.create({
+      browser.tabs.create({
         url: "https://github.com/Dolov/chrome-github-2fa"
       })
     }
@@ -31,7 +31,7 @@ const menuList: (chrome.contextMenus.CreateProperties & {
     title: "设置",
     contexts: ["action"],
     action() {
-      chrome.tabs.create({
+      browser.tabs.create({
         url: browser.runtime.getURL("/settings.html")
       })
     }
@@ -91,25 +91,25 @@ const adaptLegacyData = async () => {
 
 export default defineBackground(() => {
   // 初始化右键菜单
-  chrome.runtime.onInstalled.addListener(() => {
+  browser.runtime.onInstalled.addListener(() => {
     menuList.forEach((item) => {
       const { action, ...menuProps } = item
-      chrome.contextMenus.create(menuProps)
+      browser.contextMenus.create(menuProps)
     })
     adaptLegacyData()
   })
 
   // 监听右键菜单点击
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
+  browser.contextMenus.onClicked.addListener((info, tab) => {
     const menu = menuList.find((item) => item.id === info.menuItemId)
     if (!menu) return
     menu.action?.(tab!)
   })
 
   // 内容脚本消息路由
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === ActionType.CAPTURE_SCREENSHOT) {
-      chrome.tabs.captureVisibleTab(
+      browser.tabs.captureVisibleTab(
         sender.tab?.windowId,
         { format: "png" },
         (dataUrl) => {

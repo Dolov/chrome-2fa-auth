@@ -13,7 +13,7 @@ export default defineContentScript({
     const debugCanvasSelector = "github-2fa-container-1742783738736-debug-canvas"
 
     // 监听消息并确保发送响应
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === ActionType.MANUAL_SCREENSHOT) {
         addScreenshotOverlay(sendResponse, message.message)
       }
@@ -87,7 +87,7 @@ export default defineContentScript({
         document.removeEventListener("mousemove", handleMouseMove)
         if (!selectionBox) return
 
-        chrome.runtime.sendMessage(
+        browser.runtime.sendMessage(
           { action: ActionType.CAPTURE_SCREENSHOT },
           async (response) => {
             if (!response.success) {

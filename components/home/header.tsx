@@ -21,8 +21,8 @@ const Header: React.FC<HeaderProps> = (props) => {
   const [search, setSearch] = React.useState(false)
 
   const goSettings = () => {
-    chrome.tabs.create({
-      url: "tabs/settings.html"
+    browser.tabs.create({
+      url: browser.runtime.getURL("/settings.html")
     })
   }
 

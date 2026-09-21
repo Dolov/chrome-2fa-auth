@@ -6,7 +6,7 @@ import Setting from "./App"
 
 import "~/style.css"
 
-document.title = `${chrome.i18n.getMessage("extensionName")}`
+document.title = `${browser.i18n.getMessage("extensionName")}`
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
