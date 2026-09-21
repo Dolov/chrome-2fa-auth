@@ -1,7 +1,5 @@
 import { resolve } from "node:path"
-import { fileURLToPath } from "node:url"
 import tailwindcss from "@tailwindcss/vite"
-import { nodePolyfills } from "vite-plugin-node-polyfills"
 import { defineConfig } from "wxt"
 
 // https://wxt.dev/api/config.html
@@ -31,11 +29,7 @@ export default defineConfig({
     ]
   },
   vite: () => ({
-    plugins: [
-      // otplib 依赖 Node crypto（HMAC），浏览器需 polyfill
-      nodePolyfills({ include: ["crypto", "buffer", "stream", "util"] }),
-      tailwindcss()
-    ],
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         "~": resolve(__dirname, ".")

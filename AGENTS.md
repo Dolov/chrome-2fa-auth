@@ -96,12 +96,16 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 - [x] 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`
       （ADR-0004）。实测总产物 3.44 MB → 2.96 MB，`global.content` 608 → 156 KB，
       三个 content bundle 中 React 痕迹归零；E2E 8/8 全绿
-- [ ] ADR-0004/0005 待办：用 Web Crypto 重写 TOTP 以移除 otplib + Node 垫片
-      （实测可省 ~452 KB × 3；ADR-0004 曾担心的 `http://` 页面兜底不成立——
-      调用 OTP 生成的路径全是 secure context，见 ADR-0005 待办 1）
-- [ ] popup / settings 共享 chunk 809 KB（react-dom + otplib 垫片 + qrcode.react +
-      lucide），以 modulepreload 在打开 popup 时拉取；另有一个 154 KB 的
-      `assets/style-*.css`。属独立性能议题，不阻塞迁移
+- [x] TOTP 去依赖：`utils/totp.ts` 改为内联 HMAC（`utils/hmac.ts` +
+      `utils/base32.ts`），逐条复刻 otplib 语义，移除 `vite-plugin-node-polyfills`
+      （ADR-0006）。开发期 18 万项对拍 0 失败；实测原始 2.96 → 1.07 MB、
+      下载 1.11 → 0.34 MB，`github.js` 605 → 159 KB；E2E 12/12 全绿
+- [ ] **【既有 bug】** `generateOtp` 的 `algorithm/digits/period/type` 从未被调用方
+      传值 → 存了但不用：`algorithm=SHA256` 的账户会显示 SHA1 码而无法通过验证，
+      `type=hotp` 也按 TOTP 算。修复属行为变更，需独立 ADR + E2E（ADR-0006 待办 1）
+- [ ] popup / settings 共享 chunk 363 KB（react-dom + qrcode.react + lucide +
+      jsQR 117 KB），以 modulepreload 在打开 popup 时拉取；另有一个 152 KB 的
+      `assets/style-*.css`。下一步看 jsQR（ADR-0005 待办 2）
 - [ ] 收敛 `saveOTP` 与 `addOtp` 两个 OTP 合并入口（契约不同：前者收带 `id` 的
       `DataProps`，后者收 `Omit<DataProps,"id">`）。**前置条件**：先补 F5
       recovery code 保存路径的 E2E spec —— 当前无覆盖，不改语义先改结构等于裸奔
@@ -110,5 +114,6 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
       下载 1.11 → 0.71 MB；E2E 8/8 全绿
 - [ ] Favicon 渲染无自动化断言（`e2e/SPECS.md` 第 81 行尚未写成 spec），
       写 F1-F6 主体 spec 时补上
+- [ ] F5 剩余 case：32（每秒刷新）/ 33（点击复制）/ 35（进度条颜色）
 - [ ] 待评：移除已无必要的 `web_accessible_resources: assets/*`（ADR-0005 待办 4）
 - [ ] 待评：jsQR 改为按需加载（`global.js` 里占 86%，ADR-0005 待办 2）

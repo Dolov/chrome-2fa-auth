@@ -1,15 +1,34 @@
 /**
- * TOTP / HOTP 数值生成与倒计时。
+ * TOTP 数值生成与倒计时。
  *
- * 这是**唯一**直接依赖 otplib 的模块，因此也是 vite-plugin-node-polyfills
- * （crypto / buffer / stream / util，约 440 KB）进入产物的唯一入口。
+ * 本模块**逐条复刻 otplib v12 `authenticator` 的行为**，并用零依赖的
+ * `./hmac` + `./base32` 取代 otplib，以移除 `vite-plugin-node-polyfills`
+ * 的 4 个 Node 垫片（实测 442.5 KB × 3 个 bundle）。
  *
- * 与 `otpauth.ts` 拆开的原因：只需要「识别 / 解析 / 生成 otpauth URL」的
- * 调用方不必把 Node 垫片拖进自己的 bundle（content script 首当其冲）。
+ * 需要逐条对齐的 otplib 语义（都有实测依据，不要「顺手改成标准做法」）：
+ *
+ * 1. **secret 按 base32 解码**（`Authenticator.keyDecoder` = thirty-two），
+ *    而不是当成 ASCII 直接当 key。
+ * 2. **key 补足规则**：若解码后的 hex 串长度 < minLength（sha1=20 / sha256=32
+ *    / sha512=64，注意是 **hex 字符数**），则把 hex 串重复到至少 minLength
+ *    **字节**再截断到 minLength 字节；否则原样使用。
+ *    即：secret ≥ 10 字节时 sha1 不补；< 10 字节时补到 20 字节。
+ *    这个阈值用 hex 长度、目标用字节长度是 otplib 自身的不一致，必须保留。
+ * 3. **counter** = `Math.floor(epoch / step / 1000)`（epoch 为毫秒）。
+ * 4. **counter 的消息体** = `counter.toString(16)` 左补 '0' 到 16 个 hex 字符
+ *    （超过 16 位不截断）。
+ * 5. **截断** = 标准 RFC 4226 动态截断，然后左补 '0' 到 digits 位。
+ * 6. **剩余秒数** = `step - (Math.floor(epoch / 1000) % step)`，是整数。
+ * 7. **忽略 `type` / `counter` 字段**：otplib 的 `authenticator` 是 TOTP 类，
+ *    即使条目标记为 hotp 也按时间生成。这是既有行为，不是本次引入的缺陷。
+ *
+ * 正确性保障：`e2e/specs/05-otp.spec.ts` 用独立 otplib 算期望值做黑盒断言；
+ * 开发期另与 node `crypto` / otplib 随机对拍。
  */
 
-import { authenticator } from "otplib"
-
+import { decodeBase32 } from "./base32"
+import { HMAC_ALGORITHMS, hmac } from "./hmac"
+import type { HmacAlgorithm } from "./hmac"
 import { DEFAULT_OTP_DIGITS, DEFAULT_OTP_STEP } from "./otpauth"
 import type { OtpAuthConfig } from "./types"
 
@@ -21,64 +40,94 @@ export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {
   next?: boolean
 }
 
-/**
- * Otplib HashAlgorithms 枚举的运行时值（小写）。otplib v12 未导出 enum 类型，手写对齐。
- *
- * 注意：otplib v12 的 `allOptions()` 校验要求 algorithm 严格等于
- * `["sha1", "sha256", "sha512"]` 之一；传入 OTPAuth 规范的大写形式
- * （"SHA1"）或 undefined 都会抛错。
- *
- * 本函数把任意形式归一为合法小写值，缺省回退到 "sha1"（RFC 6238 默认）。
- */
-const DEFAULT_HASH_ALGORITHM = "sha1" as const
-type OtpHashAlgorithm = typeof DEFAULT_HASH_ALGORITHM | "sha256" | "sha512"
-const OTP_HASH_ALGORITHMS = [
-  DEFAULT_HASH_ALGORITHM,
-  "sha256",
-  "sha512"
-] as const
+/** 缺省回退 sha1（RFC 6238 默认；OTPAuth 规范写的大写 SHA1 也归一到这里） */
+const DEFAULT_HASH_ALGORITHM: HmacAlgorithm = "sha1"
 
-const toOtpHashAlgorithm = (
-  algorithm: OtpAuthConfig["algorithm"] | undefined
-): OtpHashAlgorithm => {
-  if (!algorithm) return DEFAULT_HASH_ALGORITHM
-  const lowered = algorithm.toLowerCase()
-  return (
-    OTP_HASH_ALGORITHMS.find((v) => v === lowered) ??
-    DEFAULT_HASH_ALGORITHM
-  )
+/**
+ * otplib `totpCreateHmacKey` 传入的 minLength。单位是 **hex 字符数**，
+ * 而截断目标是 **字节数** —— 这个不一致是 otplib 的既有语义，见文件头第 2 条。
+ */
+const MIN_KEY_HEX_LENGTH: Record<HmacAlgorithm, number> = {
+  sha1: 20,
+  sha256: 32,
+  sha512: 64
 }
 
-/**
- * 基于 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP。
- *
- * 每次调用都显式重置 `authenticator.options`（otplib 单例），
- * 保证跨并发调用得到稳定结果。
- */
+/** counter 的 16 位 hex 宽度（= 8 字节大端） */
+const COUNTER_HEX_WIDTH = 16
+
+const toHmacAlgorithm = (
+  algorithm: OtpAuthConfig["algorithm"] | undefined
+): HmacAlgorithm => {
+  if (!algorithm) return DEFAULT_HASH_ALGORITHM
+  const lowered = algorithm.toLowerCase()
+  return HMAC_ALGORITHMS.find((value) => value === lowered) ?? DEFAULT_HASH_ALGORITHM
+}
+
+const toHex = (bytes: Uint8Array): string =>
+  Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")
+
+const fromHex = (hexValue: string): Uint8Array => {
+  const byteLength = Math.floor(hexValue.length / 2)
+  const bytes = new Uint8Array(byteLength)
+  for (let i = 0; i < byteLength; i++) {
+    bytes[i] = Number.parseInt(hexValue.slice(i * 2, i * 2 + 2), 16)
+  }
+  return bytes
+}
+
+/** base32 解码 + 按 otplib 规则补足 HMAC key */
+const toHmacKey = (secret: string, algorithm: HmacAlgorithm): Uint8Array => {
+  const decoded = decodeBase32(secret)
+  const hexSecret = toHex(decoded)
+  const minHexLength = MIN_KEY_HEX_LENGTH[algorithm]
+
+  if (hexSecret.length >= minHexLength) return decoded
+
+  const repeatedHex = hexSecret.repeat(minHexLength - hexSecret.length)
+  return fromHex(repeatedHex).slice(0, minHexLength)
+}
+
+/** counter → 8 字节大端消息体 */
+const toCounterMessage = (counter: number): Uint8Array =>
+  fromHex(counter.toString(16).padStart(COUNTER_HEX_WIDTH, "0"))
+
+/** RFC 4226 动态截断 + 左补零到 digits 位 */
+const truncateToToken = (digest: Uint8Array, digits: number): string => {
+  const offset = digest[digest.length - 1]! & 0x0f
+  const binaryValue =
+    ((digest[offset]! & 0x7f) << 24) |
+    ((digest[offset + 1]! & 0xff) << 16) |
+    ((digest[offset + 2]! & 0xff) << 8) |
+    (digest[offset + 3]! & 0xff)
+
+  return String(binaryValue % 10 ** digits).padStart(digits, "0")
+}
+
+/** 把「参考时间 + next」折算成实际参与计算的 epoch（ms） */
+const resolveEpoch = (options: OtpGenerateOptions, step: number): number => {
+  const baseEpoch = options.epoch ?? Date.now()
+  return options.next ? baseEpoch + step * 1000 : baseEpoch
+}
+
+/** 基于 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP */
 export const generateOtp = (
   secret: string,
   options: OtpGenerateOptions = {}
 ): string => {
   const step = options.period ?? DEFAULT_OTP_STEP
   const digits = options.digits ?? DEFAULT_OTP_DIGITS
-  const algorithm = toOtpHashAlgorithm(options.algorithm)
-  const baseEpoch = options.epoch ?? Date.now()
-  const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
+  const algorithm = toHmacAlgorithm(options.algorithm)
+  const epoch = resolveEpoch(options, step)
 
-  authenticator.options = {
-    ...authenticator.options,
-    step,
-    digits,
-    // otplib v12 AuthenticatorOptions.algorithm 字段是 HashAlgorithms 字符串枚举。
-    // 我们已归一到合法小写值，类型层面 cast 一次以对齐。
-    algorithm: algorithm as unknown as
-      | (typeof authenticator.options extends { algorithm?: infer A }
-          ? NonNullable<A>
-          : never)
-      | undefined,
-    epoch
-  }
-  return authenticator.generate(secret)
+  const counter = Math.floor(epoch / step / 1000)
+  const digest = hmac(
+    algorithm,
+    toHmacKey(secret, algorithm),
+    toCounterMessage(counter)
+  )
+
+  return truncateToToken(digest, digits)
 }
 
 /** 基于参考时间算出到下一切换的剩余秒数 */
@@ -86,13 +135,7 @@ export const getRemainingTime = (
   options: OtpGenerateOptions = {}
 ): number => {
   const step = options.period ?? DEFAULT_OTP_STEP
-  const baseEpoch = options.epoch ?? Date.now()
-  const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
+  const epoch = resolveEpoch(options, step)
 
-  authenticator.options = {
-    ...authenticator.options,
-    step,
-    epoch
-  }
-  return authenticator.timeRemaining()
+  return step - (Math.floor(epoch / 1000) % step)
 }

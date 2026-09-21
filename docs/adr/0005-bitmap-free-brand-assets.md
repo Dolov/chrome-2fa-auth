@@ -103,13 +103,14 @@
 
 ## 待办（未包含在本 ADR 的决定内）
 
-1. **Node 垫片 1327 KB**：需重写 `utils/totp.ts` 的 HMAC 以移除 `otplib` +
-   `vite-plugin-node-polyfills`。E1/E2 证明可省约 452 KB × 3。
-   **更正**：ADR-0004 曾写「`crypto.subtle` 在 `http://` 页面为 `undefined`，
-   需纯 JS HMAC-SHA1 兜底」——按当前架构不成立。调用 OTP 生成的只有 popup
-   （`chrome-extension://`）与 github / npm content（`matches` 均为 `https://`），
-   全是 secure context；唯一匹配 `<all_urls>`（含 http）的 `global.content`
-   不碰 OTP 生成。此风险不成立，见 ADR-0004 待办的更正。
+1. **Node 垫片 1327 KB —— 已完成**，见 ADR-0006。
+   `utils/totp.ts` 改为内联 HMAC + base32，移除 `otplib` 与
+   `vite-plugin-node-polyfills`。实测 `github.js` 605.5 → 159.4 KB，
+   总体积原始 2.96 → 1.07 MB、下载 1.11 → 0.34 MB。
+   本 ADR 原文的 Web Crypto 方案被否决（异步接口会牵动 React 渲染路径）。
+   **更正**：原文写「`crypto.subtle` 在 `http://` 页面为 `undefined`，需纯 JS
+   HMAC-SHA1 兜底」—— 按当前架构不成立（调用 OTP 生成的路径全是 secure
+   context），但内联实现仍不依赖 secure context。详见 ADR-0006。
 2. **jsQR 471 KB**：`global.js` 里它占 86%，而只在用户主动扫描时用。
    可改按需加载（content script 动态 import web-accessible chunk），
    但仍需保留 Firefox 回退（`BarcodeDetector` 在 Firefox 桌面端默认不可用）。

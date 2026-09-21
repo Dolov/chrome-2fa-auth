@@ -42,9 +42,11 @@
 | entrypoint | 预算 | 成因 |
 |---|---|---|
 | `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP |
-| `github.js` / `npm.js` | < 620 KB | 需要 `generateOtp`，含 otplib + Node 垫片 |
+| `github.js` / `npm.js` | < 200 KB | 需要 `generateOtp`，但 TOTP 已是零依赖内联实现 |
 
 超了说明新依赖把大件（Node 垫片 / React / UI 框架）拖进了 content 侧。
+各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`；
+TOTP 去依赖的决策与对拍数据见 `docs/adr/0006-inline-hmac-replaces-otplib.md`。
 各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`。
 
 ### 硬规则 3：不引入位图品牌素材
@@ -57,16 +59,16 @@
 ### 1. OTPAuth URL
 
 - **是什么**：RFC 6238 描述的 `otpauth://totp/<label>?secret=...&issuer=...` 字符串。
-- **在哪里**：`utils/otpauth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`。
+- **在哪里**：`utils/otpauth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`；
+  数值生成在 `utils/totp.ts`（内联 HMAC，零依赖，见 ADR-0006）。
 - **典型用法**：从 GitHub 设置页 QR 解码出来的字符串 → `parseOtpAuthUrl(data)` → `OtpAuthConfig`。
 - **边界**：
   - URL 必须以 `otpauth://` 开头且包含 `secret=`，否则 `isOtpAuthUrl` 返回 false。
   - `parseOtpAuthUrl` 抛异常时调用方负责降级（toast / 重试）。
-  - **algorithm 归一不变式**：otplib v12 的 `Authenticator.generate()` 要求
-    algorithm 严格等于 `"sha1" | "sha256" | "sha512"`（小写）。OTPAuth 规范
-    写的是大写 `SHA1`，因此 `generateOtp()` 内部必须经 `toOtpHashAlgorithm()`
-    归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。违反此不变式会导致
-    popup 一有数据就白屏（见 commit `496abe9`）。
+  - **algorithm 归一不变式**：OTPAuth 规范写的是大写 `SHA1`，而 `generateOtp()`
+    内部要求小写 `sha1 | sha256 | sha512`。因此必须经 `utils/totp.ts` 的
+    `toHmacAlgorithm()` 归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。
+    违反此不变式会导致 popup 一有数据就白屏（见 commit `496abe9`）。
 
 ### 2. OtpItem（= `DataProps`）
 
@@ -263,6 +265,10 @@
 - 2026 去位图化：品牌标识只用 `components/ui/icon.tsx` 的矢量图标，不引入 PNG。
   理由、产物体积归因与实测数据见 `docs/adr/0005-bitmap-free-brand-assets.md`。
   **新增品牌标识前先查 `icon.tsx`。**
+- 2026 TOTP 去依赖：`utils/totp.ts` 改为内联 HMAC（`utils/hmac.ts` +
+  `utils/base32.ts`），逐条复刻 otplib 语义，移除 `vite-plugin-node-polyfills`。
+  理由、兼容语义清单与 18 万项对拍数据见 `docs/adr/0006-inline-hmac-replaces-otplib.md`。
+  **改 `utils/totp.ts` 前先读该 ADR 的「必须逐条复刻的 otplib 语义」。**
 
 ## 维护
 

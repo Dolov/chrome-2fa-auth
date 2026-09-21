@@ -41,9 +41,11 @@ e2e/
 
 ### 技术约定
 
-- **加载方式**：`pnpm build` 产物路径 `build/chrome-mv3-prod`（Plasmo）；迁移到 WXT 后改为 `.output/chrome-mv3`
+- **加载方式**：`pnpm build` 产物路径 `.output/chrome-mv3`
 - **userDataDir**：每个 spec 用独立 `userDataDir`（隔离 storage）；持久化相关 case 用固定 dir
-- **OTP 断言**：用 `otplib` 独立库计算期望值，`±1s` 容差（不 import 项目 `utils/auth.ts`）
+- **OTP 断言**：用 `otplib` 独立库计算期望值（不 import 项目 `utils/totp.ts`）。
+  数值正确性类断言用 `page.clock.setFixedTime()` 固定时钟做**精确相等**，不用容差；
+  只有无法固定时钟的场景才容忍 ±1s。参考 `05-otp.spec.ts`
 - **第三方测试前重置**：`e2e/setup/reset-2fa.ts` 读 env → 自动 disable GitHub / NPM 现有 2FA → 保证 idempotent
 - **时间控制**：用 `page.clock.install()` 控制 fake 时钟；或容忍 ±1s
 - **摄像头 / 选区**：用 `fakeMediaStream` 注入视频流；手动截图选区用 `page.mouse.down/move/up`
@@ -112,6 +114,10 @@ e2e/
 | 34 | P0 | `otp > 进度条` | `显示剩余时间 30→0` |
 | 35 | P1 | `otp > 进度条颜色` | `>10s 蓝，>3s 黄，≤3s 红` |
 | 36 | P1 | `otp > 下一周期` | `数字与 otplib 算的一致` |
+
+> **当前进度**：31 / 34 / 36 + （补充）多账户各自正确 已实现于 `05-otp.spec.ts`，
+> 均用固定时钟做精确断言，并已用变异测试验证断言有区分力。
+> 32（每秒刷新）/ 33（点击复制）/ 35（进度条颜色）待补。
 
 ### F6. 恢复码 → `06-recovery-codes.spec.ts`
 
@@ -240,12 +246,37 @@ export const test = baseTest.extend<{
 ```
 
 ### `fixtures/test-secret.ts`
+
+常量与期望值计算分开导出：常量是 RFC 6238 风格向量，`expectedOtp()` 用独立
+`otplib` 算期望值。**注意 `epoch` 必须放进 `authenticator.options`** —— otplib 的
+options 是浅合并，只有 `_options` 里的字段生效，直接挂 `_epoch` 是空操作。
+
 ```ts
-// RFC 6238 风格测试向量（与项目 otplib 默认 SHA1/6/30 对齐）
 export const TEST_SECRET = 'JBSWY3DPEHPK3PXP' // 标准测试密钥
 export const TEST_ISSUER = 'TestApp'
 export const TEST_ACCOUNT = 'testuser'
 export const TEST_OTPAUTH_URL = `otpauth://totp/${TEST_ISSUER}:${TEST_ACCOUNT}?secret=${TEST_SECRET}&issuer=${TEST_ISSUER}`
+
+type ExpectedOtpAlgorithm = 'sha1' | 'sha256' | 'sha512'
+interface ExpectedOtpOptions {
+  secret?: string
+  algorithm?: ExpectedOtpAlgorithm
+  digits?: number
+  step?: number
+  date?: Date        // 不传则用当前时间
+}
+export function expectedOtp(options?: ExpectedOtpOptions): string
+export function expectedNextOtp(options?: ExpectedOtpOptions): string
+export function expectedRemainingTime(date?: Date, step?: number): number
+```
+
+用法（固定时钟 + 精确断言）：
+
+```ts
+const FIXED_TIME = new Date('2026-01-15T00:00:07.000Z')
+await popup.clock.setFixedTime(FIXED_TIME)
+await popup.reload()
+expect(shown).toBe(expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME }))
 ```
 
 ### `fixtures/qr-fixtures.ts`

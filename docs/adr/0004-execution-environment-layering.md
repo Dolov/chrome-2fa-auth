@@ -70,11 +70,13 @@
 
 ## 待办（未包含在本 ADR 的决定内）
 
-### 1. otplib 仍是最大的一块
+### 1. otplib 仍是最大的一块 —— 已完成，见 ADR-0006
 
-`github.js` / `npm.js` 仍为 ~606 KB，主因是 `utils/totp.ts` → otplib → 4 个 Node 垫片（约 440 KB）。
-同样的垫片也压在 popup / settings 的共享 chunk 上（该 chunk 809 KB，含 react-dom +
-qrcode.react + lucide，以 modulepreload 在打开 popup 时拉取）。
+~~`github.js` / `npm.js` 仍为 ~606 KB，主因是 `utils/totp.ts` → otplib → 4 个 Node 垫片（约 440 KB）。~~
+**已完成**：内联 HMAC 取代 otplib，`github.js` / `npm.js` 降至 ~159 KB。
+完整的方案对比、otplib 兼容语义清单与 18 万项对拍数据见 ADR-0006。
+
+保留以下两个当时评估过、最终被否决的选项作为记录：
 
 - 选项 1：用 Web Crypto `crypto.subtle` 重写 TOTP（约 60 行），移除 `otplib` 与
   `vite-plugin-node-polyfills`。实测可省 442.5 KB × 3（ADR-0005 的 E1/E2 实验：
@@ -84,8 +86,10 @@ qrcode.react + lucide，以 modulepreload 在打开 popup 时拉取）。
   **更正（2026）**：该风险按当前架构不成立。调用 OTP 生成的全部路径都在
   secure context —— popup 是 `chrome-extension://`，github / npm content 的
   `matches` 均为 `https://`；唯一匹配 `<all_urls>`（含 http）的 `global.content`
-  不碰 OTP 生成。详见 ADR-0005 待办 1。实施时仍需实测确认隔离世界中的
-  `crypto.subtle` 可用性，但不再需要手写 HMAC 兜底。
+  不碰 OTP 生成。
+  **真正否决它的理由**：`crypto.subtle` 只有 Promise 接口，会把 `generateOtp`
+  变异步，牵动 `components/otp-text.tsx`（React 渲染路径）与
+  `features/page-ui/otp-autofill.ts`（content 注入）。详见 ADR-0006。
 - 选项 2：把 OTP 生成移到 background service worker，content 侧走消息。
   **风险**：`otp-autofill` 每秒刷新一次，会产生每秒一条消息。
 - 无论选哪个都需要单独立 ADR；验收网是 E2E 里用独立 `otplib` 算期望值的黑盒断言。
