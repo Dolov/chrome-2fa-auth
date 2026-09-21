@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 
-import { useOtpMutators } from "~/state/otp-store"
+import { useOtpMutators } from "~/features/otp-store"
 import message from "~/utils/message"
 
 import { intakeOtp } from "../intake"

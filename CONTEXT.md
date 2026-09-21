@@ -60,7 +60,7 @@
 ### 4. OtpProvider
 
 - **是什么**：React Context，把 OtpStore 暴露为 `items` + `mutators`。挂在 popup root 与 settings root。
-- **在哪里**：`state/otp-store.tsx`。
+- **在哪里**：`features/otp-store/otp-store.tsx`；对外表面 `features/otp-store/index.ts`。
 - **典型用法**：
   ```tsx
   <OtpProvider>
@@ -74,7 +74,7 @@
 ### 5. OtpMutators
 
 - **是什么**：9 个变更原语的接口，封装去重 / 软删合并语义。
-- **在哪里**：`state/otp-store.tsx` 的 `OtpMutators` 接口。
+- **在哪里**：`features/otp-store/otp-store.tsx` 的 `OtpMutators` 接口。
 - **典型用法**：
   ```tsx
   const { add, update, softDelete, hardDelete, pin, exists } = useOtpMutators()

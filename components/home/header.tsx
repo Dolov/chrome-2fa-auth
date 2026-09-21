@@ -3,7 +3,7 @@ import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
 import Dropdown from "~/components/ui/dropdown"
-import { useOtpList } from "~/state/otp-store"
+import { useOtpList } from "~/features/otp-store"
 
 import { GlobalContext } from "./context"
 

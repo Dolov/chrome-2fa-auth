@@ -11,7 +11,7 @@ import {
   StorageKey
 } from "~/utils/constant"
 import { useThemeChange } from "~/utils/hooks"
-import { OtpProvider } from "~/state/otp-store"
+import { OtpProvider } from "~/features/otp-store"
 
 const themes = [
   "light",

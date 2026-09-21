@@ -8,7 +8,7 @@ import { type DataProps } from "~/utils/constant"
 import Favicon from "~/components/favicons"
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
-import { useOtpList } from "~/state/otp-store"
+import { useOtpList } from "~/features/otp-store"
 
 import { GlobalContext } from "./context"
 import ItemActions from "./item-actions"

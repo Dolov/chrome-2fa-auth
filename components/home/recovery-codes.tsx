@@ -2,7 +2,7 @@ import { ClipboardCopy, CopyCheck } from "lucide-react"
 import React, { useState } from "react"
 
 import Modal from "~/components/ui/modal"
-import { useUpdateCopiedCodeStatus } from "~/state/hooks"
+import { useUpdateCopiedCodeStatus } from "~/features/otp-store"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 import { cn } from "~/utils/cn"
 import { type DataProps } from "~/utils/constant"

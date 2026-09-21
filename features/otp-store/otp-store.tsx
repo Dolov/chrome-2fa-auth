@@ -2,7 +2,6 @@ import { storage } from "@wxt-dev/storage"
 import React from "react"
 
 import type { DataProps, OtpAuthConfig } from "~/utils/constant"
-import { StorageKey } from "~/utils/constant"
 import {
   DATA_KEY,
   dataStore,
@@ -174,6 +173,3 @@ export const useOtpList = (): DataProps[] => useOtpContext().items
 
 /** 读取 OTP 变更方法 */
 export const useOtpMutators = (): OtpMutators => useOtpContext().mutators
-
-// suppress unused-vars warning for items in selected contexts
-void StorageKey
