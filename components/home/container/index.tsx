@@ -1,7 +1,7 @@
 import { cn } from "~/utils/cn"
 import React from "react"
 
-import { ContainerType } from "~/utils/constant"
+import { ContainerType } from "~/utils/types"
 
 import { GlobalContext } from "../context"
 import Phone from "./phone"

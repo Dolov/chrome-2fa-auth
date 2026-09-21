@@ -1,6 +1,6 @@
-import { Issuers } from "~/utils/constant"
+import { Issuers } from "~/utils/types"
 import { extractDynamicSegment } from "~/features/site-content/dom/path-match"
-import { scanPage } from "~/utils/qr"
+import { scanPage } from "~/utils/qr-decode"
 
 import type { SiteAdapter } from "../site-adapter"
 

@@ -1,4 +1,4 @@
-import { ActionType } from "~/utils/constant"
+import { ActionType } from "~/utils/types"
 
 import type {
   InboundPayload,

@@ -1,7 +1,7 @@
 import message from "./toast"
-import { copyTextToClipboard } from "~/utils/clipboard-utils"
+import { copyTextToClipboard } from "~/utils/clipboard"
 import { CSS_PREFIX, mountStyle } from "./css-portal"
-import { generateOtp, getRemainingTime } from "~/utils/auth"
+import { generateOtp, getRemainingTime } from "~/utils/totp"
 import { createGradientTextContainer } from "./gradient-border"
 
 /** OTP 消息更新器的配置选项 */

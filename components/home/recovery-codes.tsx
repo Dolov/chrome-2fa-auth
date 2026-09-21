@@ -3,9 +3,9 @@ import React, { useState } from "react"
 
 import Modal from "~/components/ui/modal"
 import { useUpdateCopiedCodeStatus } from "~/features/otp-store"
-import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
+import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
-import { type DataProps } from "~/utils/constant"
+import { type DataProps } from "~/utils/types"
 
 import { useModalWidth } from "./hooks"
 

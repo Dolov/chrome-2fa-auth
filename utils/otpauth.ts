@@ -1,95 +1,18 @@
-import { authenticator } from "otplib"
+/**
+ * OTPAuth URL（`otpauth://` 形式）的校验、解析与反向生成。
+ *
+ * 纯字符串处理，零运行时依赖 —— 这是它与 `totp.ts` 拆开的原因：
+ * `totp.ts` 依赖 otplib（连带 Node crypto 垫片），本文件不依赖。
+ * 只需「识别 / 解析 / 生成 otpauth URL」的调用方（含 content script）
+ * 应当只 import 本文件。
+ */
 
-import type { OtpAuthConfig } from "./constant"
+import type { OtpAuthConfig } from "./types"
 
 /** 默认 TOTP 步长（秒） */
 export const DEFAULT_OTP_STEP = 30
 /** 默认 TOTP 数字位数 */
 export const DEFAULT_OTP_DIGITS = 6
-
-/** 调用 generateOtp / getRemainingTime 的可选项 */
-export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {
-  /** 参考时间戳（ms），默认 Date.now() */
-  epoch?: number
-  /** 是否预测下一个周期的 OTP */
-  next?: boolean
-}
-
-/**
- * Otplib HashAlgorithms 枚举的运行时值（小写）。otplib v12 未导出 enum 类型，手写对齐。
- *
- * 注意：otplib v12 的 `allOptions()` 校验要求 algorithm 严格等于
- * `["sha1", "sha256", "sha512"]` 之一；传入 OTPAuth 规范的大写形式
- * （"SHA1"）或 undefined 都会抛错。
- *
- * 本函数把任意形式归一为合法小写值，缺省回退到 "sha1"（RFC 6238 默认）。
- */
-const DEFAULT_HASH_ALGORITHM = "sha1" as const
-type OtpHashAlgorithm = typeof DEFAULT_HASH_ALGORITHM | "sha256" | "sha512"
-const OTP_HASH_ALGORITHMS = [
-  DEFAULT_HASH_ALGORITHM,
-  "sha256",
-  "sha512"
-] as const
-
-const toOtpHashAlgorithm = (
-  algorithm: OtpAuthConfig["algorithm"] | undefined
-): OtpHashAlgorithm => {
-  if (!algorithm) return DEFAULT_HASH_ALGORITHM
-  const lowered = algorithm.toLowerCase()
-  return (
-    OTP_HASH_ALGORITHMS.find((v) => v === lowered) ??
-    DEFAULT_HASH_ALGORITHM
-  )
-}
-
-/**
- * 基于 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP。
- *
- * 每次调用都显式重置 `authenticator.options`（otplib 单例），
- * 保证跨并发调用得到稳定结果。
- */
-export const generateOtp = (
-  secret: string,
-  options: OtpGenerateOptions = {}
-): string => {
-  const step = options.period ?? DEFAULT_OTP_STEP
-  const digits = options.digits ?? DEFAULT_OTP_DIGITS
-  const algorithm = toOtpHashAlgorithm(options.algorithm)
-  const baseEpoch = options.epoch ?? Date.now()
-  const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
-
-  authenticator.options = {
-    ...authenticator.options,
-    step,
-    digits,
-    // otplib v12 AuthenticatorOptions.algorithm 字段是 HashAlgorithms 字符串枚举。
-    // 我们已归一到合法小写值，类型层面 cast 一次以对齐。
-    algorithm: algorithm as unknown as
-      | (typeof authenticator.options extends { algorithm?: infer A }
-          ? NonNullable<A>
-          : never)
-      | undefined,
-    epoch
-  }
-  return authenticator.generate(secret)
-}
-
-/** 基于参考时间算出到下一切换的剩余秒数 */
-export const getRemainingTime = (
-  options: OtpGenerateOptions = {}
-): number => {
-  const step = options.period ?? DEFAULT_OTP_STEP
-  const baseEpoch = options.epoch ?? Date.now()
-  const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
-
-  authenticator.options = {
-    ...authenticator.options,
-    step,
-    epoch
-  }
-  return authenticator.timeRemaining()
-}
 
 /**
  * 简易 OTPAuth URL 探测：必须以 `otpauth://` 开头且包含 `secret=`

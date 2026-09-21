@@ -1,5 +1,5 @@
 import { contentBaseZindex } from "~/features/page-ui/css-portal"
-import { readFromCanvas } from "~/utils/qr"
+import { readFromCanvas } from "~/utils/qr-decode"
 
 /** 开发模式下 debug canvas 的 class 名 */
 const DEBUG_CANVAS_CLASS = "g2fa-portal-debug-canvas"

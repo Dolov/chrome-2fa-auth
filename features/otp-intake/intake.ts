@@ -1,6 +1,6 @@
-import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
-import { readFromFile } from "~/utils/qr"
-import type { OtpAuthConfig } from "~/utils/constant"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/otpauth"
+import { readFromFile } from "~/utils/qr-decode"
+import type { OtpAuthConfig } from "~/utils/types"
 
 import type {
   IntakeDeps,

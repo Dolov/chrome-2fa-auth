@@ -1,4 +1,4 @@
-import type { DataProps, OtpAuthConfig } from "~/utils/constant"
+import type { DataProps, OtpAuthConfig } from "~/utils/types"
 
 /**
  * Intake 的输入来源

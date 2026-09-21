@@ -1,3 +1,10 @@
+/**
+ * 领域类型与枚举：popup / content / background 共享的契约。
+ *
+ * 与 `constants.ts` 的分工——本文件只有类型与枚举；
+ * 任何需要运行时值的常量（含主题色）都放 `constants.ts`。
+ */
+
 export enum StorageKey {
   DATA = "data",
   LEGACY_DATA = "DATA_SOURCE",
@@ -17,16 +24,6 @@ export enum ContainerType {
 export enum FaviconType {
   ELEGANT = "elegant",
   MINIMAL = "minimal"
-}
-
-export const DEFAULT_SETTINGS: {
-  theme: string
-  faviconType: FaviconType
-  containerType: ContainerType
-} = {
-  theme: "light",
-  faviconType: FaviconType.ELEGANT,
-  containerType: ContainerType.DEFAULT
 }
 
 export enum ActionType {
@@ -63,18 +60,3 @@ export enum Issuers {
   /** 历史数据保留 "GitHub" 大小写（v1 真实存盘值），迁移期不动。 */
   GITHUB = "GitHub"
 }
-
-export const COLORS = [
-  "#422ad5", // 靛蓝
-  "#00bafe", // 湖蓝
-  "#00d3bb", // 青绿
-  "#00d390", // 草绿
-  "#fcb700", // 金黄
-  "#f43098", // 玫红
-  "#ff637d" // 粉红
-]
-
-export const GRADIENT = `linear-gradient(to right, ${COLORS.join(", ")})`
-
-// otpauth://totp/GitHub:acloudfly?secret=N2CNXSJV7LG75BUI&issuer=GitHub
-// otpauth://totp/shisongyan?secret=YMKVIYF4GLUR33S72SLEIWOCOJYSSAPE&issuer=npm

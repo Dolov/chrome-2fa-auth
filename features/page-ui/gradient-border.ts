@@ -10,7 +10,7 @@
  */
 
 import { CSS_ANIMATION_DURATION, CSS_PREFIX, mountStyle } from "./css-portal"
-import { GRADIENT } from "~/utils/constant"
+import { GRADIENT } from "~/utils/constants"
 
 /** 渐变容器组件的返回类型 */
 export interface GradientTextContainer {

@@ -1,7 +1,7 @@
 import React from "react"
 
 import Modal from "~/components/ui/modal"
-import type { DataProps } from "~/utils/constant"
+import type { DataProps } from "~/utils/types"
 import { useOtpMutators } from "~/features/otp-store"
 
 import { useModalWidth } from "./hooks"

@@ -1,4 +1,4 @@
-import type { ActionType } from "~/utils/constant"
+import type { ActionType } from "~/utils/types"
 
 /**
  * 消息协议类型表（候选 B / ADR-0003）

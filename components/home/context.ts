@@ -1,6 +1,6 @@
 import React from "react"
 
-import { ContainerType, SourceType } from "~/utils/constant"
+import { ContainerType, SourceType } from "~/utils/types"
 
 export interface GlobalContextProps {
   source: SourceType

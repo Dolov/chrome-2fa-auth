@@ -5,7 +5,7 @@ import React from "react"
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
 import Modal from "~/components/ui/modal"
-import { parseOtpAuthUrl } from "~/utils/auth"
+import { parseOtpAuthUrl } from "~/utils/otpauth"
 import { usePopupIntake } from "~/features/otp-intake"
 
 import { GlobalContext } from "./context"
@@ -58,7 +58,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     // intake 内部会读文件 + 解析 + 校验 + 落库 + 提示
     // 我们这里只关心是否需要补账号（preview 状态）
     // 因此先用 readFromFile → parseOtpAuthUrl 做预览判断
-    const { readFromFile } = await import("~/utils/qr")
+    const { readFromFile } = await import("~/utils/qr-decode")
     let data: string
     try {
       data = await readFromFile(file)
@@ -67,7 +67,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       return
     }
 
-    const { isOtpAuthUrl } = await import("~/utils/auth")
+    const { isOtpAuthUrl } = await import("~/utils/otpauth")
     if (!isOtpAuthUrl(data)) {
       setError("无效的 OTP Auth URL")
       return

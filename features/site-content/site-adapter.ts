@@ -1,4 +1,4 @@
-import { Issuers } from "~/utils/constant"
+import { Issuers } from "~/utils/types"
 
 /**
  * 单个内容脚本要支持的页面动作。

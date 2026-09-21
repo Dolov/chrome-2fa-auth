@@ -1,7 +1,7 @@
 import { storage } from "@wxt-dev/storage"
 
-import type { DataProps } from "./constant"
-import { StorageKey } from "./constant"
+import type { DataProps } from "./types"
+import { StorageKey } from "./types"
 import { addOtp } from "./otp-crud"
 
 /**

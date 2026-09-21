@@ -1,6 +1,6 @@
 import React from "react"
 
-import { getRemainingTime } from "~/utils/auth"
+import { getRemainingTime } from "~/utils/totp"
 import { cn } from "~/utils/cn"
 
 interface OtpRemainingProps {

@@ -1,6 +1,6 @@
 import { dataStore } from "~/utils/storage"
 import { addOtp } from "~/utils/otp-crud"
-import type { OtpAuthConfig } from "~/utils/constant"
+import type { OtpAuthConfig } from "~/utils/types"
 import message from "~/features/page-ui/toast"
 
 import { intakeOtp } from "../intake"

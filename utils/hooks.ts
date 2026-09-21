@@ -2,7 +2,8 @@ import React from "react"
 
 import { useStorage } from "~/utils/storage-hook"
 
-import { DEFAULT_SETTINGS, StorageKey } from "./constant"
+import { DEFAULT_SETTINGS } from "~/utils/constants"
+import { StorageKey } from "~/utils/types"
 
 export const useThemeChange = () => {
   const [settings, setSettings] = useStorage(

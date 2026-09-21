@@ -1,4 +1,4 @@
-import { ActionType } from "~/utils/constant"
+import { ActionType } from "~/utils/types"
 import { createContentIntake } from "~/features/otp-intake"
 import message from "~/features/page-ui/toast"
 

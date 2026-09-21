@@ -2,7 +2,7 @@ import { storage } from "@wxt-dev/storage"
 import type { Browser } from "wxt/browser"
 
 import { LEGACY_KEY, dataStore } from "~/utils/storage"
-import { ActionType } from "~/utils/constant"
+import { ActionType } from "~/utils/types"
 import { registerRuntimeHandler } from "~/features/messaging"
 
 /** 右键菜单项：extra action 在 onClicked 时调用 */

@@ -1,4 +1,4 @@
-import { Issuers } from "~/utils/constant"
+import { Issuers } from "~/utils/types"
 
 import type { SiteAdapter } from "../site-adapter"
 

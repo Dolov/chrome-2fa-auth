@@ -1,5 +1,5 @@
 import message from "./toast"
-import type { DataProps } from "~/utils/constant"
+import type { DataProps } from "~/utils/types"
 import { isRecoveryCodesSaved, saveOTP } from "~/utils/storage"
 import { createGradientTextContainer } from "./gradient-border"
 

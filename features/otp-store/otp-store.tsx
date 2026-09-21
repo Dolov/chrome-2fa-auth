@@ -1,7 +1,7 @@
 import { storage } from "@wxt-dev/storage"
 import React from "react"
 
-import type { DataProps, OtpAuthConfig } from "~/utils/constant"
+import type { DataProps, OtpAuthConfig } from "~/utils/types"
 import {
   DATA_KEY,
   dataStore,

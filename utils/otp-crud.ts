@@ -1,4 +1,4 @@
-import type { DataProps, OtpAuthConfig } from "./constant"
+import type { DataProps, OtpAuthConfig } from "./types"
 
 /**
  * 将一个新 OTP `Omit<DataProps, "id">` 合并入 `existing` 数组。

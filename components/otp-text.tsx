@@ -2,8 +2,8 @@ import { cn } from "~/utils/cn"
 import React from "react"
 
 import message from "~/features/page-ui/toast"
-import { generateOtp } from "~/utils/auth"
-import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
+import { generateOtp } from "~/utils/totp"
+import { copyTextToClipboardV2 } from "~/utils/clipboard"
 
 interface OtpTextProps {
   secret: string

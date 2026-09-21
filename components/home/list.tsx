@@ -4,7 +4,7 @@ import React from "react"
 
 import noData from "~/assets/no-data.svg"
 
-import { type DataProps } from "~/utils/constant"
+import { type DataProps } from "~/utils/types"
 import Favicon from "~/components/favicons"
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"

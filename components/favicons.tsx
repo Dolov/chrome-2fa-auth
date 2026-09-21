@@ -26,7 +26,8 @@ import {
   SkillIconsInstagram,
   VscodeIconsFileTypeOutlook
 } from "~/components/ui/icon"
-import { DEFAULT_SETTINGS, Issuers, StorageKey } from "~/utils/constant"
+import { DEFAULT_SETTINGS } from "~/utils/constants"
+import { Issuers, StorageKey } from "~/utils/types"
 
 export const minimalIconMap: Record<
   string,

@@ -1,6 +1,6 @@
-import { ActionType } from "~/utils/constant"
+import { ActionType } from "~/utils/types"
 import { highlightElement } from "~/features/page-ui/highlight"
-import { scanPage } from "~/utils/qr"
+import { scanPage } from "~/utils/qr-decode"
 import { handleSiteAction } from "~/features/messaging"
 
 import { startManualScreenshot } from "./manual-scan"
