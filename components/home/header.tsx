@@ -2,10 +2,8 @@ import { cn } from "~/utils/cn"
 import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
-import { useStorage } from "~/utils/storage-hook"
-
 import Dropdown from "~/components/ui/dropdown"
-import { StorageKey, type DataProps } from "~/utils/constant"
+import { useOtpList } from "~/state/otp-store"
 
 import { GlobalContext } from "./context"
 
@@ -16,8 +14,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { containerType, filter, setFilter } = React.useContext(GlobalContext)
-  const [data] = useStorage<DataProps[]>(StorageKey.DATA)
-const accounts = data ?? []
+  const accounts = useOtpList()
   const { keyword, setKeyword } = props
   const [search, setSearch] = React.useState(false)
 

@@ -1,4 +1,4 @@
-import { Authenticator, type Algorithm } from "otplib"
+import { authenticator } from "otplib"
 
 import type { OtpAuthConfig } from "./constant"
 
@@ -16,9 +16,10 @@ export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {
 }
 
 /**
- * 纯函数：根据 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP。
+ * 基于 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP。
  *
- * 每次都实例化一个新的 Authenticator，避免修改共享 singleton。
+ * 每次调用都显式重置 `authenticator.options`（otplib 单例），
+ * 保证跨并发调用得到稳定结果。
  */
 export const generateOtp = (
   secret: string,
@@ -26,16 +27,21 @@ export const generateOtp = (
 ): string => {
   const step = options.period ?? DEFAULT_OTP_STEP
   const digits = options.digits ?? DEFAULT_OTP_DIGITS
-  const algorithm = (options.algorithm ?? "SHA1") as Algorithm
+  const algorithm = options.algorithm ?? "SHA1"
   const baseEpoch = options.epoch ?? Date.now()
   const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
 
-  return new Authenticator()
-    .create({ epoch, step, digits, algorithm })
-    .generate(secret)
+  authenticator.options = {
+    ...authenticator.options,
+    step,
+    digits,
+    algorithm,
+    epoch
+  }
+  return authenticator.generate(secret)
 }
 
-/** 纯函数：根据 step + 参考时间算出到下一切换的剩余秒数 */
+/** 基于参考时间算出到下一切换的剩余秒数 */
 export const getRemainingTime = (
   options: OtpGenerateOptions = {}
 ): number => {
@@ -43,12 +49,12 @@ export const getRemainingTime = (
   const baseEpoch = options.epoch ?? Date.now()
   const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
 
-  // 调用 otplib 内部的 totpTimeRemaining(epoch, step)；
-  // 即便方法签名是 instance 形态，它只读取 options.step 与 Date.now()，
-  // 我们已经覆盖了它全部输入，因此是纯函数。
-  return new Authenticator()
-    .create({ epoch, step, digits: DEFAULT_OTP_DIGITS, algorithm: "SHA1" })
-    .timeRemaining()
+  authenticator.options = {
+    ...authenticator.options,
+    step,
+    epoch
+  }
+  return authenticator.timeRemaining()
 }
 
 /**

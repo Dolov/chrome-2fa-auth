@@ -4,13 +4,11 @@ import React from "react"
 
 import noData from "~/assets/no-data.svg"
 
-import { useStorage } from "~/utils/storage-hook"
-
 import { type DataProps } from "~/utils/constant"
 import Favicon from "~/components/favicons"
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
-import { StorageKey } from "~/utils/constant"
+import { useOtpList } from "~/state/otp-store"
 
 import { GlobalContext } from "./context"
 import ItemActions from "./item-actions"
@@ -20,7 +18,7 @@ interface ListProps {
 }
 
 const List: React.FC<ListProps> = (props) => {
-  const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const data = useOtpList()
   const { filter } = React.useContext(GlobalContext)
 
   const { keyword } = props

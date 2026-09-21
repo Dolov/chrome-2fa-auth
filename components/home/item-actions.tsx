@@ -12,14 +12,13 @@ import {
 import { QRCodeCanvas } from "qrcode.react"
 import React, { Fragment } from "react"
 
-import { useStorage } from "~/utils/storage-hook"
-
 import { FaviconMinimal } from "~/components/favicons"
 import Modal from "~/components/ui/modal"
 import { generateOtpAuthUrl } from "~/utils/auth"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 import message from "~/utils/message"
-import { StorageKey, type DataProps } from "~/utils/constant"
+import { useOtpList, useOtpMutators } from "~/state/otp-store"
+import { type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"
 import EditModal from "./otp-form"
@@ -32,7 +31,8 @@ const ItemActions: React.FC<{
 }> = (props) => {
   const { visible, onClose, itemData } = props
   const { left, right, top, bottom, radius } = useModalWidth()
-  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const dataList = useOtpList()
+  const { pin, restore, softDelete, hardDelete } = useOtpMutators()
   const [qrVisible, setQrVisible] = React.useState(false)
   const [editVisible, setEditVisible] = React.useState(false)
   const [deleteVisible, setDeleteVisible] = React.useState(false)
@@ -55,45 +55,18 @@ const ItemActions: React.FC<{
   }
 
   // 恢复已删除的条目
-  const handleRestore = () => {
-    const updatedList = dataList.map((item) =>
-      item.id === itemData.id ? { ...item, deleted: false } : item
-    )
-    setDataList(updatedList)
+  const handleRestore = async () => {
+    await restore(itemData.id)
     message.success("已恢复")
     onClose()
   }
 
   const handleShare = () => {}
 
-  const handlePin = () => {
-    const item = dataList.find((item) => item.id === itemData.id)
-    const nextPinned = !item.pinned
-    const pinnedData = dataList.filter(
-      (item) => item.pinned && item.id !== itemData.id
-    )
-    const unpinnedData = dataList.filter(
-      (item) => !item.pinned && item.id !== itemData.id
-    )
-    if (nextPinned) {
-      setDataList([
-        {
-          ...item,
-          pinned: true
-        },
-        ...pinnedData,
-        ...unpinnedData
-      ])
-    } else {
-      setDataList([
-        ...pinnedData,
-        {
-          ...item,
-          pinned: false
-        },
-        ...unpinnedData
-      ])
-    }
+  const handlePin = async () => {
+    const item = dataList.find((it) => it.id === itemData.id)
+    if (!item) return
+    await pin(item.id, !item.pinned)
     onClose()
   }
 
@@ -318,19 +291,15 @@ const DeleteModal: React.FC<{
 }> = (props) => {
   const { visible, onClose, data } = props
   const { width } = useModalWidth()
-  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const { softDelete, hardDelete } = useOtpMutators()
 
   const { issuer, account, deleted } = data
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleted) {
-      setDataList(dataList.filter((item) => item.id !== data.id))
+      await hardDelete(data.id)
     } else {
-      setDataList(
-        dataList.map((item) =>
-          item.id === data.id ? { ...item, deleted: true } : item
-        )
-      )
+      await softDelete(data.id)
     }
     onClose()
   }

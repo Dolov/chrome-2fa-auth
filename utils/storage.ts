@@ -2,6 +2,7 @@ import { storage } from "@wxt-dev/storage"
 
 import type { DataProps, OtpAuthConfig } from "./constant"
 import { DEFAULT_SETTINGS, StorageKey } from "./constant"
+import { addOtp } from "./otp-crud"
 
 /**
  * 类型化存储项（store-use-define-item 最佳实践）
@@ -17,7 +18,7 @@ import { DEFAULT_SETTINGS, StorageKey } from "./constant"
  * - SETTINGS: sync:（主题/布局小，跨设备同步）
  * - LEGACY_DATA: local:（v1 迁移数据，迁移后清空）
  */
-const DATA_KEY = `sync:${StorageKey.DATA}` as const
+export const DATA_KEY = `sync:${StorageKey.DATA}` as const
 const SETTINGS_KEY = `sync:${StorageKey.SETTINGS}` as const
 const LEGACY_KEY = `local:${StorageKey.LEGACY_DATA}` as const
 
@@ -42,43 +43,20 @@ export const saveOTP = async (otpData: DataProps) => {
     throw new Error(`otpData is invalid: ${JSON.stringify(otpData, null, 2)}`)
   }
   const existingData = await dataStore.getValue()
-
-  const sameItemIndex = existingData.findIndex(
-    (item) =>
-      !item.deleted &&
-      item.type === otpData.type &&
-      item.issuer === otpData.issuer &&
-      item.secret === otpData.secret &&
-      item.account === otpData.account
-  )
-
-  if (sameItemIndex !== -1) {
-    existingData[sameItemIndex] = {
-      ...existingData[sameItemIndex],
-      ...otpData
-    }
-    return await dataStore.setValue(existingData)
-  }
-
-  const oldItemIndex = existingData.findIndex(
-    (item) =>
-      !item.deleted &&
-      item.type === otpData.type &&
-      item.issuer === otpData.issuer &&
-      item.account === otpData.account
-  )
-
-  if (oldItemIndex !== -1) {
-    existingData[oldItemIndex].deleted = true
-    existingData.push({
-      recoveryCodes: existingData[oldItemIndex].recoveryCodes || [],
-      ...otpData
-    })
-    return await dataStore.setValue(existingData)
-  }
-
-  existingData.push(otpData)
-  return await dataStore.setValue(existingData)
+  const { items: next } = addOtp(existingData, {
+    type: otpData.type,
+    secret: otpData.secret,
+    issuer: otpData.issuer,
+    account: otpData.account,
+    algorithm: otpData.algorithm,
+    digits: otpData.digits,
+    period: otpData.period,
+    counter: otpData.counter,
+    pinned: otpData.pinned,
+    remark: otpData.remark,
+    recoveryCodes: otpData.recoveryCodes
+  })
+  return await dataStore.setValue(next)
 }
 
 export const getOTPList = async (

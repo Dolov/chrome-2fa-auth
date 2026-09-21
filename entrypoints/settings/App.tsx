@@ -11,6 +11,7 @@ import {
   StorageKey
 } from "~/utils/constant"
 import { useThemeChange } from "~/utils/hooks"
+import { OtpProvider } from "~/state/otp-store"
 
 const themes = [
   "light",
@@ -159,6 +160,7 @@ const Setting: React.FC<SettingProps> = (props) => {
   const {} = props
 
   return (
+    <OtpProvider>
     <div className="flex-1 overflow-auto">
       <div className="collapse bg-base-200 mb-4">
         <input type="radio" name="container" defaultChecked />
@@ -175,6 +177,7 @@ const Setting: React.FC<SettingProps> = (props) => {
         </div>
       </div>
     </div>
+    </OtpProvider>
   )
 }
 

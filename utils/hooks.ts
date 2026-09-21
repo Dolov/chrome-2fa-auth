@@ -2,7 +2,8 @@ import React from "react"
 
 import { useStorage } from "~/utils/storage-hook"
 
-import { DEFAULT_SETTINGS, StorageKey, type DataProps } from "./constant"
+import { useOtpList, useOtpMutators } from "~/state/otp-store"
+import { DEFAULT_SETTINGS, StorageKey } from "./constant"
 
 export const useThemeChange = () => {
   const [settings, setSettings] = useStorage(
@@ -28,35 +29,21 @@ export const useThemeChange = () => {
   return [theme, setTheme] as const
 }
 
+/**
+ * 当前 OTP 列表 + 把指定恢复码标记为已复制。
+ *
+ * 用法：`const [markCopied, items] = useUpdateCopiedCodeStatus()`
+ */
 export const useUpdateCopiedCodeStatus = () => {
-  const [data, setData] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const items = useOtpList()
+  const { markRecoveryCodeCopied } = useOtpMutators()
 
   const updater = React.useCallback(
-    async (id: string, copiedCode: string): Promise<void> => {
-      let updated = false
-
-      const newData = data.map((item) => {
-        if (item.id !== id || !Array.isArray(item.recoveryCodes)) {
-          return item
-        }
-
-        const updatedCodes = item.recoveryCodes.map((code) => {
-          if (code.value === copiedCode && !code.copied) {
-            updated = true
-            return { ...code, copied: true }
-          }
-          return code
-        })
-
-        return { ...item, recoveryCodes: updatedCodes }
-      })
-
-      if (updated) {
-        setData(newData)
-      }
+    async (id: string, copiedCode: string) => {
+      await markRecoveryCodeCopied(id, copiedCode)
     },
-    [data, setData]
+    [markRecoveryCodeCopied]
   )
 
-  return [updater, data] as const
+  return [updater, items] as const
 }

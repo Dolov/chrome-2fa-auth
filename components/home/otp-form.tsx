@@ -1,9 +1,8 @@
 import React from "react"
 
-import { useStorage } from "~/utils/storage-hook"
-
 import Modal from "~/components/ui/modal"
-import { StorageKey, type DataProps } from "~/utils/constant"
+import type { DataProps } from "~/utils/constant"
+import { useOtpMutators } from "~/state/otp-store"
 
 import { useModalWidth } from "./hooks"
 
@@ -21,44 +20,29 @@ const OtpForm: React.FC<{
 }> = (props) => {
   const { visible, onClose, data } = props
   const { width } = useModalWidth()
-  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
+  const { add, update } = useOtpMutators()
   const title = "输入账户详细信息"
   const [form, setForm] = React.useState<DataProps>({
-    ...defaultForm,
+    ...(defaultForm as DataProps),
     ...data
   })
 
-  const handleOk = () => {
+  const handleOk = async () => {
     const { issuer, secret, account, remark } = form
     if (!issuer || !secret || !account) return
     if (data) {
-      const newData = dataList.map((item) => {
-        if (item.id === data.id) {
-          return {
-            ...item,
-            issuer,
-            secret,
-            remark,
-            account
-          }
-        }
-        return item
-      })
-      setDataList(newData)
+      await update(data.id, { issuer, secret, account, remark })
     } else {
-      const id = `${Date.now()}`
-      const item = {
-        id,
+      await add({
         type: "totp",
         issuer,
         secret,
         account,
         remark
-      }
-      setDataList([...dataList, item as DataProps])
+      })
     }
     onClose()
-    setForm(defaultForm as DataProps)
+    setForm({ ...(defaultForm as DataProps) })
   }
 
   return (

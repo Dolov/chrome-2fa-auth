@@ -8,8 +8,6 @@ import {
 } from "lucide-react"
 import React from "react"
 
-import { useStorage } from "~/utils/storage-hook"
-
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
 import Button from "~/components/ui/button"
@@ -19,8 +17,8 @@ import { sleep } from "~/utils/dom-utils"
 import message from "~/utils/message"
 import { readFromFile } from "~/utils/qr"
 import { canInjectContentScript } from "~/utils/runtime-utils"
-import { checkOtpAuthConfigExist, saveOTP } from "~/utils/storage"
 import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
+import { useOtpMutators } from "~/state/otp-store"
 
 import { GlobalContext } from "./context"
 import { useModalWidth } from "./hooks"
@@ -30,9 +28,9 @@ interface CreateProps {}
 
 const Create: React.FC<CreateProps> = (props) => {
   const { containerType } = React.useContext(GlobalContext)
+  const { add: addOtpItem, exists: checkOtpExists } = useOtpMutators()
   const [active, setActive] = React.useState(false)
   const [visible, setVisible] = React.useState(false)
-  const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
   const [isScanning, setIsScanning] = React.useState(false)
   const [injectable, setInjectable] = React.useState(false)
   const [uploadVisible, setUploadVisible] = React.useState(false)
@@ -93,16 +91,13 @@ const Create: React.FC<CreateProps> = (props) => {
       parsedData.account = account
     }
 
-    if (checkOtpAuthConfigExist(parsedData)) {
+    if (await checkOtpExists(parsedData)) {
       setIsScanning(false)
       message.warning("该 QR code 已存在。")
       return
     }
 
-    await saveOTP({
-      id: Date.now().toString(),
-      ...parsedData
-    })
+    await addOtpItem(parsedData)
 
     setActive(false)
     setIsScanning(false)
@@ -226,6 +221,7 @@ const Create: React.FC<CreateProps> = (props) => {
 const UploadModal = (props) => {
   const { visible, onClose } = props
   const { width } = useModalWidth()
+  const { add: addOtpItem, exists: checkOtpExists } = useOtpMutators()
   const [error, setError] = React.useState<string | null>(null)
   const [parsedData, setParsedData] =
     React.useState<ReturnType<typeof parseOtpAuthUrl>>(null)
@@ -275,7 +271,7 @@ const UploadModal = (props) => {
     }
     const parsedData = parseOtpAuthUrl(data)
 
-    const isExist = await checkOtpAuthConfigExist(parsedData)
+    const isExist = await checkOtpExists(parsedData)
     if (isExist) {
       setError("该账户已存在")
       return
@@ -286,20 +282,23 @@ const UploadModal = (props) => {
   }
 
   const handleOk = async () => {
-    const saveData = {
-      id: Date.now().toString(),
-      ...parsedData
-    }
-    if (!saveData.account) {
-      saveData.account = accountName
+    if (!parsedData) return
+    const account = parsedData.account ?? accountName
+    if (!account) {
+      setError("请输入账户名称")
+      return
     }
 
-    const isExist = await checkOtpAuthConfigExist(saveData)
+    const candidate: Omit<DataProps, "id"> = {
+      ...parsedData,
+      account
+    }
+    const isExist = await checkOtpExists(candidate)
     if (isExist) {
       setError("该账户已存在")
       return
     }
-    await saveOTP(saveData)
+    await addOtpItem(candidate)
     handleClose()
   }
 
