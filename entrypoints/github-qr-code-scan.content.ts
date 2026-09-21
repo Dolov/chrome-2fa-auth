@@ -1,12 +1,7 @@
-import {
-  highlightElement,
-  isOtpAuthUrl,
-  parseOtpAuthUrl,
-  readQRCodeFromImage,
-  saveOTP,
-  startOtpMessageUpdater,
-  waitForElement
-} from "~/utils"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
+import { saveOTP } from "~/utils/storage"
+import { highlightElement, startOtpMessageUpdater } from "~/utils/ui"
+import { readQRCodeFromImage, waitForElement } from "~/utils/helpers"
 import { type DataProps } from "~/utils/constant"
 import message from "~/utils/message"
 

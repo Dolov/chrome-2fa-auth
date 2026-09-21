@@ -2,7 +2,8 @@ import clsx from "clsx"
 import React from "react"
 
 import message from "~/components/ui/message"
-import { copyTextToClipboardV2, generateOtp } from "~/utils"
+import { generateOtp } from "~/utils/auth"
+import { copyTextToClipboardV2 } from "~/utils/helpers"
 
 interface OtpTextProps {
   secret: string

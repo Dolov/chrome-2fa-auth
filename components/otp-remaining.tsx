@@ -1,7 +1,7 @@
 import clsx from "clsx"
 import React from "react"
 
-import { getProgressColor, getRemainingTime } from "~/utils"
+import { getProgressColor, getRemainingTime } from "~/utils/auth"
 
 interface OtpRemainingProps {
   deleted?: boolean

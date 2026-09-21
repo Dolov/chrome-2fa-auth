@@ -5,7 +5,7 @@ import React from "react"
 import { useStorage } from "~/utils/storage-hook"
 
 import Dropdown from "~/components/ui/dropdown"
-import { StorageKey, type DataProps } from "~/utils"
+import { StorageKey, type DataProps } from "~/utils/constant"
 
 import { GlobalContext } from "./context"
 

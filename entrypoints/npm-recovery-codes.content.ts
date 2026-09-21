@@ -1,8 +1,6 @@
-import {
-  displayRecoveryCodeSaveMessage,
-  extractDynamicSegment,
-  getOTPList
-} from "~/utils"
+import { getOTPList } from "~/utils/storage"
+import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
+import { extractDynamicSegment } from "~/utils/helpers"
 import { Issuers } from "~/utils/constant"
 
 export default defineContentScript({

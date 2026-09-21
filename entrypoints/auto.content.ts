@@ -1,6 +1,6 @@
 import jsQR from "jsqr"
 
-import { highlightElement } from "~/utils"
+import { highlightElement } from "~/utils/ui"
 import { ActionType } from "~/utils/constant"
 
 export default defineContentScript({

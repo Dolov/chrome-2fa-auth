@@ -1,10 +1,7 @@
-import {
-  extractDynamicSegment,
-  getOTPList,
-  Issuers,
-  startOtpMessageUpdater,
-  waitForElement
-} from "~/utils"
+import { getOTPList } from "~/utils/storage"
+import { startOtpMessageUpdater } from "~/utils/ui"
+import { extractDynamicSegment, waitForElement } from "~/utils/helpers"
+import { Issuers } from "~/utils/constant"
 
 export default defineContentScript({
   matches: ["https://www.npmjs.com/*"],

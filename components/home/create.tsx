@@ -15,15 +15,13 @@ import OtpText from "~/components/otp-text"
 import Button from "~/components/ui/button"
 import message from "~/components/ui/message"
 import Modal from "~/components/ui/modal"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
 import {
   canInjectContentScript,
-  checkOtpAuthConfigExist,
-  isOtpAuthUrl,
-  parseOtpAuthUrl,
   readQRCodeFromFile,
-  saveOTP,
   sleep
-} from "~/utils"
+} from "~/utils/helpers"
+import { checkOtpAuthConfigExist, saveOTP } from "~/utils/storage"
 import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
 
 import { GlobalContext } from "./context"

@@ -1,8 +1,6 @@
-import {
-  displayRecoveryCodeSaveMessage,
-  getOTPList,
-  waitForElement
-} from "~/utils"
+import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
+import { getOTPList } from "~/utils/storage"
+import { waitForElement } from "~/utils/helpers"
 import { Issuers } from "~/utils/constant"
 
 import { getGitHubUserName } from "~/utils/github"

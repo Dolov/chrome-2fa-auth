@@ -1,11 +1,8 @@
 import jsQR from "jsqr"
 
-import {
-  createSelectionBox,
-  isOtpAuthUrl,
-  parseOtpAuthUrl,
-  saveOTP
-} from "~/utils"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
+import { saveOTP } from "~/utils/storage"
+import { createSelectionBox } from "~/utils/ui"
 import { ActionType, contentBaseZindex } from "~/utils/constant"
 import message from "~/utils/message"
 

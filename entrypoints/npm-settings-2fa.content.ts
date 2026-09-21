@@ -1,14 +1,13 @@
 import jsQR from "jsqr"
 
 import message from "~/utils/message"
+import { parseOtpAuthUrl } from "~/utils/auth"
+import { saveOTP } from "~/utils/storage"
+import { highlightElement, startOtpMessageUpdater } from "~/utils/ui"
 import {
   extractDynamicSegment,
-  highlightElement,
-  parseOtpAuthUrl,
-  saveOTP,
-  startOtpMessageUpdater,
   waitForPathMatchStrict
-} from "~/utils"
+} from "~/utils/helpers"
 
 export default defineContentScript({
   matches: [

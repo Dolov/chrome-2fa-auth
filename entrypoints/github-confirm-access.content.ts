@@ -1,4 +1,6 @@
-import { getOTPList, startOtpMessageUpdater, waitForElement } from "~/utils"
+import { getOTPList } from "~/utils/storage"
+import { startOtpMessageUpdater } from "~/utils/ui"
+import { waitForElement } from "~/utils/helpers"
 import { Issuers } from "~/utils/constant"
 
 import { getGitHubUserName } from "~/utils/github"
