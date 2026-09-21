@@ -39,26 +39,6 @@ export const readFromImage = (img: HTMLImageElement): Promise<string> => {
   })
 }
 
-/** 从一个 Data URL 字符串解码 QR（异步 Image 加载后绘制） */
-export const readFromDataUrl = (imageDataUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    image.onload = () => {
-      const canvas = document.createElement("canvas")
-      canvas.width = image.width
-      canvas.height = image.height
-      const ctx = canvas.getContext("2d")
-      if (!ctx) return reject(new Error(CANVAS_CONTEXT_MISSING))
-      ctx.drawImage(image, 0, 0)
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const code = jsQR(imageData.data, imageData.width, imageData.height)
-      code ? resolve(code.data) : reject(new Error(QR_NOT_FOUND))
-    }
-    image.onerror = () => reject(new Error("图片加载失败"))
-    image.src = imageDataUrl
-  })
-}
-
 /** 从用户选择的本地图片文件解码 QR */
 export const readFromFile = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {

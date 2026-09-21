@@ -56,34 +56,3 @@ export const extractDynamicSegment = (
 
   return null
 }
-
-/** 等到 location.href 命中任一严格后缀模板 */
-export const waitForPathMatchStrict = ({
-  endsWith
-}: {
-  endsWith: string | string[]
-}): Promise<string | null> => {
-  const patterns = Array.isArray(endsWith) ? endsWith : [endsWith]
-
-  const regexList = patterns.map((pattern) => {
-    const escaped = pattern
-      .replace(/[-\/\\^$+?.()|[\]{}]/g, "\\$&")
-      .replace(/\*/g, "[^/?#]+")
-
-    return new RegExp(escaped + "$")
-  })
-
-  return new Promise((resolve) => {
-    const intervalId = setInterval(() => {
-      const matched = regexList.some((regex) => regex.test(location.href))
-      if (matched) {
-        clearInterval(intervalId)
-        resolve(location.href)
-      }
-    }, 300)
-  })
-}
-
-/** Sleep ms */
-export const sleep = (ms = 1000) =>
-  new Promise((resolve) => setTimeout(resolve, ms))

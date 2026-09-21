@@ -1,7 +1,7 @@
 import { storage } from "@wxt-dev/storage"
 
-import type { DataProps, OtpAuthConfig } from "./constant"
-import { DEFAULT_SETTINGS, StorageKey } from "./constant"
+import type { DataProps } from "./constant"
+import { StorageKey } from "./constant"
 import { addOtp } from "./otp-crud"
 
 /**
@@ -19,17 +19,10 @@ import { addOtp } from "./otp-crud"
  * - LEGACY_DATA: local:（v1 迁移数据，迁移后清空）
  */
 export const DATA_KEY = `sync:${StorageKey.DATA}` as const
-const SETTINGS_KEY = `sync:${StorageKey.SETTINGS}` as const
 const LEGACY_KEY = `local:${StorageKey.LEGACY_DATA}` as const
 
 export const dataStore = storage.defineItem<DataProps[]>(DATA_KEY, {
   fallback: []
-})
-
-export const settingsStore = storage.defineItem<
-  typeof DEFAULT_SETTINGS
->(SETTINGS_KEY, {
-  fallback: DEFAULT_SETTINGS
 })
 
 export const saveOTP = async (otpData: DataProps) => {
@@ -102,21 +95,6 @@ export const isRecoveryCodesSaved = async (
   return (
     formatCodes(matchedAccount.recoveryCodes) === formatCodes(recoveryCodes)
   )
-}
-
-export const checkOtpAuthConfigExist = async (
-  otpAuthConfig: OtpAuthConfig
-) => {
-  const list = await getOTPList(otpAuthConfig.issuer, otpAuthConfig.account)
-  const isExist = list.some((item) => {
-    return (
-      item.type === otpAuthConfig.type &&
-      item.issuer === otpAuthConfig.issuer &&
-      item.secret === otpAuthConfig.secret &&
-      item.account === otpAuthConfig.account
-    )
-  })
-  return isExist
 }
 
 // expose legacy key for background migration

@@ -1,5 +1,4 @@
 import { Issuers } from "~/utils/constant"
-import { extractDynamicSegment } from "~/utils/dom-utils"
 
 import type { SiteAdapter } from "../site-adapter"
 
@@ -58,6 +57,3 @@ export const githubAdapter: SiteAdapter = {
   fillOtpItemStyle: { marginBottom: "16px" },
   recoveryContainerStyle: { marginBottom: "16px" }
 }
-
-// silence unused-import warning
-void extractDynamicSegment
