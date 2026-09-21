@@ -16,7 +16,8 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = (props) => {
   const { containerType, filter, setFilter } = React.useContext(GlobalContext)
-  const [data = []] = useStorage<DataProps[]>(StorageKey.DATA)
+  const [data] = useStorage<DataProps[]>(StorageKey.DATA)
+const accounts = data ?? []
   const { keyword, setKeyword } = props
   const [search, setSearch] = React.useState(false)
 
@@ -33,8 +34,8 @@ const Header: React.FC<HeaderProps> = (props) => {
     }
   }
 
-  const deletedCount = data.filter((item) => item.deleted).length
-  const normalCount = data.filter((item) => !item.deleted).length
+  const deletedCount = accounts.filter((item) => item.deleted).length
+  const normalCount = accounts.filter((item) => !item.deleted).length
   const deletedFilter = filter === "deleted"
 
   const menuItems = React.useMemo(() => {

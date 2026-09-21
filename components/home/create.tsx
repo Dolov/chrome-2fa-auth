@@ -35,7 +35,7 @@ const Create: React.FC<CreateProps> = (props) => {
   const [active, setActive] = React.useState(false)
   const [visible, setVisible] = React.useState(false)
   const [dataList, setDataList] = useStorage<DataProps[]>(StorageKey.DATA, [])
-  const [scaning, setScaning] = React.useState(false)
+  const [isScanning, setIsScanning] = React.useState(false)
   const [injectable, setInjectable] = React.useState(false)
   const [uploadVisible, setUploadVisible] = React.useState(false)
 
@@ -55,18 +55,23 @@ const Create: React.FC<CreateProps> = (props) => {
   const handleAutoScan = () => {
     // 发送消息给 content.js
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs.length === 0) return
+      const firstTab = tabs[0]
+      if (!firstTab?.id) return
       browser.tabs.sendMessage(
-        tabs[0].id,
-        {
-          action: ActionType.AUTOSCAN
-        },
+        firstTab.id,
+        { action: ActionType.AUTOSCAN },
         handleQRScanResult
       )
     })
   }
 
-  const handleQRScanResult = async (result) => {
+  interface QRScanResult {
+    success: boolean
+    data?: string
+    error?: string
+  }
+
+  const handleQRScanResult = async (result: QRScanResult | undefined) => {
     if (!result) return
     const { success, data } = result
     // 无法自动识别二维码，开启手动截图模式
@@ -77,13 +82,13 @@ const Create: React.FC<CreateProps> = (props) => {
     }
     const parsedData = parseOtpAuthUrl(data)
 
-    setScaning(true)
+    setIsScanning(true)
     await sleep(1000)
 
     if (!parsedData.account) {
       const account = prompt("请输入账号名称")
       if (!account) {
-        setScaning(false)
+        setIsScanning(false)
         message.error("请输入账号名称")
         return
       }
@@ -91,7 +96,7 @@ const Create: React.FC<CreateProps> = (props) => {
     }
 
     if (checkOtpAuthConfigExist(parsedData)) {
-      setScaning(false)
+      setIsScanning(false)
       message.warning("该 QR code 已存在。")
       return
     }
@@ -102,7 +107,7 @@ const Create: React.FC<CreateProps> = (props) => {
     })
 
     setActive(false)
-    setScaning(false)
+    setIsScanning(false)
     message.success(`${parsedData.issuer} - ${parsedData.account} 添加成功`)
   }
 
@@ -113,8 +118,9 @@ const Create: React.FC<CreateProps> = (props) => {
 
   const sendManualScanMessage = (messageText: string) => {
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs.length === 0) return
-      browser.tabs.sendMessage(tabs[0].id, {
+      const firstTab = tabs[0]
+      if (!firstTab?.id) return
+      browser.tabs.sendMessage(firstTab.id, {
         action: ActionType.MANUAL_SCREENSHOT,
         message: messageText
       })
@@ -160,7 +166,7 @@ const Create: React.FC<CreateProps> = (props) => {
             })}>
             <Button
               onlyLoading
-              loading={scaning}
+              loading={isScanning}
               onClick={handleAutoScan}
               disabled={!injectable}
               className={cn("btn btn-square btn-accent shadow-2xl")}>
