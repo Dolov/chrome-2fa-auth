@@ -1,5 +1,6 @@
 import { contentBaseZindex } from "~/utils/constant"
 import { createSelectionBox } from "~/utils/selection-overlay"
+import { sendCaptureScreenshot } from "~/features/messaging"
 
 import { cropImage } from "./crop"
 
@@ -100,10 +101,8 @@ export const createScreenshotOverlay = (
 export const captureAndDecode = async (
   area: SelectionArea
 ): Promise<string> => {
-  const response = await browser.runtime.sendMessage({
-    action: "CAPTURE_SCREENSHOT"
-  })
-  if (!response?.success) {
+  const response = await sendCaptureScreenshot()
+  if (!response?.success || !response.image) {
     throw new Error("截图失败")
   }
 

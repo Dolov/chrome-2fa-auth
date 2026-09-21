@@ -9,21 +9,16 @@ import {
 import React from "react"
 
 import Button from "~/components/ui/button"
-import { ActionType } from "~/utils/constant"
 import { canInjectContentScript } from "~/utils/runtime-utils"
 import { usePopupIntake } from "~/features/otp-intake"
+import {
+  sendAutoScanToActiveTab,
+  sendManualScreenshotToActiveTab
+} from "~/features/messaging"
 
 import { GlobalContext } from "./context"
-import { useModalWidth } from "./hooks"
 import OptForm from "./otp-form"
 import UploadModal from "./upload-modal"
-
-/** AutoScan action 出参的最小定义（与 content/global.content 协议） */
-interface AutoScanResult {
-  success: boolean
-  data?: string
-  error?: string
-}
 
 const Create: React.FC = () => {
   const { containerType } = React.useContext(GlobalContext)
@@ -46,48 +41,25 @@ const Create: React.FC = () => {
     setVisible(false)
   }
 
-  const sendManualScanMessage = (messageText: string) => {
-    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const firstTab = tabs[0]
-      if (!firstTab?.id) return
-      browser.tabs.sendMessage(firstTab.id, {
-        action: ActionType.MANUAL_SCREENSHOT,
-        message: messageText
-      })
-      window.close()
-    })
+  const handleManualScan = async (messageText: string) => {
+    await sendManualScreenshotToActiveTab(messageText)
+    window.close()
   }
 
-  const handleAutoScan = () => {
-    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const firstTab = tabs[0]
-      if (!firstTab?.id) return
-      browser.tabs.sendMessage(
-        firstTab.id,
-        { action: ActionType.AUTOSCAN },
-        (result: AutoScanResult | undefined) => {
-          void handleQRScanResult(result)
-        }
-      )
-    })
-  }
-
-  const handleQRScanResult = async (result: AutoScanResult | undefined) => {
-    if (!result?.success || !result.data) {
-      sendManualScanMessage("未检测到二维码，开启手动截图模式，ESC 退出")
-      return
-    }
-
+  const handleAutoScan = async () => {
     setIsScanning(true)
-    // 短暂反馈，给用户视觉提示"识别中"
-    await new Promise((r) => setTimeout(r, 600))
-    setIsScanning(false)
-
-    await intake({ kind: "qr-data", data: result.data })
-  }
-
-  const handleManualScan = () => {
-    sendManualScanMessage("手动截图模式，ESC 退出")
+    try {
+      const result = await sendAutoScanToActiveTab()
+      if (!result?.success || !result.data) {
+        await handleManualScan("未检测到二维码，开启手动截图模式，ESC 退出")
+        return
+      }
+      // 短暂反馈，给用户视觉提示"识别中"
+      await new Promise((r) => setTimeout(r, 600))
+      await intake({ kind: "qr-data", data: result.data })
+    } finally {
+      setIsScanning(false)
+    }
   }
 
   const handleUpload = () => setUploadVisible(true)
@@ -140,7 +112,7 @@ const Create: React.FC = () => {
             })}>
             <Button
               onlyLoading
-              onClick={handleManualScan}
+              onClick={() => void handleManualScan("手动截图模式，ESC 退出")}
               disabled={!injectable}
               className={cn("btn btn-square btn-info shadow-2xl")}>
               <SquareDashedMousePointer />

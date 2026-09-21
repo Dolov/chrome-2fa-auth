@@ -3,6 +3,7 @@ import type { Browser } from "wxt/browser"
 
 import { LEGACY_KEY, dataStore } from "~/utils/storage"
 import { ActionType } from "~/utils/constant"
+import { registerRuntimeHandler } from "~/features/messaging"
 
 /** 右键菜单项：extra action 在 onClicked 时调用 */
 type MenuItem = Browser.contextMenus.CreateProperties & {
@@ -145,22 +146,19 @@ export default defineBackground(() => {
     menu.action?.(tab!)
   })
 
-  // 内容脚本消息路由（msg-return-true-for-async）
-  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (isCaptureScreenshot(message)) {
+  // CAPTURE_SCREENSHOT 走候选 B 类型化注册
+  registerRuntimeHandler(ActionType.CAPTURE_SCREENSHOT, (_payload, _sender) => {
+    return new Promise<CaptureScreenshotResponse>((resolve) => {
+      // 没有 sender.tab?.windowId 时退到 currentWindow
       browser.tabs.captureVisibleTab(
-        sender.tab?.windowId ?? -1,
         { format: "png" },
         (dataUrl) => {
-          const response: CaptureScreenshotResponse = {
+          resolve({
             success: !!dataUrl,
             image: dataUrl ?? undefined
-          }
-          sendResponse(response)
+          })
         }
       )
-      return true
-    }
-    return false
+    })
   })
 })
