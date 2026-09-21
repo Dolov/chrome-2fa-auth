@@ -2,6 +2,10 @@
 
 > 本文件定义项目意图与重构路线，供 AI 助手与协作者对齐。
 
+## 必读
+
+> 进入本仓库后，**先读 [`CONTEXT.md`](./CONTEXT.md)** 了解领域词汇（SiteAdapter / OtpMutators / Intake / CSS Portal 等）。架构评审、新增功能、命名冲突都从这里查。
+
 ## 重构意图
 
 当前项目（`2fa-auth-otp-authenticator` v1.7.0）基于 **Plasmo 0.88.0 + React 18 + MV3 + daisyUI 4**，约 3500 行 TS/TSX，无任何测试，长期靠手工 QA 与用户反馈维护。
