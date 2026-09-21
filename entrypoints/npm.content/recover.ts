@@ -1,6 +1,6 @@
 import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
 import { getOTPList } from "~/utils/storage"
-import { extractDynamicSegment } from "~/utils/helpers"
+import { extractDynamicSegment } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"
 
 /**

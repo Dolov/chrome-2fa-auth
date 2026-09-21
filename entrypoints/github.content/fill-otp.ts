@@ -1,6 +1,6 @@
 import { getOTPList } from "~/utils/storage"
 import { startOtpMessageUpdater } from "~/utils/ui"
-import { waitForElement } from "~/utils/helpers"
+import { waitForElement } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"
 
 import {

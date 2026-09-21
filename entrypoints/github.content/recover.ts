@@ -1,6 +1,6 @@
 import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
 import { getOTPList } from "~/utils/storage"
-import { waitForElement } from "~/utils/helpers"
+import { waitForElement } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"
 
 import {

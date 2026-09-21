@@ -18,7 +18,7 @@ import { FaviconMinimal } from "~/components/favicons"
 import message from "~/components/ui/message"
 import Modal from "~/components/ui/modal"
 import { generateOtpAuthUrl } from "~/utils/auth"
-import { copyTextToClipboardV2 } from "~/utils/helpers"
+import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 import { StorageKey, type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"

@@ -16,11 +16,9 @@ import Button from "~/components/ui/button"
 import message from "~/components/ui/message"
 import Modal from "~/components/ui/modal"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
-import {
-  canInjectContentScript,
-  readQRCodeFromFile,
-  sleep
-} from "~/utils/helpers"
+import { sleep } from "~/utils/dom-utils"
+import { canInjectContentScript } from "~/utils/runtime-utils"
+import { readQRCodeFromFile } from "~/utils/helpers"
 import { checkOtpAuthConfigExist, saveOTP } from "~/utils/storage"
 import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
 

@@ -3,7 +3,7 @@ import React from "react"
 
 import message from "~/components/ui/message"
 import { generateOtp } from "~/utils/auth"
-import { copyTextToClipboardV2 } from "~/utils/helpers"
+import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 
 interface OtpTextProps {
   secret: string

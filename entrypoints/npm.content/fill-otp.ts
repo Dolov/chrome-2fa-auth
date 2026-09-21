@@ -1,6 +1,6 @@
 import { getOTPList } from "~/utils/storage"
 import { startOtpMessageUpdater } from "~/utils/ui"
-import { extractDynamicSegment, waitForElement } from "~/utils/helpers"
+import { extractDynamicSegment, waitForElement } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"
 
 import { NPM_OTP_INPUT_SELECTOR } from "./helpers"

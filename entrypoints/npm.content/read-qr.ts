@@ -7,7 +7,7 @@ import { highlightElement, startOtpMessageUpdater } from "~/utils/ui"
 import {
   extractDynamicSegment,
   waitForPathMatchStrict
-} from "~/utils/helpers"
+} from "~/utils/dom-utils"
 
 import { NPM_OTP_VERIFY_INPUT_SELECTOR } from "./helpers"
 

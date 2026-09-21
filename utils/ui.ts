@@ -1,8 +1,8 @@
 import { generateOtp, getRemainingTime } from "./auth"
+import { copyTextToClipboard } from "./clipboard-utils"
 import { COLORS, GRADIENT, type DataProps } from "./constant"
-import { copyTextToClipboard } from "./helpers"
-import message from "./message"
 import { isRecoveryCodesSaved, saveOTP } from "./storage"
+import message from "./message"
 
 /** 用于生成唯一的 CSS 类名前缀，避免样式冲突 */
 const PREFIX = "github-2fa-1746543013856" as const
