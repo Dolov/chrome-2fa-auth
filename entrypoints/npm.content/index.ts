@@ -1,11 +1,5 @@
-import { setupNpmFillOTP } from "./fill-otp"
-import { setupNpmReadQR } from "./read-qr"
-import { setupNpmRecover } from "./recover"
-import {
-  isNpmLoginOTPPage,
-  isNpmRecoveryCodesPage,
-  isNpmTfaSetupPage
-} from "./helpers"
+import { dispatchSiteAction } from "~/features/site-content/dispatch"
+import { npmAdapter } from "~/features/site-content/adapters/npm"
 
 /**
  * NPM content script 聚合入口
@@ -18,17 +12,6 @@ export default defineContentScript({
   matches: ["https://www.npmjs.com/*"],
   allFrames: false,
   main(ctx) {
-    const dispatch = () => {
-      if (isNpmLoginOTPPage()) {
-        setupNpmFillOTP()
-      } else if (isNpmTfaSetupPage()) {
-        setupNpmReadQR()
-      } else if (isNpmRecoveryCodesPage()) {
-        setupNpmRecover()
-      }
-    }
-
-    dispatch()
-    ctx.addEventListener(window, "wxt:locationchange", () => dispatch())
+    dispatchSiteAction(npmAdapter, ctx)
   }
 })

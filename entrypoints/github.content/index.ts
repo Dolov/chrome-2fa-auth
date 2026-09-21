@@ -1,10 +1,5 @@
-import { setupGitHubFillOTP } from "./fill-otp"
-import { setupGitHubReadQR } from "./read-qr"
-import { setupGitHubRecover } from "./recover"
-import {
-  isGitHubRecoveryCodesPage,
-  isGitHubTwoFactorSetupPage
-} from "./helpers"
+import { dispatchSiteAction } from "~/features/site-content/dispatch"
+import { githubAdapter } from "~/features/site-content/adapters/github"
 
 /**
  * GitHub content script 聚合入口
@@ -20,18 +15,6 @@ export default defineContentScript({
   matches: ["https://github.com/*"],
   allFrames: false,
   main(ctx) {
-    const dispatch = () => {
-      if (isGitHubRecoveryCodesPage()) {
-        setupGitHubRecover()
-      } else if (isGitHubTwoFactorSetupPage()) {
-        setupGitHubReadQR()
-      } else {
-        // 登录页 / sudo 重认证：默认走 OTP 自动填
-        setupGitHubFillOTP()
-      }
-    }
-
-    dispatch()
-    ctx.addEventListener(window, "wxt:locationchange", () => dispatch())
+    dispatchSiteAction(githubAdapter, ctx)
   }
 })
