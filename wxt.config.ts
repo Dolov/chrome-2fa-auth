@@ -1,4 +1,5 @@
 import { resolve } from "node:path"
+import { fileURLToPath } from "node:url"
 import tailwindcss from "@tailwindcss/vite"
 import { nodePolyfills } from "vite-plugin-node-polyfills"
 import { defineConfig } from "wxt"
@@ -6,7 +7,6 @@ import { defineConfig } from "wxt"
 // https://wxt.dev/api/config.html
 export default defineConfig({
   srcDir: ".",
-  entrypointsDir: "content",
   outDir: ".output",
   modules: ["@wxt-dev/module-react"],
   manifest: {
