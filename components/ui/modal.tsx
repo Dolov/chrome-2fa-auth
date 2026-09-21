@@ -4,6 +4,16 @@ import React from "react"
 import Button from "./button"
 import QProgress from "./qprogress"
 
+/**
+ * 进程级唯一 modal id 生成器
+ *
+ * 原实现用 `Date.now()`（毫秒）作 id，同一毫秒挂载的多个 Modal 会
+ * 拿到同一个 id，导致 `getElementById` 操作错元素（两个 dialog 互切换）。
+ * 改用自增计数器保证唯一。
+ */
+let modalIdCounter = 0
+const nextModalId = (): string => `modal_${++modalIdCounter}`
+
 export interface ModalShortcuts {
   Space?: () => void
   ArrowUp?: () => void
@@ -57,7 +67,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     shortcutKeySave,
     placeholder
   } = props
-  const id = React.useMemo(() => "modal_" + Date.now(), [])
+  const [id] = React.useState(nextModalId)
 
   React.useEffect(() => {
     const dialog = document.getElementById(id) as HTMLDialogElement | null
