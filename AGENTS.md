@@ -64,7 +64,9 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 ## 待办
 
 - [x] 装 playwright + 跑通 hello-popup 测试
-- [ ] 写 P0 5 个 spec（不含第三方）
+- [x] 写 P0 5 个 spec（不含第三方）—— F1 popup 加载/渲染 5 条全绿
+- [x] WXT 迁移后的架构重构（S0-S8：类型修复 / CONTEXT.md / OTP intake /
+      消息协议 / auth 纯化 / useModalStack / kebab 命名），E2E 8/8 全绿
 - [ ] 用户提供 GitHub / NPM test 账号后，写 F8 / F9 真实集成 spec
 - [ ] 写 F7 QR 扫描 4 条路径（mock 摄像头）
 - [ ] F1-F6 + F10-F12 主体 spec 全绿

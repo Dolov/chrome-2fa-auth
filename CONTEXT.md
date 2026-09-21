@@ -22,6 +22,11 @@
 - **边界**：
   - URL 必须以 `otpauth://` 开头且包含 `secret=`，否则 `isOtpAuthUrl` 返回 false。
   - `parseOtpAuthUrl` 抛异常时调用方负责降级（toast / 重试）。
+  - **algorithm 归一不变式**：otplib v12 的 `Authenticator.generate()` 要求
+    algorithm 严格等于 `"sha1" | "sha256" | "sha512"`（小写）。OTPAuth 规范
+    写的是大写 `SHA1`，因此 `generateOtp()` 内部必须经 `toOtpHashAlgorithm()`
+    归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。违反此不变式会导致
+    popup 一有数据就白屏（见 commit `496abe9`）。
 
 ### 2. OtpItem（= `DataProps`）
 
