@@ -3,12 +3,10 @@ import { defineConfig, devices } from "@playwright/test"
 /**
  * 黑盒 E2E 配置
  * - 不依赖任何项目内部代码
- * - 通过加载 unpacked 扩展 + 模拟用户操作验证
- * - Plasmo 构建产物路径：build/chrome-mv3-prod
- *   （迁移到 WXT 后改为 .output/chrome-mv3）
+ * - 通过加载 unpacked 扩展（.output/chrome-mv3）+ 模拟用户操作验证
  *
  * 设计要点：
- * - globalSetup: 跑一次 build + patch，避免每个 worker 重复
+ * - globalSetup: 跑一次 build，避免每个 worker 重复
  * - workers=1: 单 worker 复用 BrowserContext（worker-scope fixture）
  * - channel 默认系统 Chrome（跳过 chromium 下载），CI 切 chromium
  */
