@@ -15,15 +15,31 @@ export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {
   next?: boolean
 }
 
-/** Otplib HashAlgorithms 枚举的运行时值。otplib v12 未导出 enum 类型，手写对齐。 */
-type OtpHashAlgorithm = "sha1" | "sha256" | "sha512"
+/**
+ * Otplib HashAlgorithms 枚举的运行时值（小写）。otplib v12 未导出 enum 类型，手写对齐。
+ *
+ * 注意：otplib v12 的 `allOptions()` 校验要求 algorithm 严格等于
+ * `["sha1", "sha256", "sha512"]` 之一；传入 OTPAuth 规范的大写形式
+ * （"SHA1"）或 undefined 都会抛错。
+ *
+ * 本函数把任意形式归一为合法小写值，缺省回退到 "sha1"（RFC 6238 默认）。
+ */
+const DEFAULT_HASH_ALGORITHM = "sha1" as const
+type OtpHashAlgorithm = typeof DEFAULT_HASH_ALGORITHM | "sha256" | "sha512"
+const OTP_HASH_ALGORITHMS = [
+  DEFAULT_HASH_ALGORITHM,
+  "sha256",
+  "sha512"
+] as const
+
 const toOtpHashAlgorithm = (
   algorithm: OtpAuthConfig["algorithm"] | undefined
-): OtpHashAlgorithm | undefined => {
-  if (!algorithm) return undefined
+): OtpHashAlgorithm => {
+  if (!algorithm) return DEFAULT_HASH_ALGORITHM
   const lowered = algorithm.toLowerCase()
-  return (["sha1", "sha256", "sha512"] as const).find(
-    (v) => v === lowered
+  return (
+    OTP_HASH_ALGORITHMS.find((v) => v === lowered) ??
+    DEFAULT_HASH_ALGORITHM
   )
 }
 
@@ -48,7 +64,7 @@ export const generateOtp = (
     step,
     digits,
     // otplib v12 AuthenticatorOptions.algorithm 字段是 HashAlgorithms 字符串枚举。
-    // 由于 otplib v12 未导出 enum 类型，这里 cast 一次。
+    // 我们已归一到合法小写值，类型层面 cast 一次以对齐。
     algorithm: algorithm as unknown as
       | (typeof authenticator.options extends { algorithm?: infer A }
           ? NonNullable<A>
