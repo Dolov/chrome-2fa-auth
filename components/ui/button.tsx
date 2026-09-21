@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -26,7 +26,7 @@ const Button = (props: ButtonProps) => {
     <button {...otherProps} disabled={loading || disabled}>
       {loading && (
         <span
-          className={clsx(
+          className={cn(
             "loading loading-spinner",
             loadingSize,
             loadingClassName

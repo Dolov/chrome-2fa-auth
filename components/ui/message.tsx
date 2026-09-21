@@ -1,4 +1,4 @@
-import classnames from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 import { createRoot } from "react-dom/client"
 
@@ -51,7 +51,7 @@ export const Message = (props: MessageProps, ref) => {
         return (
           <div
             key={id}
-            className={classnames(
+            className={cn(
               "flex alert transition-opacity opacity-100 duration-500 ease-in-out py-2",
               {
                 "alert-error": type === "error",

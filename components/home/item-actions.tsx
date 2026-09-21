@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import {
   History,
   KeyRound,
@@ -118,7 +118,7 @@ const ItemActions: React.FC<{
         right,
         bottom
       }}
-      className={clsx("fixed z-20")}>
+      className={cn("fixed z-20")}>
       <div
         onClick={onClose}
         style={{

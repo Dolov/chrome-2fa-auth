@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import { getProgressColor, getRemainingTime } from "~/utils/auth"
@@ -30,7 +30,7 @@ const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
     <progress
       max={30}
       value={timeRemaining}
-      className={clsx(`progress w-full h-[3px] bg-base-200 ${className}`, {
+      className={cn(`progress w-full h-[3px] bg-base-200 ${className}`, {
         [color]: !deleted,
         "base-content": deleted
       })}

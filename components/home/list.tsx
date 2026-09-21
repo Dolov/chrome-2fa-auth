@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import { FileCog } from "lucide-react"
 import React from "react"
 
@@ -68,7 +68,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
 
   return (
     <div
-      className={clsx("group relative py-4 mb-4 rounded-btn overflow-hidden", {
+      className={cn("group relative py-4 mb-4 rounded-btn overflow-hidden", {
         "shadow-lg": pinned,
         "bg-base-300": deleted,
         "bg-base-200": !deleted,
@@ -94,7 +94,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               <FileCog size={16} />
             </button>
           </div>
-          <Favicon className={clsx({ grayscale: deleted })} issuer={issuer} />
+          <Favicon className={cn({ grayscale: deleted })} issuer={issuer} />
         </div>
         <div className="base-content font-medium -translate-y-[2px]">
           {account}
@@ -102,7 +102,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         <div className="mt-2 flex justify-between items-center">
           <OtpText
             secret={secret}
-            className={clsx("font-bold text-2xl", {
+            className={cn("font-bold text-2xl", {
               "text-primary": !deleted,
               "text-base-content": deleted
             })}
@@ -113,7 +113,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               next
               small
               secret={secret}
-              className={clsx("text-sm font-medium", {
+              className={cn("text-sm font-medium", {
                 "text-secondary": !deleted,
                 "text-base-content": deleted
               })}

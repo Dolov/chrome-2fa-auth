@@ -1,4 +1,4 @@
-import { clsx } from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import cloudflare from "~/assets/cloudflare.png"
@@ -73,18 +73,18 @@ const Favicon = ({
   if (!Icon) return null
 
   if (minimal) {
-    return <Icon className={clsx("text-xl", className)} />
+    return <Icon className={cn("text-xl", className)} />
   }
   const img = elegantImageMap[vendor]
   if (img) {
     return (
       <img
         src={img}
-        className={clsx("w-[120px] absolute right-0 -top-4", className)}
+        className={cn("w-[120px] absolute right-0 -top-4", className)}
       />
     )
   }
-  return <Icon className={clsx("text-2xl", className)} />
+  return <Icon className={cn("text-2xl", className)} />
 }
 
 export const FaviconMinimal = ({
@@ -98,7 +98,7 @@ export const FaviconMinimal = ({
   const Icon = minimalIconMap[vendor]
 
   if (Icon) {
-    return <Icon className={clsx("text-xl", className)} />
+    return <Icon className={cn("text-xl", className)} />
   }
 
   return issuer

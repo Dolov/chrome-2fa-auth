@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import { ClipboardCopy, CopyCheck } from "lucide-react"
 import React, { useState } from "react"
 
@@ -46,7 +46,7 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
             <div
               key={value}
               onClick={() => handleCopy(value)}
-              className={clsx(
+              className={cn(
                 "badge w-full flex items-center justify-between px-3 py-2",
                 {
                   "badge-accent": !copied,
@@ -55,14 +55,14 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
                 }
               )}>
               <span
-                className={clsx("truncate grow min-w-0", {
+                className={cn("truncate grow min-w-0", {
                   "line-through": copied
                 })}>
                 {value}
               </span>
               <CopyIcon
                 size={14}
-                className={clsx("ml-2 shrink-0 transition", {
+                className={cn("ml-2 shrink-0 transition", {
                   "hover:text-white/80 cursor-pointer active:scale-95": !copied
                 })}
               />

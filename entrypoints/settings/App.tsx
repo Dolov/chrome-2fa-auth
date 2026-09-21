@@ -1,4 +1,4 @@
-import classnames from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import { useStorage } from "~/utils/storage-hook"
@@ -58,7 +58,7 @@ const ThemeList = () => {
           <div
             key={item}
             onClick={() => setTheme(item)}
-            className={classnames("overflow-hidden rounded-lg item-border", {
+            className={cn("overflow-hidden rounded-lg item-border", {
               "item-border-active": checked
             })}>
             <div

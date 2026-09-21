@@ -1,4 +1,4 @@
-import classnames from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import Button from "./button"
@@ -107,7 +107,7 @@ const Modal: React.FC<ModalProps> = (props) => {
           {onOk && (
             <Button
               loading={okLoading}
-              className={classnames(
+              className={cn(
                 "btn btn-neutral mr-2",
                 confirmButtonClassName
               )}
@@ -117,7 +117,7 @@ const Modal: React.FC<ModalProps> = (props) => {
             </Button>
           )}
           <button
-            className={classnames("btn", closeButtonClassName)}
+            className={cn("btn", closeButtonClassName)}
             onClick={handleClose}>
             Close
           </button>
@@ -131,7 +131,7 @@ const Modal: React.FC<ModalProps> = (props) => {
       <QProgress
         loading={qprogressLoading}
         style={{ width, maxWidth: width, ...style }}
-        className={classnames("modal-box flex flex-col", {
+        className={cn("modal-box flex flex-col", {
           "w-full h-full max-h-full rounded-none": full
         })}>
         <div className="w-full h-full absolute -z-10 left-0 top-0">

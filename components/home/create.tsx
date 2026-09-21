@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import {
   ImageUp,
   Keyboard,
@@ -132,13 +132,13 @@ const Create: React.FC<CreateProps> = (props) => {
 
   return (
     <div
-      className={clsx("absolute flex flex-col items-center z-10", {
+      className={cn("absolute flex flex-col items-center z-10", {
         "bottom-8 right-8": containerType === "phone",
         "bottom-4 right-4": containerType !== "phone"
       })}>
       {/* 额外的按钮，只有在激活时才显示 */}
       <div
-        className={clsx(
+        className={cn(
           "flex flex-col items-center transition-transform duration-200 ease-out opacity-0 mb-1",
           { "opacity-100": active }
         )}>
@@ -155,7 +155,7 @@ const Create: React.FC<CreateProps> = (props) => {
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="自动扫描二维码">
           <div
-            className={clsx("scale-75 rounded-btn", {
+            className={cn("scale-75 rounded-btn", {
               "bg-base-300": !injectable
             })}>
             <Button
@@ -163,7 +163,7 @@ const Create: React.FC<CreateProps> = (props) => {
               loading={scaning}
               onClick={handleAutoScan}
               disabled={!injectable}
-              className={clsx("btn btn-square btn-accent shadow-2xl")}>
+              className={cn("btn btn-square btn-accent shadow-2xl")}>
               <QrCode />
             </Button>
           </div>
@@ -172,14 +172,14 @@ const Create: React.FC<CreateProps> = (props) => {
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="手动截取二维码">
           <div
-            className={clsx("scale-75 rounded-btn", {
+            className={cn("scale-75 rounded-btn", {
               "bg-base-300": !injectable
             })}>
             <Button
               onlyLoading
               onClick={handleManualScan}
               disabled={!injectable}
-              className={clsx("btn btn-square btn-info shadow-2xl")}>
+              className={cn("btn btn-square btn-info shadow-2xl")}>
               <SquareDashedMousePointer />
             </Button>
           </div>
@@ -190,7 +190,7 @@ const Create: React.FC<CreateProps> = (props) => {
           <Button
             onlyLoading
             onClick={handleUpload}
-            className={clsx("btn btn-square btn-warning shadow-2xl scale-75")}>
+            className={cn("btn btn-square btn-warning shadow-2xl scale-75")}>
             <ImageUp />
           </Button>
         </div>
@@ -199,7 +199,7 @@ const Create: React.FC<CreateProps> = (props) => {
       {/* 主按钮 */}
       <button
         onClick={toggle}
-        className={clsx(
+        className={cn(
           "btn btn-circle shadow-2xl transition-all duration-200",
           {
             "btn-neutral": !active,
@@ -207,7 +207,7 @@ const Create: React.FC<CreateProps> = (props) => {
           }
         )}>
         <Plus
-          className={clsx("duration-300 transition-transform", {
+          className={cn("duration-300 transition-transform", {
             "rotate-45": active
           })}
         />

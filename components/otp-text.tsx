@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import message from "~/components/ui/message"
@@ -38,7 +38,7 @@ const OtpText: React.FC<OtpTextProps> = (props) => {
   return (
     <div className={className} onClick={handleClick}>
       <span
-        className={clsx({
+        className={cn({
           "mr-1": small,
           "mr-2": !small
         })}>

@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
@@ -77,7 +77,7 @@ const Header: React.FC<HeaderProps> = (props) => {
 
   return (
     <div
-      className={clsx("grid grid-cols-[1fr_2fr_1fr] items-center px-4 h-16", {
+      className={cn("grid grid-cols-[1fr_2fr_1fr] items-center px-4 h-16", {
         "mt-4": containerType === "phone"
       })}>
       <Dropdown trigger="hover" menus={menuItems}>

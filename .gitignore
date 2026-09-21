@@ -31,3 +31,15 @@ web-ext.config.ts
 /playwright/.cache/
 /e2e/artifacts/
 /e2e/.env.e2e
+
+.pi/skills-lock.json
+skills-lock.json
+
+/.pi/
+
+/.agents/
+/.pi/
+
+/.pi/
+/.agents/
+skills-lock.json

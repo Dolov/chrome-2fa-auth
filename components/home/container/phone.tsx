@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 interface PhoneProps {
@@ -9,7 +9,7 @@ interface PhoneProps {
 const Phone: React.FC<PhoneProps> = (props) => {
   const { children, className } = props
   return (
-    <div className={clsx("flex flex-col", className)}>
+    <div className={cn("flex flex-col", className)}>
       <div className="mockup-phone flex flex-col flex-1">
         <div className="camera"></div>
         <div className="display">

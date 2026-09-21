@@ -1,4 +1,4 @@
-import classnames from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 import ReactDOM from "react-dom/client"
 
@@ -11,7 +11,7 @@ document.title = `${chrome.i18n.getMessage("extensionName")}`
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <div
-      className={classnames(
+      className={cn(
         "w-screen h-screen overflow-hidden bg-base-100"
       )}>
       <Setting />

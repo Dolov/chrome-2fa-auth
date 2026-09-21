@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 
 import { ContainerType } from "~/utils/constant"
@@ -19,7 +19,7 @@ const Container: React.FC<ContainerProps> = (props) => {
   }
   return (
     <div
-      className={clsx(
+      className={cn(
         "relative w-[350px] h-[600px] bg-base-100 flex flex-col pb-4"
       )}>
       {children}

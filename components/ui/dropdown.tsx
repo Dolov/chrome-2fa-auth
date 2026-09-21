@@ -1,4 +1,4 @@
-import clsx from "clsx"
+import { cn } from "~/utils/cn"
 import React from "react"
 import type { ReactNode } from "react"
 
@@ -77,7 +77,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   return (
     <details
       ref={detailsRef}
-      className={clsx("dropdown", getPlacementClass(), {
+      className={cn("dropdown", getPlacementClass(), {
         "dropdown-hover": trigger === "hover"
       })}>
       <summary
@@ -105,7 +105,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                   onOpenChange?.(false)
                 }
               }}
-              className={clsx({
+              className={cn({
                 "opacity-50 !cursor-not-allowed": item.disabled
               })}>
               {item.label}
