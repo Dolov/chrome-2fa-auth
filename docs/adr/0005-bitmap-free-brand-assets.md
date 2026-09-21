@@ -76,10 +76,16 @@
 
 ## 验证方式
 
-改前 / 改后各截 8 张图（elegant × minimal × light × dark，含 GitHub / cloudflare /
-未知 issuer / deleted 四种账户）人工比对：布局无重叠、`grayscale` 对 deleted 仍生效、
-暗色主题下 `MdiGithub` 随 `currentColor` 转白、elegant 与 minimal 仍可区分。
-临时 spec 与截图未入库（`test-results/` 已被 gitignore）。
+1. 改前 / 改后各截 8 张图（elegant × minimal × light × dark × default/phone）
+   人工比对：布局无重叠、elegant 与 minimal 仍可区分、暗色主题下 `MdiGithub`
+   随 `currentColor` 转白、`DeviconCloudflare` 仍为橙色。
+2. **`deleted` 视图的 className 透传**（本次唯一真正的行为风险点：原来是
+   `<img className>`，现在是 `<svg className>`）。用临时 spec 驱动真实 UI
+   （hover 哈姆菜单 → 点「已删除」）后断言：
+   - `svg.grayscale` 数量 = 1（`cn({ grayscale: deleted })` 仍生效）
+   - `img[src*="github"], img[src*="cloudflare"]` 数量 = **0**（DOM 里再无位图）
+
+临时 spec 与截图均未入库（`test-results/` 已被 gitignore），截图输出到 `/tmp`。
 `pnpm compile` + `pnpm build` + E2E 8/8 通过。
 
 **已知缺口**：Favicon 渲染没有任何自动化断言（`e2e/SPECS.md` 第 81 行的
