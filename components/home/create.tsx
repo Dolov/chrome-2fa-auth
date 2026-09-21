@@ -8,27 +8,27 @@ import {
 } from "lucide-react"
 import React from "react"
 
-import OtpRemaining from "~/components/otp-remaining"
-import OtpText from "~/components/otp-text"
 import Button from "~/components/ui/button"
-import Modal from "~/components/ui/modal"
-import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
-import { sleep } from "~/utils/dom-utils"
-import message from "~/utils/message"
-import { readFromFile } from "~/utils/qr"
+import { ActionType } from "~/utils/constant"
 import { canInjectContentScript } from "~/utils/runtime-utils"
-import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
-import { useOtpMutators } from "~/state/otp-store"
+import { usePopupIntake } from "~/features/otp-intake"
 
 import { GlobalContext } from "./context"
 import { useModalWidth } from "./hooks"
 import OptForm from "./otp-form"
+import UploadModal from "./upload-modal"
 
-interface CreateProps {}
+/** AutoScan action 出参的最小定义（与 content/global.content 协议） */
+interface AutoScanResult {
+  success: boolean
+  data?: string
+  error?: string
+}
 
-const Create: React.FC<CreateProps> = (props) => {
+const Create: React.FC = () => {
   const { containerType } = React.useContext(GlobalContext)
-  const { add: addOtpItem, exists: checkOtpExists } = useOtpMutators()
+  const intake = usePopupIntake()
+
   const [active, setActive] = React.useState(false)
   const [visible, setVisible] = React.useState(false)
   const [isScanning, setIsScanning] = React.useState(false)
@@ -36,77 +36,14 @@ const Create: React.FC<CreateProps> = (props) => {
   const [uploadVisible, setUploadVisible] = React.useState(false)
 
   React.useEffect(() => {
-    canInjectContentScript().then(setInjectable)
+    void canInjectContentScript().then(setInjectable)
   }, [])
 
-  const toggle = () => {
-    setActive(!active)
-  }
+  const toggle = () => setActive((prev) => !prev)
 
   const handleClose = () => {
     setActive(false)
     setVisible(false)
-  }
-
-  const handleAutoScan = () => {
-    // 发送消息给 content.js
-    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const firstTab = tabs[0]
-      if (!firstTab?.id) return
-      browser.tabs.sendMessage(
-        firstTab.id,
-        { action: ActionType.AUTOSCAN },
-        handleQRScanResult
-      )
-    })
-  }
-
-  interface QRScanResult {
-    success: boolean
-    data?: string
-    error?: string
-  }
-
-  const handleQRScanResult = async (result: QRScanResult | undefined) => {
-    if (!result) return
-    const { success, data } = result
-    // 无法自动识别二维码，开启手动截图模式
-    if (!success || !data) {
-      const messageText = "未检测到二维码，开启手动截图模式，ESC 退出"
-      sendManualScanMessage(messageText)
-      return
-    }
-    const parsedData = parseOtpAuthUrl(data)
-
-    setIsScanning(true)
-    await sleep(1000)
-
-    if (!parsedData.account) {
-      const account = prompt("请输入账号名称")
-      if (!account) {
-        setIsScanning(false)
-        message.error("请输入账号名称")
-        return
-      }
-      parsedData.account = account
-    }
-
-    if (await checkOtpExists(parsedData)) {
-      setIsScanning(false)
-      message.warning("该 QR code 已存在。")
-      return
-    }
-
-    await addOtpItem(parsedData)
-
-    setActive(false)
-    setIsScanning(false)
-    message.success(`${parsedData.issuer} - ${parsedData.account} 添加成功`)
-  }
-
-  const handleManualScan = () => {
-    const messageText = "手动截图模式，ESC 退出"
-    sendManualScanMessage(messageText)
   }
 
   const sendManualScanMessage = (messageText: string) => {
@@ -121,13 +58,40 @@ const Create: React.FC<CreateProps> = (props) => {
     })
   }
 
-  const handleUpload = () => {
-    setUploadVisible(true)
+  const handleAutoScan = () => {
+    browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const firstTab = tabs[0]
+      if (!firstTab?.id) return
+      browser.tabs.sendMessage(
+        firstTab.id,
+        { action: ActionType.AUTOSCAN },
+        (result: AutoScanResult | undefined) => {
+          void handleQRScanResult(result)
+        }
+      )
+    })
   }
 
-  const handleUploadClose = () => {
-    setUploadVisible(false)
+  const handleQRScanResult = async (result: AutoScanResult | undefined) => {
+    if (!result?.success || !result.data) {
+      sendManualScanMessage("未检测到二维码，开启手动截图模式，ESC 退出")
+      return
+    }
+
+    setIsScanning(true)
+    // 短暂反馈，给用户视觉提示"识别中"
+    await new Promise((r) => setTimeout(r, 600))
+    setIsScanning(false)
+
+    await intake({ kind: "qr-data", data: result.data })
   }
+
+  const handleManualScan = () => {
+    sendManualScanMessage("手动截图模式，ESC 退出")
+  }
+
+  const handleUpload = () => setUploadVisible(true)
+  const handleUploadClose = () => setUploadVisible(false)
 
   return (
     <div
@@ -215,180 +179,6 @@ const Create: React.FC<CreateProps> = (props) => {
       <OptForm visible={visible} onClose={handleClose} />
       <UploadModal visible={uploadVisible} onClose={handleUploadClose} />
     </div>
-  )
-}
-
-interface UploadModalProps {
-  visible: boolean
-  onClose: () => void
-}
-
-const UploadModal: React.FC<UploadModalProps> = (props) => {
-  const { visible, onClose } = props
-  const { width } = useModalWidth()
-  const { add: addOtpItem, exists: checkOtpExists } = useOtpMutators()
-  const [error, setError] = React.useState<string | null>(null)
-  const [parsedData, setParsedData] =
-    React.useState<ReturnType<typeof parseOtpAuthUrl> | null>(null)
-  const [accountName, setAccountName] = React.useState("")
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
-  React.useEffect(() => {
-    if (visible) {
-      window.addEventListener("paste", handlePaste)
-    }
-
-    return () => {
-      window.removeEventListener("paste", handlePaste)
-    }
-  }, [visible])
-
-  const handleUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    processFile(file)
-  }
-
-  const handlePaste = (e: ClipboardEvent) => {
-    const items = e.clipboardData?.items
-    const item = items?.[0]
-    if (!item) return
-    const imageType = item.type.startsWith("image/")
-    if (!imageType) return
-
-    const blob = item.getAsFile()
-    if (!blob) return
-    // 使用 DataTransfer 来模拟用户选择文件
-    const dt = new DataTransfer()
-    dt.items.add(blob)
-    if (fileInputRef.current) {
-      fileInputRef.current.files = dt.files
-    }
-    processFile(blob)
-  }
-
-  const processFile = async (file: File) => {
-    setParsedData(null)
-    const data = await readFromFile(file)
-    const isOtpAuth = isOtpAuthUrl(data)
-    if (!isOtpAuth) {
-      setError("无效的 OTP Auth URL")
-      return
-    }
-    const parsedData = parseOtpAuthUrl(data)
-
-    const isExist = await checkOtpExists(parsedData)
-    if (isExist) {
-      setError("该账户已存在")
-      return
-    }
-
-    setError(null)
-    setParsedData(parsedData)
-  }
-
-  const handleOk = async () => {
-    if (!parsedData) return
-    const account = parsedData.account ?? accountName
-    if (!account) {
-      setError("请输入账户名称")
-      return
-    }
-
-    const candidate: Omit<DataProps, "id"> = {
-      ...parsedData,
-      account
-    }
-    const isExist = await checkOtpExists(candidate)
-    if (isExist) {
-      setError("该账户已存在")
-      return
-    }
-    await addOtpItem(candidate)
-    handleClose()
-  }
-
-  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleOk()
-    }
-  }
-
-  const handleClose = () => {
-    setError(null)
-    setParsedData(null)
-    setAccountName("")
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
-    onClose()
-  }
-
-  const { secret, account } = parsedData || {}
-  const okDisabled = (!accountName && !account) || !!error
-
-  return (
-    <Modal
-      width={width}
-      title="上传二维码截图"
-      visible={visible}
-      onOk={handleOk}
-      onClose={onClose}
-      okDisabled={okDisabled}>
-      <div className="p-1">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleUploadChange}
-          className="file-input file-input-bordered file-input-neutral w-full max-w-xs"
-        />
-      </div>
-      <div className="p-2">
-        <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
-        {!account && secret && (
-          <label className="input input-bordered flex items-center mt-6">
-            <input
-              autoFocus
-              type="text"
-              className="grow"
-              placeholder="输入账户名称"
-              value={accountName}
-              onKeyDown={handleEnter}
-              onChange={(e) => {
-                setAccountName(e.target.value)
-              }}
-            />
-          </label>
-        )}
-        {secret && (
-          <div>
-            <OtpRemaining />
-            <OtpText
-              small
-              secret={secret}
-              className="text-primary font-bold text-2xl"
-            />
-          </div>
-        )}
-      </div>
-      {error && (
-        <div role="alert" className="alert alert-warning flex mb-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 shrink-0 stroke-current"
-            fill="none"
-            viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
-          <span className="align-left">{error}</span>
-        </div>
-      )}
-    </Modal>
   )
 }
 
