@@ -1,10 +1,8 @@
-import jsQR from "jsqr"
-
 import { contentBaseZindex } from "~/utils/constant"
+import { readFromCanvas } from "~/utils/qr"
 
 /** 开发模式下 debug canvas 的 class 名 */
-const DEBUG_CANVAS_CLASS =
-  "github-2fa-container-1742783738736-debug-canvas"
+const DEBUG_CANVAS_CLASS = "g2fa-portal-debug-canvas"
 
 /**
  * 裁剪截图区域并解析其中的二维码。
@@ -44,9 +42,7 @@ export const cropImage = (
         height * dpr
       )
 
-      decodeQRCode(canvas.toDataURL("image/png"))
-        .then(resolve)
-        .catch(reject)
+      readFromCanvas(canvas).then(resolve).catch(reject)
 
       // 开发模式：把 canvas 显示在页面上供调试
       if (process.env.NODE_ENV === "development") {
@@ -61,27 +57,5 @@ export const cropImage = (
       }
     }
     img.onerror = reject
-  })
-}
-
-/** 解析 Data URL 图片中的二维码内容 */
-const decodeQRCode = (imageDataUrl: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    image.src = imageDataUrl
-    image.onload = () => {
-      const canvas = document.createElement("canvas")
-      canvas.width = image.width
-      canvas.height = image.height
-      const ctx = canvas.getContext("2d")
-      if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
-      ctx.drawImage(image, 0, 0)
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-
-      const code = jsQR(imageData.data, imageData.width, imageData.height)
-      if (code) resolve(code.data)
-      else reject(new Error("无法识别的二维码"))
-    }
-    image.onerror = () => reject(new Error("图片加载失败"))
   })
 }

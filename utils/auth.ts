@@ -1,4 +1,3 @@
-import jsQR from "jsqr"
 import { authenticator } from "otplib"
 
 import type { OtpAuthConfig } from "./constant"
@@ -190,30 +189,3 @@ export const isOtpAuthUrl = (data: string): boolean => {
   return true
 }
 
-/**
- * Decode QR code from image
- * @param img HTMLImageElement
- */
-export const decodeQRCode = (img: HTMLImageElement): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement("canvas")
-    const context = canvas.getContext("2d")
-    if (!context) {
-      reject(new Error("Failed to get canvas context"))
-      return
-    }
-
-    canvas.width = img.width
-    canvas.height = img.height
-    context.drawImage(img, 0, 0)
-
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-    const code = jsQR(imageData.data, imageData.width, imageData.height)
-
-    if (code) {
-      resolve(code.data)
-    } else {
-      reject(new Error("No QR code found"))
-    }
-  })
-}

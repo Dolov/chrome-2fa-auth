@@ -1,7 +1,7 @@
-import { highlightElement } from "~/utils/dom-highlight"
 import { ActionType } from "~/utils/constant"
+import { highlightElement } from "~/utils/dom-highlight"
+import { scanPage } from "~/utils/qr"
 
-import { scanQRCode } from "./scan"
 import { startManualScreenshot } from "./manual-scan"
 
 /**
@@ -26,7 +26,7 @@ export default defineContentScript({
       sendResponse
     ) => {
       if (message.action === ActionType.AUTOSCAN) {
-        scanQRCode()
+        scanPage()
           .then((result) => {
             highlightElement(result.element)
             sendResponse({ success: true, data: result.data })

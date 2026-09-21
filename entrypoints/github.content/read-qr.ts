@@ -4,7 +4,7 @@ import { saveOTP } from "~/utils/storage"
 import { waitForElement } from "~/utils/dom-utils"
 import { highlightElement } from "~/utils/dom-highlight"
 import { startOtpMessageUpdater } from "~/utils/otp-autofill"
-import { readQRCodeFromImage } from "~/utils/helpers"
+import { readFromImage } from "~/utils/qr"
 import { type DataProps } from "~/utils/constant"
 
 import {
@@ -50,7 +50,7 @@ export const setupGitHubReadQR = async (): Promise<void> => {
 const parseImage2faUrl = async (
   qrImg: HTMLImageElement
 ): Promise<Omit<DataProps, "id"> | null> => {
-  const url = await readQRCodeFromImage(qrImg)
+  const url = await readFromImage(qrImg)
   if (!isOtpAuthUrl(url)) return null
 
   highlightElement(qrImg)

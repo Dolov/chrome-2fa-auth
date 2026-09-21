@@ -17,8 +17,8 @@ import Modal from "~/components/ui/modal"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/auth"
 import { sleep } from "~/utils/dom-utils"
 import message from "~/utils/message"
+import { readFromFile } from "~/utils/qr"
 import { canInjectContentScript } from "~/utils/runtime-utils"
-import { readQRCodeFromFile } from "~/utils/helpers"
 import { checkOtpAuthConfigExist, saveOTP } from "~/utils/storage"
 import { ActionType, StorageKey, type DataProps } from "~/utils/constant"
 
@@ -267,7 +267,7 @@ const UploadModal = (props) => {
 
   const processFile = async (file: File) => {
     setParsedData(null)
-    const data = await readQRCodeFromFile(file)
+    const data = await readFromFile(file)
     const isOtpAuth = isOtpAuthUrl(data)
     if (!isOtpAuth) {
       setError("无效的 OTP Auth URL")
