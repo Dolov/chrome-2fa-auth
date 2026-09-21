@@ -18,11 +18,16 @@ import { generateOtpAuthUrl } from "~/utils/auth"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 import message from "~/utils/message"
 import { useOtpList, useOtpMutators } from "~/state/otp-store"
+import { useModalStack } from "~/utils/useModalStack"
 import { type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"
 import EditModal from "./otp-form"
 import RecoveryCodeModal from "./recovery-codes"
+
+/** ItemActions 内嵌的 4 个 modal 的统一 key 列表 */
+const ACTION_MODALS = ["qr", "edit", "recovery", "delete"] as const
+type ActionModalKey = (typeof ACTION_MODALS)[number]
 
 const ItemActions: React.FC<{
   visible: boolean
@@ -33,25 +38,15 @@ const ItemActions: React.FC<{
   const { left, right, top, bottom, radius } = useModalWidth()
   const dataList = useOtpList()
   const { pin, restore, softDelete, hardDelete } = useOtpMutators()
-  const [qrVisible, setQrVisible] = React.useState(false)
-  const [editVisible, setEditVisible] = React.useState(false)
-  const [deleteVisible, setDeleteVisible] = React.useState(false)
-  const [recoveryVisible, setRecoveryVisible] = React.useState(false)
+  const modals = useModalStack<ActionModalKey>(ACTION_MODALS)
 
   const handleMaskClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
   }
 
-  const handleEdit = () => {
-    setEditVisible(true)
-  }
-
-  const handleDelete = () => {
-    setDeleteVisible(true)
-  }
-
-  const handleRecovery = () => {
-    setRecoveryVisible(true)
+  const closeAll = () => {
+    modals.closeAll()
+    onClose()
   }
 
   // 恢复已删除的条目
@@ -70,17 +65,12 @@ const ItemActions: React.FC<{
     onClose()
   }
 
-  const handleQr = () => {
-    setQrVisible(true)
-  }
-
   if (!visible) return null
 
   const { pinned, account, issuer, recoveryCodes, deleted } = itemData
 
   const recoveryBtnVisible =
     Array.isArray(recoveryCodes) && recoveryCodes.length > 0
-  const url = generateOtpAuthUrl(itemData)
 
   return (
     <div
@@ -93,7 +83,7 @@ const ItemActions: React.FC<{
       }}
       className={cn("fixed z-20")}>
       <div
-        onClick={onClose}
+        onClick={closeAll}
         style={{
           borderRadius: radius
         }}
@@ -101,34 +91,32 @@ const ItemActions: React.FC<{
       />
       <EditModal
         data={itemData}
-        visible={editVisible}
+        visible={modals.isOpen("edit")}
         onClose={() => {
+          modals.close("edit")
           onClose()
-          setEditVisible(false)
         }}
       />
       <RecoveryCodeModal
         data={itemData}
         title="恢复密钥"
-        visible={recoveryVisible}
+        visible={modals.isOpen("recovery")}
         onClose={() => {
+          modals.close("recovery")
           onClose()
-          setRecoveryVisible(false)
         }}
       />
       <QRCodeModal
         data={itemData}
-        visible={qrVisible}
-        onClose={() => {
-          setQrVisible(false)
-        }}
+        visible={modals.isOpen("qr")}
+        onClose={() => modals.close("qr")}
       />
       <DeleteModal
         data={itemData}
-        visible={deleteVisible}
+        visible={modals.isOpen("delete")}
         onClose={() => {
+          modals.close("delete")
           onClose()
-          setDeleteVisible(false)
         }}
       />
       <div
@@ -169,7 +157,7 @@ const ItemActions: React.FC<{
             </button>
           )}
           <button
-            onClick={handleQr}
+            onClick={() => modals.open("qr")}
             className="btn btn-ghost px-2 hover:text-accent">
             <div className="flex flex-col items-center justify-center gap-1">
               <QrCode size={18} />
@@ -178,7 +166,7 @@ const ItemActions: React.FC<{
           </button>
           {!deleted && (
             <button
-              onClick={handleEdit}
+              onClick={() => modals.open("edit")}
               className="btn btn-ghost px-2 hover:text-info">
               <div className="flex flex-col items-center justify-center gap-1">
                 <Pencil size={18} />
@@ -188,7 +176,7 @@ const ItemActions: React.FC<{
           )}
           {recoveryBtnVisible && (
             <button
-              onClick={handleRecovery}
+              onClick={() => modals.open("recovery")}
               className="btn btn-ghost px-2 hover:text-success">
               <div className="flex flex-col items-center justify-center gap-1">
                 <KeyRound size={18} />
@@ -207,7 +195,7 @@ const ItemActions: React.FC<{
             </button>
           )}
           <button
-            onClick={handleDelete}
+            onClick={() => modals.open("delete")}
             className="btn btn-ghost px-2 hover:text-error">
             <div className="flex flex-col items-center justify-center gap-1">
               <Trash2 size={18} />
@@ -220,7 +208,7 @@ const ItemActions: React.FC<{
             <FaviconMinimal issuer={issuer} />
             {account && <span>{account}</span>}
           </div>
-          <button onClick={onClose} className="btn btn-sm btn-ghost">
+          <button onClick={closeAll} className="btn btn-sm btn-ghost">
             取消
           </button>
         </div>

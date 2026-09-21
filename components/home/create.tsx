@@ -15,31 +15,30 @@ import {
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab
 } from "~/features/messaging"
+import { useModalStack } from "~/utils/useModalStack"
 
 import { GlobalContext } from "./context"
 import OptForm from "./otp-form"
 import UploadModal from "./upload-modal"
 
+/** FAB + 内嵌 modals 的 key 列表 */
+const FAB_MODALS = ["form", "upload"] as const
+type FabModalKey = (typeof FAB_MODALS)[number]
+
 const Create: React.FC = () => {
   const { containerType } = React.useContext(GlobalContext)
   const intake = usePopupIntake()
+  const modals = useModalStack<FabModalKey>(FAB_MODALS)
 
   const [active, setActive] = React.useState(false)
-  const [visible, setVisible] = React.useState(false)
   const [isScanning, setIsScanning] = React.useState(false)
   const [injectable, setInjectable] = React.useState(false)
-  const [uploadVisible, setUploadVisible] = React.useState(false)
 
   React.useEffect(() => {
     void canInjectContentScript().then(setInjectable)
   }, [])
 
   const toggle = () => setActive((prev) => !prev)
-
-  const handleClose = () => {
-    setActive(false)
-    setVisible(false)
-  }
 
   const handleManualScan = async (messageText: string) => {
     await sendManualScreenshotToActiveTab(messageText)
@@ -62,9 +61,6 @@ const Create: React.FC = () => {
     }
   }
 
-  const handleUpload = () => setUploadVisible(true)
-  const handleUploadClose = () => setUploadVisible(false)
-
   return (
     <div
       className={cn("absolute flex flex-col items-center z-10", {
@@ -81,7 +77,7 @@ const Create: React.FC = () => {
           className="tooltip tooltip-open tooltip-left before:py-2"
           data-tip="手动输入认证码">
           <button
-            onClick={() => setVisible(true)}
+            onClick={() => modals.open("form")}
             className="btn btn-square btn-secondary shadow-2xl scale-75">
             <Keyboard />
           </button>
@@ -124,7 +120,7 @@ const Create: React.FC = () => {
           data-tip="上传二维码截图">
           <Button
             onlyLoading
-            onClick={handleUpload}
+            onClick={() => modals.open("upload")}
             className={cn("btn btn-square btn-warning shadow-2xl scale-75")}>
             <ImageUp />
           </Button>
@@ -148,8 +144,17 @@ const Create: React.FC = () => {
         />
       </button>
 
-      <OptForm visible={visible} onClose={handleClose} />
-      <UploadModal visible={uploadVisible} onClose={handleUploadClose} />
+      <OptForm
+        visible={modals.isOpen("form")}
+        onClose={() => {
+          modals.close("form")
+          setActive(false)
+        }}
+      />
+      <UploadModal
+        visible={modals.isOpen("upload")}
+        onClose={() => modals.close("upload")}
+      />
     </div>
   )
 }
