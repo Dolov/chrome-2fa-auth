@@ -9,9 +9,9 @@ export default defineConfig({
   outDir: ".output",
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "2FA Auth - 现代化双因素认证工具",
-    description:
-      "一款专为安全与效率打造的开源免费 2FA 扩展，支持二维码自动扫描、选区扫描、表单输入与上传二维码，轻松应对多平台账户管理，界面优雅、体验出色。",
+    name: "__MSG_appName__",
+    description: "__MSG_appDescription__",
+    default_locale: "en",
     permissions: ["storage", "tabs", "scripting", "activeTab", "contextMenus"],
     host_permissions: ["https://*/*"],
     action: {

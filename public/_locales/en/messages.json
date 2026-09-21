@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "2FA Auth",
+    "description": "Extension display name"
+  },
+  "appDescription": {
+    "message": "A modern, open-source 2FA authenticator. Supports QR auto-scan, region scan, manual input and QR upload. Manage multi-platform accounts with an elegant UI and smooth experience.",
+    "description": "Extension description shown in Chrome Web Store"
+  }
+}

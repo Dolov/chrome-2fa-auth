@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "2FA Auth - 现代化双因素认证工具",
+    "description": "扩展显示名称"
+  },
+  "appDescription": {
+    "message": "一款专为安全与效率打造的开源免费 2FA 扩展，支持二维码自动扫描、选区扫描、表单输入与上传二维码，轻松应对多平台账户管理，界面优雅、体验出色。",
+    "description": "Chrome 应用商店展示的扩展描述"
+  }
+}
