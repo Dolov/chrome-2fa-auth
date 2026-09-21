@@ -3,7 +3,7 @@ import type {
   MessageHandler,
   MessageMap,
   OutboundPayload
-} from "./messageMap"
+} from "./message-map"
 
 /** WXT ContentScriptContext.addEventListener 期望的 listener 签名 */
 type ContextListener = (

@@ -5,7 +5,7 @@ import type {
   MessageHandler,
   MessageMap,
   OutboundPayload
-} from "./messageMap"
+} from "./message-map"
 
 /** 发送目标：active tab 的 content script 或 background SW */
 export type SendTarget =

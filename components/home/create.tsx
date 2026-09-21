@@ -15,7 +15,7 @@ import {
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab
 } from "~/features/messaging"
-import { useModalStack } from "~/utils/useModalStack"
+import { useModalStack } from "~/utils/use-modal-stack"
 
 import { GlobalContext } from "./context"
 import OptForm from "./otp-form"

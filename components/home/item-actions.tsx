@@ -18,7 +18,7 @@ import { generateOtpAuthUrl } from "~/utils/auth"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 import message from "~/utils/message"
 import { useOtpList, useOtpMutators } from "~/state/otp-store"
-import { useModalStack } from "~/utils/useModalStack"
+import { useModalStack } from "~/utils/use-modal-stack"
 import { type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"

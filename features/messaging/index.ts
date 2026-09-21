@@ -11,12 +11,12 @@ export type {
   MessageHandler,
   InboundPayload,
   OutboundPayload
-} from "./messageMap"
+} from "./message-map"
 export {
   sendSiteAction,
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab,
   sendCaptureScreenshot,
   type SendTarget
-} from "./sendSiteAction"
-export { handleSiteAction, registerRuntimeHandler } from "./handleSiteAction"
+} from "./send-site-action"
+export { handleSiteAction, registerRuntimeHandler } from "./handle-site-action"
