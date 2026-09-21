@@ -70,7 +70,11 @@
 
 ## 待办（未包含在本 ADR 的决定内）
 
+### 1. otplib 仍是最大的一块
+
 `github.js` / `npm.js` 仍为 ~606 KB，主因是 `utils/totp.ts` → otplib → 4 个 Node 垫片（约 440 KB）。
+同样的垫片也压在 popup / settings 的共享 chunk 上（该 chunk 809 KB，含 react-dom +
+qrcode.react + lucide，以 modulepreload 在打开 popup 时拉取）。
 
 - 选项 1：用 Web Crypto `crypto.subtle` 重写 TOTP（约 60 行），移除 `otplib` 与
   `vite-plugin-node-polyfills`。预计 content 侧降到 ~170 KB。

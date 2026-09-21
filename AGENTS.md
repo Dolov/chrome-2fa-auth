@@ -98,3 +98,9 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
       三个 content bundle 中 React 痕迹归零；E2E 8/8 全绿
 - [ ] ADR-0004 待办：用 Web Crypto 重写 TOTP 以移除 otplib + Node 垫片
       （预期 content 侧再降 ~440 KB；需纯 JS HMAC-SHA1 兜底 http 页面）
+- [ ] popup / settings 共享 chunk 809 KB（react-dom + otplib 垫片 + qrcode.react +
+      lucide），以 modulepreload 在打开 popup 时拉取；另有一个 154 KB 的
+      `assets/style-*.css`。属独立性能议题，不阻塞迁移
+- [ ] 收敛 `saveOTP` 与 `addOtp` 两个 OTP 合并入口（契约不同：前者收带 `id` 的
+      `DataProps`，后者收 `Omit<DataProps,"id">`）。**前置条件**：先补 F5
+      recovery code 保存路径的 E2E spec —— 当前无覆盖，不改语义先改结构等于裸奔
