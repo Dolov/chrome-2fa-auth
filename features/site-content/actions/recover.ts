@@ -23,7 +23,7 @@ export const setupRecoverCodes = async (adapter: SiteAdapter) => {
   displayRecoveryCodeSaveMessage(
     document.body,
     {
-      ...data[0],
+      ...data[0]!,
       recoveryCodes: codes.map((value) => ({ value, copied: false }))
     },
     { containerStyle: adapter.recoveryContainerStyle }

@@ -42,7 +42,7 @@ export const waitForElement = <T extends Element = Element>(
 export const extractDynamicSegment = (
   url: string,
   template: string | string[]
-) => {
+): string | null => {
   const templates = Array.isArray(template) ? template : [template]
 
   for (const templateEntry of templates) {
@@ -51,7 +51,7 @@ export const extractDynamicSegment = (
       .replace(/\*/g, "([^/]+)")
 
     const match = url.match(new RegExp(templateRegex))
-    if (match) return match[1]
+    if (match?.[1]) return match[1]
   }
 
   return null

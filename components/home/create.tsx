@@ -71,7 +71,7 @@ const Create: React.FC<CreateProps> = (props) => {
     if (!result) return
     const { success, data } = result
     // 无法自动识别二维码，开启手动截图模式
-    if (!success) {
+    if (!success || !data) {
       const messageText = "未检测到二维码，开启手动截图模式，ESC 退出"
       sendManualScanMessage(messageText)
       return
@@ -218,13 +218,18 @@ const Create: React.FC<CreateProps> = (props) => {
   )
 }
 
-const UploadModal = (props) => {
+interface UploadModalProps {
+  visible: boolean
+  onClose: () => void
+}
+
+const UploadModal: React.FC<UploadModalProps> = (props) => {
   const { visible, onClose } = props
   const { width } = useModalWidth()
   const { add: addOtpItem, exists: checkOtpExists } = useOtpMutators()
   const [error, setError] = React.useState<string | null>(null)
   const [parsedData, setParsedData] =
-    React.useState<ReturnType<typeof parseOtpAuthUrl>>(null)
+    React.useState<ReturnType<typeof parseOtpAuthUrl> | null>(null)
   const [accountName, setAccountName] = React.useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   React.useEffect(() => {

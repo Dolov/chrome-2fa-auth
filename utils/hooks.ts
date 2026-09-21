@@ -23,6 +23,7 @@ export const useThemeChange = () => {
   React.useEffect(() => {
     if (!theme) return
     const html = document.querySelector("html")
+    if (!html) return
     html.setAttribute("data-theme", theme)
   }, [theme])
 

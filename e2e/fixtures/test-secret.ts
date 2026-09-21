@@ -22,7 +22,9 @@ export function expectedOtp(secret = TEST_SECRET, date = new Date()): string {
   // 通过 epoch 控制时间
   const epoch = date.getTime()
   const counter = Math.floor(epoch / 30000)
-  return authenticator.generate(secret, { counter })
+  ;(authenticator as unknown as { _epoch: number })._epoch = epoch
+  void counter
+  return authenticator.generate(secret)
 }
 
 /**

@@ -14,8 +14,8 @@ export interface SiteAdapter {
   /** 显示名（用于日志/调试） */
   name: string
 
-  /** 该账号在 chrome.storage DATA 里的 issuer 字段 */
-  issuer: keyof typeof Issuers
+  /** 该账号在 chrome.storage DATA 里的 issuer 字段（Issuers 枚举值） */
+  issuer: (typeof Issuers)[keyof typeof Issuers]
 
   /** URL 路由判别 */
   isFillOTPPage(pathname: string): boolean

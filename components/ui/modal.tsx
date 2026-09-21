@@ -4,6 +4,15 @@ import React from "react"
 import Button from "./button"
 import QProgress from "./qprogress"
 
+export interface ModalShortcuts {
+  Space?: () => void
+  ArrowUp?: () => void
+  ArrowDown?: () => void
+  ArrowLeft?: () => void
+  ArrowRight?: () => void
+  [code: string]: (() => void) | undefined
+}
+
 export interface ModalProps {
   width?: number | string
   visible: boolean
@@ -22,14 +31,7 @@ export interface ModalProps {
   full?: boolean
   style?: React.CSSProperties
   placeholder?: React.ReactNode
-  keyboardEvents?: {
-    Space?: () => void
-    ArrowUp?: () => void
-    ArrowDown?: () => void
-    ArrowLeft?: () => void
-    ArrowRight?: () => void
-    [key: string]: () => void
-  }
+  keyboardEvents?: ModalShortcuts
   shortcutKeySave?: boolean
 }
 
@@ -58,7 +60,8 @@ const Modal: React.FC<ModalProps> = (props) => {
   const id = React.useMemo(() => "modal_" + Date.now(), [])
 
   React.useEffect(() => {
-    const dialog = document.getElementById(id) as HTMLDialogElement
+    const dialog = document.getElementById(id) as HTMLDialogElement | null
+    if (!dialog) return
     if (visible) {
       dialog.showModal()
     } else {
@@ -67,22 +70,24 @@ const Modal: React.FC<ModalProps> = (props) => {
   }, [visible])
 
   React.useEffect(() => {
-    const dialog = document.getElementById(id) as HTMLDialogElement
+    const dialog = document.getElementById(id) as HTMLDialogElement | null
+    if (!dialog) return
     dialog.addEventListener("close", handleClose)
     return () => {
       dialog.removeEventListener("close", handleClose)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const handleClose = React.useCallback(() => {
-    onClose && onClose()
-  }, [])
+    onClose?.()
+  }, [onClose])
 
   const handleConfirm = () => {
-    onOk && onOk()
+    onOk?.()
   }
 
-  const onKeyDown: React.KeyboardEventHandler = (event) => {
+  const onKeyDown: React.KeyboardEventHandler<HTMLDialogElement> = (event) => {
     if (event.metaKey && event.code === "KeyS" && shortcutKeySave) {
       handleConfirm()
       event.preventDefault()
@@ -90,11 +95,11 @@ const Modal: React.FC<ModalProps> = (props) => {
       return
     }
     if (!keyboardEvents) return
-    const key = event.code
-    if (!keyboardEvents[key]) return
+    const handler = keyboardEvents[event.code]
+    if (!handler) return
     event.preventDefault()
     event.stopPropagation()
-    keyboardEvents[key]()
+    handler()
   }
 
   const renderFooter = () => {

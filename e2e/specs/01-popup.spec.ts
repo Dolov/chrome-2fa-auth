@@ -70,7 +70,7 @@ test.describe("F1 popup > 主界面加载与渲染", () => {
     try {
       const workers = popup.context().serviceWorkers()
       if (workers.length > 0) {
-        await workers[0].evaluate(() => {
+        await workers[0]!.evaluate(() => {
           return chrome.storage.sync.set({
             settings: {
               theme: "dark",
@@ -96,7 +96,7 @@ test.describe("F1 popup > 主界面加载与渲染", () => {
     try {
       const workers = popup.context().serviceWorkers()
       if (workers.length > 0) {
-        await workers[0].evaluate(() => {
+        await workers[0]!.evaluate(() => {
           return chrome.storage.sync.set({
             settings: {
               theme: "light",

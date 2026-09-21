@@ -1,67 +1,77 @@
+/**
+ * 全局 toast 通知工具。
+ *
+ * 设计：
+ * - 单文件内同时管队列与渲染，不依赖 React、不在 content script 之外使用
+ * - 通过 `mountStyle` 单一 host <style> 注入，不污染页面原有 CSS
+ * - 自动超期销毁，可手动调 returned.destroy() 提前关闭
+ */
+
 import { contentBaseZindex } from "./constant"
 
 const baseDuration = 3000
 
-const message = {
-  warning(text, duration = baseDuration) {
-    return showMessage("warn", text, duration)
-  },
-  info(text, duration = baseDuration) {
-    return showMessage("info", text, duration)
-  },
-  error(text, duration = baseDuration) {
-    return showMessage("error", text, duration)
-  },
-  success(text, duration = baseDuration) {
-    return showMessage("success", text, duration)
-  }
+type ToastKind = "info" | "warn" | "error" | "success"
+
+const COLORS: Record<ToastKind, string> = {
+  info: "#2196F3",
+  warn: "#FFC107",
+  error: "#F44336",
+  success: "#4CAF50"
 }
 
-function showMessage(type, text, duration) {
-  const message = document.createElement("div")
-  message.style.position = "fixed"
-  message.style.top = "20px"
-  message.style.right = "20px"
-  message.style.padding = "10px 20px"
-  message.style.borderRadius = "8px"
-  message.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)"
-  message.style.color = "white"
-  message.style.fontSize = "16px"
-  message.style.transition = "transform 0.3s ease, opacity 0.3s ease"
-  message.style.transform = "translateX(100%)"
-  message.style.opacity = "0"
-  message.style.zIndex = `${contentBaseZindex + 1}`
+interface ToastHandle {
+  destroy(): void
+}
 
-  const colors = {
-    info: "#2196F3",
-    warn: "#FFC107",
-    error: "#F44336",
-    success: "#4CAF50"
-  }
+const showMessage = (
+  type: ToastKind,
+  text: string,
+  duration: number
+): ToastHandle => {
+  const node = document.createElement("div")
+  node.style.position = "fixed"
+  node.style.top = "20px"
+  node.style.right = "20px"
+  node.style.padding = "10px 20px"
+  node.style.borderRadius = "8px"
+  node.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)"
+  node.style.color = "white"
+  node.style.fontSize = "16px"
+  node.style.transition = "transform 0.3s ease, opacity 0.3s ease"
+  node.style.transform = "translateX(100%)"
+  node.style.opacity = "0"
+  node.style.zIndex = `${contentBaseZindex + 1}`
+  node.style.backgroundColor = COLORS[type]
+  node.textContent = text
 
-  message.style.backgroundColor = colors[type] || "#333"
-  message.textContent = text
-
-  document.body.appendChild(message)
+  document.body.appendChild(node)
 
   setTimeout(() => {
-    message.style.opacity = "1"
-    message.style.transform = "translateX(0)"
+    node.style.opacity = "1"
+    node.style.transform = "translateX(0)"
   }, 10)
 
   const destroy = () => {
-    message.style.transform = "translateX(100%)"
-    message.style.opacity = "0"
-    setTimeout(() => message.remove(), 300)
+    node.style.transform = "translateX(100%)"
+    node.style.opacity = "0"
+    setTimeout(() => node.remove(), 300)
   }
-
-  message.addEventListener("click", (e) => {})
 
   setTimeout(destroy, duration)
 
-  return {
-    destroy
-  }
+  return { destroy }
+}
+
+const message = {
+  warning: (text: string, duration = baseDuration) =>
+    showMessage("warn", text, duration),
+  info: (text: string, duration = baseDuration) =>
+    showMessage("info", text, duration),
+  error: (text: string, duration = baseDuration) =>
+    showMessage("error", text, duration),
+  success: (text: string, duration = baseDuration) =>
+    showMessage("success", text, duration)
 }
 
 export default message

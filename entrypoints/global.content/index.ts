@@ -4,6 +4,26 @@ import { scanPage } from "~/utils/qr"
 
 import { startManualScreenshot } from "./manual-scan"
 
+/** chrome.runtime.onMessage 监听器签名（runtime 不在 WXT ctx 静态类型里） */
+type RuntimeMessageListener = (
+  message: unknown,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: unknown) => void
+) => boolean | void
+
+/** 从未知消息里安全取 action 字段 */
+const getAction = (message: unknown): unknown =>
+  typeof message === "object" && message !== null && "action" in message
+    ? (message as { action: unknown }).action
+    : undefined
+
+/** 从未知消息里安全取 message 文本 */
+const getMessageText = (message: unknown): string => {
+  if (typeof message !== "object" || message === null) return ""
+  const text = (message as { message?: unknown }).message
+  return typeof text === "string" ? text : ""
+}
+
 /**
  * 全局 content script 聚合入口
  *
@@ -20,12 +40,10 @@ export default defineContentScript({
   allFrames: false,
   main(ctx) {
     // msg-return-true-for-async：返回 true 让 sendResponse 异步生效
-    ctx.addEventListener(browser.runtime.onMessage, (
-      message,
-      _sender,
-      sendResponse
-    ) => {
-      if (message.action === ActionType.AUTOSCAN) {
+    const listener: RuntimeMessageListener = (message, _sender, sendResponse) => {
+      const action = getAction(message)
+
+      if (action === ActionType.AUTOSCAN) {
         scanPage()
           .then((result) => {
             highlightElement(result.element)
@@ -34,10 +52,21 @@ export default defineContentScript({
           .catch((error: Error) => {
             sendResponse({ success: false, error: error.message })
           })
-      } else if (message.action === ActionType.MANUAL_SCREENSHOT) {
-        void startManualScreenshot(message.message as string)
+        return true
       }
-      return true
-    })
+
+      if (action === ActionType.MANUAL_SCREENSHOT) {
+        void startManualScreenshot(getMessageText(message))
+        return false
+      }
+
+      return false
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(ctx.addEventListener as unknown as (target: any, listener: any) => void)(
+      browser.runtime.onMessage,
+      listener
+    )
   }
 })

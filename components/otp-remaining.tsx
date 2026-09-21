@@ -10,18 +10,20 @@ interface OtpRemainingProps {
 
 const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
   const { className, deleted } = props
-  const interval = React.useRef(null)
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [timeRemaining, setTimeRemaining] = React.useState(() => {
     return getRemainingTime()
   })
 
   React.useEffect(() => {
-    interval.current = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setTimeRemaining(getRemainingTime())
     }, 1000)
 
-    return () => clearInterval(interval.current)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [])
 
   const color = getProgressColor(timeRemaining)
@@ -30,7 +32,7 @@ const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
     <progress
       max={30}
       value={timeRemaining}
-      className={cn(`progress w-full h-[3px] bg-base-200 ${className}`, {
+      className={cn(`progress w-full h-[3px] bg-base-200 ${className ?? ""}`, {
         [color]: !deleted,
         "base-content": deleted
       })}

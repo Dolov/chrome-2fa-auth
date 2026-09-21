@@ -1,4 +1,5 @@
-export function MdiGithub(props) {
+import type React from "react"
+export function MdiGithub(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,7 +15,7 @@ export function MdiGithub(props) {
   )
 }
 
-export function DeviconNpm(props) {
+export function DeviconNpm(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +35,7 @@ export function DeviconNpm(props) {
   )
 }
 
-export function LogosGitlab(props) {
+export function LogosGitlab(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -65,7 +66,7 @@ export function LogosGitlab(props) {
   )
 }
 
-export function LogosBitbucket(props) {
+export function LogosBitbucket(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +100,7 @@ export function LogosBitbucket(props) {
   )
 }
 
-export function LogosDockerIcon(props) {
+export function LogosDockerIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -115,7 +116,7 @@ export function LogosDockerIcon(props) {
   )
 }
 
-export function LogosAws(props) {
+export function LogosAws(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -135,7 +136,7 @@ export function LogosAws(props) {
   )
 }
 
-export function DeviconGooglecloud(props) {
+export function DeviconGooglecloud(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -163,7 +164,7 @@ export function DeviconGooglecloud(props) {
   )
 }
 
-export function DeviconAzure(props) {
+export function DeviconAzure(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -229,7 +230,7 @@ export function DeviconAzure(props) {
   )
 }
 
-export function DeviconCloudflare(props) {
+export function DeviconCloudflare(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +254,7 @@ export function DeviconCloudflare(props) {
   )
 }
 
-export function DeviconDigitalocean(props) {
+export function DeviconDigitalocean(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +270,7 @@ export function DeviconDigitalocean(props) {
   )
 }
 
-export function LogosTwitter(props) {
+export function LogosTwitter(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -285,7 +286,7 @@ export function LogosTwitter(props) {
   )
 }
 
-export function LogosFacebook(props) {
+export function LogosFacebook(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -305,7 +306,7 @@ export function LogosFacebook(props) {
   )
 }
 
-export function SkillIconsInstagram(props) {
+export function SkillIconsInstagram(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -360,7 +361,7 @@ export function SkillIconsInstagram(props) {
   )
 }
 
-export function DeviconLinkedin(props) {
+export function DeviconLinkedin(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -380,7 +381,7 @@ export function DeviconLinkedin(props) {
   )
 }
 
-export function SkillIconsDiscord(props) {
+export function SkillIconsDiscord(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -406,7 +407,7 @@ export function SkillIconsDiscord(props) {
   )
 }
 
-export function LogosRedditIcon(props) {
+export function LogosRedditIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -423,7 +424,7 @@ export function LogosRedditIcon(props) {
   )
 }
 
-export function SkillIconsGmailLight(props) {
+export function SkillIconsGmailLight(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -458,7 +459,7 @@ export function SkillIconsGmailLight(props) {
   )
 }
 
-export function VscodeIconsFileTypeOutlook(props) {
+export function VscodeIconsFileTypeOutlook(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

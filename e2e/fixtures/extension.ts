@@ -77,7 +77,7 @@ export const test = base.extend<
     if (!serviceWorker) {
       serviceWorker = await context.waitForEvent("serviceworker")
     }
-    const id = serviceWorker.url().split("/")[2]
+    const id = serviceWorker.url().split("/")[2] ?? ""
     await use(id)
   },
 

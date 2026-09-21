@@ -1,15 +1,18 @@
 import { storage } from "@wxt-dev/storage"
+import type { Browser } from "wxt/browser"
 
 import { LEGACY_KEY, dataStore } from "~/utils/storage"
-import { ActionType, StorageKey } from "~/utils/constant"
+import { ActionType } from "~/utils/constant"
+
+/** 右键菜单项：extra action 在 onClicked 时调用 */
+type MenuItem = Browser.contextMenus.CreateProperties & {
+  action?(tab: Browser.tabs.Tab): void
+}
 
 /**
  * 右键菜单列表
- * 类型用 browser.contextMenus.CreateProperties（WXT auto-imports browser）
  */
-const menuList: (browser.contextMenus.CreateProperties & {
-  action?(tab: browser.tabs.Tab): void
-})[] = [
+const menuList: MenuItem[] = [
   {
     id: "issue",
     title: "Issues & 需求",
@@ -42,8 +45,25 @@ const menuList: (browser.contextMenus.CreateProperties & {
   }
 ]
 
+interface LegacyCode {
+  value: string
+  /** 历史字段拼写错误（v1），迁移时归一 */
+  copyed?: boolean
+}
+
+interface LegacyOTPItem {
+  id: string
+  type: "totp"
+  issuer: string
+  account: string
+  secret: string
+  recoveryCodes?: LegacyCode[]
+}
+
 /**
  * 将 v1 版本的数据迁移到新数据格式
+ *
+ * 历史字段名 `copyed` 是 v1 真实存盘值（typo），迁回时归一为 `copied`。
  */
 const adaptLegacyData = async () => {
   const data = await dataStore.getValue()
@@ -82,27 +102,37 @@ const adaptLegacyData = async () => {
 
   if (list.length) {
     try {
-      await dataStore.setValue(list)
+      // 迁移后的 legacy 条目与 DataProps 完全兼容（recoveryCodes 字段类型一致），
+      // 这里显式标注以收敛 TS 推断。
+      await dataStore.setValue(list as unknown as DataProps[])
     } catch (error) {
       console.error("[background] Legacy data migration failed:", error)
     }
   }
 }
 
-interface LegacyOTPItem {
-  id: string
-  type: "totp"
-  issuer: string
-  account: string
-  secret: string
-  recoveryCodes: Array<{ value: string; copied: boolean }>
+interface CaptureScreenshotRequest {
+  action: typeof ActionType.CAPTURE_SCREENSHOT
 }
+
+interface CaptureScreenshotResponse {
+  success: boolean
+  image?: string
+}
+
+const isCaptureScreenshot = (
+  message: unknown
+): message is CaptureScreenshotRequest =>
+  typeof message === "object" &&
+  message !== null &&
+  "action" in message &&
+  message.action === ActionType.CAPTURE_SCREENSHOT
 
 export default defineBackground(() => {
   // svc-register-listeners-synchronously：listener 在顶层同步注册
   browser.runtime.onInstalled.addListener(() => {
     menuList.forEach((item) => {
-      const { action, ...menuProps } = item
+      const { action: _action, ...menuProps } = item
       browser.contextMenus.create(menuProps)
     })
     adaptLegacyData()
@@ -117,12 +147,16 @@ export default defineBackground(() => {
 
   // 内容脚本消息路由（msg-return-true-for-async）
   browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === ActionType.CAPTURE_SCREENSHOT) {
+    if (isCaptureScreenshot(message)) {
       browser.tabs.captureVisibleTab(
-        sender.tab?.windowId,
+        sender.tab?.windowId ?? -1,
         { format: "png" },
         (dataUrl) => {
-          sendResponse({ success: !!dataUrl, image: dataUrl })
+          const response: CaptureScreenshotResponse = {
+            success: !!dataUrl,
+            image: dataUrl ?? undefined
+          }
+          sendResponse(response)
         }
       )
       return true

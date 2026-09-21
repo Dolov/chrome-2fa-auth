@@ -14,7 +14,7 @@ interface OtpTextProps {
 
 const OtpText: React.FC<OtpTextProps> = (props) => {
   const { secret, className, small, next = false } = props
-  const interval = React.useRef(null)
+  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [otp, setOtp] = React.useState(() => {
     return generateOtp(secret, { next })
@@ -23,11 +23,13 @@ const OtpText: React.FC<OtpTextProps> = (props) => {
   const last = otp.slice(3)
 
   React.useEffect(() => {
-    interval.current = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       setOtp(generateOtp(secret, { next }))
     }, 1000)
 
-    return () => clearInterval(interval.current)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [next])
 
   const handleClick = () => {

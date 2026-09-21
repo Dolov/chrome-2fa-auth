@@ -60,7 +60,9 @@ export interface DataProps extends OtpAuthConfig {
 }
 
 export enum Issuers {
+  /** 存储于 chrome.storage DataProps.issuer 的字面量值（大小写敏感）。 */
   NPM = "NPM",
+  /** 历史数据保留 "GitHub" 大小写（v1 真实存盘值），迁移期不动。 */
   GITHUB = "GitHub"
 }
 

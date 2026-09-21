@@ -38,7 +38,7 @@ const ItemActions: React.FC<{
   const [deleteVisible, setDeleteVisible] = React.useState(false)
   const [recoveryVisible, setRecoveryVisible] = React.useState(false)
 
-  const handleMaskClick = (e) => {
+  const handleMaskClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
   }
 

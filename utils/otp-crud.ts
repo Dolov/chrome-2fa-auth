@@ -28,7 +28,7 @@ export const addOtp = (
     const next = existing.map((item, i) =>
       i === dupIdx ? { ...item, ...otp, id: item.id } : item
     )
-    return { items: next, inserted: next[dupIdx] }
+    return { items: next, inserted: next[dupIdx]! }
   }
 
   const oldIdx = existing.findIndex(
@@ -40,12 +40,13 @@ export const addOtp = (
   )
 
   if (oldIdx !== -1) {
+    const previous = existing[oldIdx]!
     const softDeleted = existing.map((item, i) =>
       i === oldIdx ? { ...item, deleted: true } : item
     )
     const newItem: DataProps = {
       ...otp,
-      recoveryCodes: existing[oldIdx].recoveryCodes ?? [],
+      recoveryCodes: previous.recoveryCodes ?? [],
       id: `${Date.now()}`
     }
     return { items: [...softDeleted, newItem], inserted: newItem }

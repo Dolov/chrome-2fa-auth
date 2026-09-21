@@ -15,6 +15,18 @@ export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {
   next?: boolean
 }
 
+/** Otplib HashAlgorithms 枚举的运行时值。otplib v12 未导出 enum 类型，手写对齐。 */
+type OtpHashAlgorithm = "sha1" | "sha256" | "sha512"
+const toOtpHashAlgorithm = (
+  algorithm: OtpAuthConfig["algorithm"] | undefined
+): OtpHashAlgorithm | undefined => {
+  if (!algorithm) return undefined
+  const lowered = algorithm.toLowerCase()
+  return (["sha1", "sha256", "sha512"] as const).find(
+    (v) => v === lowered
+  )
+}
+
 /**
  * 基于 secret + 可选 OtpAuthConfig + 参考时间，算出当前 OTP。
  *
@@ -27,7 +39,7 @@ export const generateOtp = (
 ): string => {
   const step = options.period ?? DEFAULT_OTP_STEP
   const digits = options.digits ?? DEFAULT_OTP_DIGITS
-  const algorithm = options.algorithm ?? "SHA1"
+  const algorithm = toOtpHashAlgorithm(options.algorithm)
   const baseEpoch = options.epoch ?? Date.now()
   const epoch = options.next ? baseEpoch + step * 1000 : baseEpoch
 
@@ -35,7 +47,13 @@ export const generateOtp = (
     ...authenticator.options,
     step,
     digits,
-    algorithm,
+    // otplib v12 AuthenticatorOptions.algorithm 字段是 HashAlgorithms 字符串枚举。
+    // 由于 otplib v12 未导出 enum 类型，这里 cast 一次。
+    algorithm: algorithm as unknown as
+      | (typeof authenticator.options extends { algorithm?: infer A }
+          ? NonNullable<A>
+          : never)
+      | undefined,
     epoch
   }
   return authenticator.generate(secret)
@@ -147,7 +165,7 @@ export const parseOtpAuthUrl = (otpauthUrl: string): OtpAuthConfig => {
   const result: OtpAuthConfig = {
     type,
     secret,
-    issuer,
+    issuer: issuer ?? "",
     account
   }
 
