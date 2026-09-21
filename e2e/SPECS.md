@@ -148,6 +148,10 @@ e2e/
 | 54 | P2 | `qr > 自动扫描不可注入` | `受限页面 → 按钮 disabled` |
 | 55 | P2 | `qr > 上传预览` | `secret 解析后显示 OTP + 进度条` |
 
+> **当前进度**：45 / 46 已实现于 `07-qr-scan.spec.ts`（另有 1 条 jsQR 按需加载断言）。
+> 42-44（自动扫描）、47-49（粘贴 / 缺 account / 重名）、50-55（手动截图）待补，
+> 且它们是 content 侧 jsQR 改造的前置条件（ADR-0007）。
+
 ### F8. GitHub 集成 → `08-github.spec.ts`
 
 | # | 优先级 | describe/it | Case |
@@ -280,9 +284,21 @@ expect(shown).toBe(expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME }))
 ```
 
 ### `fixtures/qr-fixtures.ts`
-- `valid-otpauth-qr.png` — 含 TEST_OTPAUTH_URL 的 PNG（base64 写入文件）
-- `invalid-image.png` — 普通图片，无 QR
-- 用 Python `qrcode` 库预生成，纳入 repo
+
+导出三个 PNG 的绝对路径（按仓库根解析，与 `EXT_PATH` 同一约定）：
+
+| 文件 | 内容 | 用途 |
+|---|---|---|
+| `qr/otpauth-valid.png` | `TEST_OTPAUTH_URL`（含 account） | 走通解码 + 预览 |
+| `qr/not-otpauth.png` | 普通 https URL | 能解码但不是 otpauth |
+| `qr/no-qr.png` | 纯色，无二维码 | 解码失败分支 |
+
+生成方式：前两个 `npx qrcode -o <f> -w 320 -e M "<text>"`；
+`no-qr.png` 由脚本手写（zlib + CRC32 的最小 PNG）。
+三者都用 jsQR 直接解码自检过内容。**加新 fixture 后请重复这个自检。**
+
+> 注意 `qrcode` CLI 的 `-q` 是 quiet zone、`-e` 才是纠错级别；写成 `-q M` 会
+> 静默得到 “No data provided” 而拿不到文件。
 
 ### `fixtures/mock-pages.ts`
 - `mockGitHubConfirmAccessPage()` — 含 `input#app_totp` + meta username

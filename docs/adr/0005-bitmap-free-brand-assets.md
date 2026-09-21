@@ -111,9 +111,14 @@
    **更正**：原文写「`crypto.subtle` 在 `http://` 页面为 `undefined`，需纯 JS
    HMAC-SHA1 兜底」—— 按当前架构不成立（调用 OTP 生成的路径全是 secure
    context），但内联实现仍不依赖 secure context。详见 ADR-0006。
-2. **jsQR 471 KB**：`global.js` 里它占 86%，而只在用户主动扫描时用。
-   可改按需加载（content script 动态 import web-accessible chunk），
-   但仍需保留 Firefox 回退（`BarcodeDetector` 在 Firefox 桌面端默认不可用）。
+2. **jsQR 471 KB —— popup 侧已完成，content 侧待办**，见 ADR-0007。
+   实测各 bundle 中 jsQR 均为 ~127 KB（压缩率异常低）。已改为动态 `import()`：
+   popup 共享 chunk 363.5 → 236.2 KB。但 content script 产物是 IIFE，Rolldown
+   只能内联，`global.js` / `github.js` / `npm.js` 仍各背 127 KB（合计 382 KB）。
+   本 ADR 原文猜测的「web-accessible chunk」路线（方案 A）只是退路；
+   优先方案是 B（`global.content` 按需注入），两者都以 F7 验收网为前提。
+   （原文提到的 Firefox `BarcodeDetector` 回退问题与本次决策无关，
+   因为 jsQR 仍保留在包里，只是加载时机不同。）
 3. **`no-data.svg` 40 KB**：含 `sillyvg` 生成器属性与 96 个元素，可用 SVGO 试压。
    属小项（gzip 9.8 KB），且优化 SVG 有视觉风险，优先级低。
 4. **`web_accessible_resources: ["assets/*"] + <all_urls>` 已无必要**：

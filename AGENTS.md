@@ -89,7 +89,8 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 - [x] WXT 迁移后的架构重构（S0-S8：类型修复 / CONTEXT.md / OTP intake /
       消息协议 / auth 纯化 / useModalStack / kebab 命名），E2E 8/8 全绿
 - [ ] 用户提供 GitHub / NPM test 账号后，写 F8 / F9 真实集成 spec
-- [ ] 写 F7 QR 扫描 4 条路径（mock 摄像头）
+- [ ] 写 F7 QR 扫描剩余路径：自动扫描 42-44 / 粘贴 47 / 上传缺 account 48 /
+      重名 49 / 手动截图 50-55（**这是 content 侧 jsQR 改造的前置条件**，ADR-0007）
 - [ ] F1-F6 + F10-F12 主体 spec 全绿
 - [ ] CI 接入（GitHub Actions secrets 注入 test 账号）
 - [ ] 复核 spec 数是否覆盖真实分支密度（必要时增减）
@@ -103,9 +104,13 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 - [ ] **【既有 bug】** `generateOtp` 的 `algorithm/digits/period/type` 从未被调用方
       传值 → 存了但不用：`algorithm=SHA256` 的账户会显示 SHA1 码而无法通过验证，
       `type=hotp` 也按 TOTP 算。修复属行为变更，需独立 ADR + E2E（ADR-0006 待办 1）
-- [ ] popup / settings 共享 chunk 363 KB（react-dom + qrcode.react + lucide +
-      jsQR 117 KB），以 modulepreload 在打开 popup 时拉取；另有一个 152 KB 的
-      `assets/style-*.css`。下一步看 jsQR（ADR-0005 待办 2）
+- [x] jsQR 按需加载（popup 侧）：`utils/qr-decode.ts` 的 jsQR 改为动态 `import()`，
+      顺带修掉 `upload-modal.tsx` 里从未生效的 `[INEFFECTIVE_DYNAMIC_IMPORT]`。
+      popup 共享 chunk 363.5 → 236.2 KB；新增 F7 上传路径验收网 3 条 +
+      懒加载断言 1 条，并做变异测试验证其区分力（ADR-0007）
+- [ ] popup / settings 共享 chunk 236 KB（react-dom + qrcode.react + lucide），
+      以 modulepreload 在打开 popup 时拉取；另有一个 152 KB 的 `assets/style-*.css`。
+      下一步看 `assets/style-*.css` 的 32 套 daisyUI 主题（仅 +35 KB，优先级低）
 - [ ] 收敛 `saveOTP` 与 `addOtp` 两个 OTP 合并入口（契约不同：前者收带 `id` 的
       `DataProps`，后者收 `Omit<DataProps,"id">`）。**前置条件**：先补 F5
       recovery code 保存路径的 E2E spec —— 当前无覆盖，不改语义先改结构等于裸奔
@@ -116,4 +121,8 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
       写 F1-F6 主体 spec 时补上
 - [ ] F5 剩余 case：32（每秒刷新）/ 33（点击复制）/ 35（进度条颜色）
 - [ ] 待评：移除已无必要的 `web_accessible_resources: assets/*`（ADR-0005 待办 4）
-- [ ] 待评：jsQR 改为按需加载（`global.js` 里占 86%，ADR-0005 待办 2）
+- [ ] 待评：移除已无必要的 `web_accessible_resources: assets/*`（ADR-0005 待办 4）
+- [ ] 待评：**content 侧 jsQR 仍占 382 KB**（`global.js` 85% / `github`·`npm` 各 80%）。
+      产物是 IIFE 无法拆包，需改造扫描链路：方案 B（`global.content` 按需注入，
+      每页 −127 KB + 权限收紧）优先，方案 A（手动拆 chunk）作退路。
+      **前置：先补 F7 42-44 / 50-55**（ADR-0007 待办）

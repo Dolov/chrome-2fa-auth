@@ -134,4 +134,4 @@ otplib 内部一行 `require('crypto')`。
    无法通过验证；`type=hotp` 也一律按 TOTP 算。
    修复需要把完整条目传下去，属于行为变更，需独立 ADR + 相应 E2E。
 2. F5 剩余 case：32（每秒刷新）、33（点击复制）、35（进度条颜色）。
-3. jsQR 471 KB（ADR-0005 待办 2）。
+3. jsQR 471 KB —— popup 侧已完成（ADR-0007），content 侧 382 KB 待改造。

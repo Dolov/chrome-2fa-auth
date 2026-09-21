@@ -41,12 +41,18 @@
 
 | entrypoint | 预算 | 成因 |
 |---|---|---|
-| `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP |
-| `github.js` / `npm.js` | < 200 KB | 需要 `generateOtp`，但 TOTP 已是零依赖内联实现 |
+| `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP；当前 149.6 KB 中 127 KB 是内联的 jsQR |
+| `github.js` / `npm.js` | < 200 KB | 需要 `generateOtp`（零依赖内联实现）+ jsQR；当前 ~159.5 KB |
 
 超了说明新依赖把大件（Node 垫片 / React / UI 框架）拖进了 content 侧。
 各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`；
-TOTP 去依赖的决策与对拍数据见 `docs/adr/0006-inline-hmac-replaces-otplib.md`。
+TOTP 去依赖见 `docs/adr/0006-inline-hmac-replaces-otplib.md`；
+jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-lazy-load-jsqr.md`。
+
+### 硬规则 2.1：不要静态 import 大体积库
+
+压缩后 >50 KB 的库（如 jsQR）一律用动态 `import()`。ESM 页面（popup/settings）
+会真正拆包；content script（IIFE）会内联，但至少不把负担转嫁给弹窗。
 各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`。
 
 ### 硬规则 3：不引入位图品牌素材
@@ -269,6 +275,9 @@ TOTP 去依赖的决策与对拍数据见 `docs/adr/0006-inline-hmac-replaces-ot
   `utils/base32.ts`），逐条复刻 otplib 语义，移除 `vite-plugin-node-polyfills`。
   理由、兼容语义清单与 18 万项对拍数据见 `docs/adr/0006-inline-hmac-replaces-otplib.md`。
   **改 `utils/totp.ts` 前先读该 ADR 的「必须逐条复刻的 otplib 语义」。**
+- 2026 jsQR 按需加载：`utils/qr-decode.ts` 的 jsQR 改为动态 `import()`（ADR-0007）。
+  popup 共享 chunk 363.5 → 236.2 KB 已生效；content 侧因产物是 IIFE 仍内联，
+  **剩下 382 KB 需先补 F7 验收网再改造链路**。
 
 ## 维护
 
