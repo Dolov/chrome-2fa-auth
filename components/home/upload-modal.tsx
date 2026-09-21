@@ -1,25 +1,26 @@
-import { cn } from "~/utils/cn"
 import { ImageUp } from "lucide-react"
 import React from "react"
 
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
 import Modal from "~/components/ui/modal"
-import { parseOtpAuthUrl } from "~/utils/otpauth"
 import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
+import { cn } from "~/utils/cn"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/otpauth"
+import { ContainerType } from "~/utils/types"
 
-import { GlobalContext } from "./context"
-import { useModalWidth } from "./hooks"
+import { HomeContext } from "./home-context"
+import { useModalWidth } from "./use-modal-width"
 
 interface UploadModalProps {
-  visible: boolean
+  isVisible: boolean
   onClose: () => void
 }
 
 const UploadModal: React.FC<UploadModalProps> = (props) => {
-  const { visible, onClose } = props
+  const { isVisible, onClose } = props
   const { width } = useModalWidth()
-  const { containerType } = React.useContext(GlobalContext)
+  const { containerType } = React.useContext(HomeContext)
   const intake = usePopupIntake()
 
   const [error, setError] = React.useState<string | null>(null)
@@ -27,29 +28,28 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   // preview state：parse 完后让用户预览、确认或补账号
-  const [preview, setPreview] = React.useState<
-    ReturnType<typeof parseOtpAuthUrl> | null
-  >(null)
+  const [preview, setPreview] = React.useState<ReturnType<
+    typeof parseOtpAuthUrl
+  > | null>(null)
   const [accountName, setAccountName] = React.useState("")
 
   React.useEffect(() => {
-    if (!visible) {
-      // 关闭时清理 preview / account
-      setPreview(null)
-      setAccountName("")
-      setError(null)
-      if (fileInputRef.current) fileInputRef.current.value = ""
-    }
-  }, [visible])
+    if (isVisible) return
+    // 关闭时清理 preview / account
+    setPreview(null)
+    setAccountName("")
+    setError(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }, [isVisible])
 
   React.useEffect(() => {
-    if (!visible) return
+    if (!isVisible) return
     window.addEventListener("paste", handlePaste)
     return () => {
       window.removeEventListener("paste", handlePaste)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible])
+  }, [isVisible])
 
   const processFile = async (file: File) => {
     setError(null)
@@ -63,11 +63,10 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     try {
       data = await readFromFile(file)
     } catch (e) {
-      setError(`无法读取文件：${(e as Error).message}`)
+      setError(`无法读取文件：${e instanceof Error ? e.message : String(e)}`)
       return
     }
 
-    const { isOtpAuthUrl } = await import("~/utils/otpauth")
     if (!isOtpAuthUrl(data)) {
       setError("无效的 OTP Auth URL")
       return
@@ -77,7 +76,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       const parsed = parseOtpAuthUrl(data)
       setPreview(parsed)
     } catch (e) {
-      setError((e as Error).message)
+      setError(e instanceof Error ? e.message : String(e))
     }
   }
 
@@ -129,15 +128,9 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     }
   }
 
-  const handleClose = () => {
-    onClose()
-  }
-
   const { account } = preview || {}
-  const okDisabled =
-    isSubmitting ||
-    (!!preview?.secret && !account && !accountName) ||
-    !!error
+  const isOkDisabled =
+    isSubmitting || (!!preview?.secret && !account && !accountName) || !!error
 
   return (
     <Modal
@@ -148,10 +141,10 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
           <span>上传二维码截图</span>
         </div>
       }
-      visible={visible}
+      isVisible={isVisible}
       onOk={handleOk}
-      onClose={handleClose}
-      okDisabled={okDisabled}>
+      onClose={onClose}
+      isOkDisabled={isOkDisabled}>
       <div className="p-1">
         <input
           ref={fileInputRef}
@@ -179,7 +172,8 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
           </label>
         )}
         {preview && (
-          <div className={cn({ "mt-4": containerType !== "phone" })}>
+          <div
+            className={cn({ "mt-4": containerType !== ContainerType.PHONE })}>
             <OtpRemaining period={preview.period} />
             <OtpText
               small

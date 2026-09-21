@@ -1,6 +1,7 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 import type { ReactNode } from "react"
+
+import { cn } from "~/utils/cn"
 
 export type DropdownPlacement =
   | "topLeft"
@@ -10,22 +11,33 @@ export type DropdownPlacement =
   | "bottomCenter"
   | "bottomRight"
 
+const PLACEMENT_CLASSES: Record<DropdownPlacement, string> = {
+  topLeft: "dropdown-top dropdown-start",
+  topCenter: "dropdown-top dropdown-center",
+  topRight: "dropdown-top dropdown-end",
+  bottomLeft: "dropdown-start",
+  bottomCenter: "dropdown-center",
+  bottomRight: "dropdown-end"
+}
+
+export interface DropdownMenu {
+  key: string
+  label: ReactNode
+  disabled?: boolean
+  onClick?: () => void
+}
+
 export interface DropdownProps {
-  menus: {
-    key: string
-    label: ReactNode
-    disabled?: boolean
-    onClick?: () => void
-  }[]
+  menus: DropdownMenu[]
   children: ReactNode
-  open?: boolean
+  isOpen?: boolean
   trigger?: "click" | "hover"
   placement?: DropdownPlacement
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (isOpen: boolean) => void
 }
 
 const Dropdown: React.FC<DropdownProps> = ({
-  open,
+  isOpen,
   menus,
   children,
   onOpenChange,
@@ -34,16 +46,8 @@ const Dropdown: React.FC<DropdownProps> = ({
 }) => {
   const detailsRef = React.useRef<HTMLDetailsElement>(null)
 
-  const getPlacementClass = () => {
-    const placementMap: Record<DropdownPlacement, string> = {
-      topLeft: "dropdown-top",
-      topCenter: "dropdown-top dropdown-end",
-      topRight: "dropdown-top dropdown-end",
-      bottomLeft: "",
-      bottomCenter: "dropdown-end",
-      bottomRight: "dropdown-end"
-    }
-    return placementMap[placement]
+  const handleTriggerChange = (next: boolean) => {
+    onOpenChange?.(next)
   }
 
   React.useEffect(() => {
@@ -52,11 +56,9 @@ const Dropdown: React.FC<DropdownProps> = ({
 
     const handleMouseEnter = () => {
       details.open = true
-      onOpenChange?.(true)
     }
     const handleMouseLeave = () => {
       details.open = false
-      onOpenChange?.(false)
     }
 
     details.addEventListener("mouseenter", handleMouseEnter)
@@ -66,50 +68,39 @@ const Dropdown: React.FC<DropdownProps> = ({
       details.removeEventListener("mouseenter", handleMouseEnter)
       details.removeEventListener("mouseleave", handleMouseLeave)
     }
-  }, [trigger, onOpenChange])
+  }, [trigger])
 
   React.useEffect(() => {
-    if (open !== undefined && detailsRef.current) {
-      detailsRef.current.open = open
-    }
-  }, [open])
+    if (isOpen === undefined || !detailsRef.current) return
+    detailsRef.current.open = isOpen
+  }, [isOpen])
 
   return (
     <details
       ref={detailsRef}
-      className={cn("dropdown", getPlacementClass(), {
+      onToggle={(e) => handleTriggerChange(e.currentTarget.open)}
+      className={cn("dropdown", PLACEMENT_CLASSES[placement], {
         "dropdown-hover": trigger === "hover"
       })}>
-      <summary
-        className="list-none"
-        onClick={(e) => {
-          if (trigger !== "click") return
-          const details = e.currentTarget.parentElement as HTMLDetailsElement
-          const newOpen = !details.open
-          details.open = newOpen
-          onOpenChange?.(newOpen)
-        }}>
-        {children}
-      </summary>
+      <summary className="list-none">{children}</summary>
       <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
         {menus.map((item) => (
           <li key={item.key}>
-            <a
-              onClick={(e) => {
-                e.preventDefault()
-                if (!item.disabled) {
-                  item.onClick?.()
-                  if (detailsRef.current) {
-                    detailsRef.current.open = false
-                  }
-                  onOpenChange?.(false)
+            <button
+              type="button"
+              disabled={item.disabled}
+              onClick={() => {
+                if (item.disabled) return
+                item.onClick?.()
+                if (detailsRef.current) {
+                  detailsRef.current.open = false
                 }
               }}
               className={cn({
                 "opacity-50 !cursor-not-allowed": item.disabled
               })}>
               {item.label}
-            </a>
+            </button>
           </li>
         ))}
       </ul>

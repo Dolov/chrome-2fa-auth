@@ -11,11 +11,6 @@ export enum StorageKey {
   SETTINGS = "settings"
 }
 
-export enum SourceType {
-  POPUP = "popup",
-  SETTINGS = "settings"
-}
-
 export enum ContainerType {
   PHONE = "phone",
   DEFAULT = "default"

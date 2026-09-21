@@ -1,30 +1,31 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 
+import { cn } from "~/utils/cn"
+
 interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  loading?: boolean
+  isLoading?: boolean
   disabled?: boolean
-  onlyLoading?: boolean
+  isLoadingOnly?: boolean
   loadingClassName?: string
 }
 
 const Button = (props: ButtonProps) => {
   const {
-    loading,
+    isLoading,
     disabled,
     children,
-    onlyLoading,
+    isLoadingOnly,
     loadingClassName,
     ...otherProps
   } = props
 
-  const buttonChildren = onlyLoading && loading ? null : children
-  const loadingSize = loadingClassName?.includes?.("loading-xs")
-    ? "loading-xs"
-    : "loading-md"
+  const hasSmallSpinner = loadingClassName?.includes("loading-xs") ?? false
+  const loadingSize = hasSmallSpinner ? "loading-xs" : "loading-md"
+  const buttonChildren = isLoadingOnly && isLoading ? null : children
+
   return (
-    <button {...otherProps} disabled={loading || disabled}>
-      {loading && (
+    <button {...otherProps} disabled={isLoading || disabled}>
+      {isLoading && (
         <span
           className={cn(
             "loading loading-spinner",

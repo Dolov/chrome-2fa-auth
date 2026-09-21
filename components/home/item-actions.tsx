@@ -1,4 +1,3 @@
-import { cn } from "~/utils/cn"
 import {
   History,
   KeyRound,
@@ -9,35 +8,40 @@ import {
   Share2,
   Trash2
 } from "lucide-react"
-import { QRCodeCanvas } from "qrcode.react"
 import React, { Fragment } from "react"
 
 import { FaviconMinimal } from "~/components/favicons"
-import Modal from "~/components/ui/modal"
-import { generateOtpAuthUrl } from "~/utils/otpauth"
-import { copyTextToClipboardV2 } from "~/utils/clipboard"
-import message from "~/features/page-ui/toast"
 import { useOtpList, useOtpMutators } from "~/features/otp-store"
+import message from "~/features/page-ui/toast"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
-import { type DataProps } from "~/utils/types"
+import { copyTextToClipboardV2 } from "~/utils/clipboard"
+import { cn } from "~/utils/cn"
+import { generateOtpAuthUrl } from "~/utils/otpauth"
+import type { DataProps } from "~/utils/types"
 
-import { useModalWidth } from "./hooks"
+import DeleteModal from "./delete-modal"
 import EditModal from "./otp-form"
 import RecoveryCodeModal from "./recovery-codes"
+import { useModalWidth } from "./use-modal-width"
+
+// qrcode.react + 二维码弹层只在用户点开时加载，避免进入 popup 主包
+const QRCodeModal = React.lazy(() => import("./qr-code-modal"))
 
 /** ItemActions 内嵌的 4 个 modal 的统一 key 列表 */
 const ACTION_MODALS = ["qr", "edit", "recovery", "delete"] as const
 type ActionModalKey = (typeof ACTION_MODALS)[number]
 
-const ItemActions: React.FC<{
-  visible: boolean
+interface ItemActionsProps {
+  isVisible: boolean
   onClose: () => void
   itemData: DataProps
-}> = (props) => {
-  const { visible, onClose, itemData } = props
+}
+
+const ItemActions: React.FC<ItemActionsProps> = (props) => {
+  const { isVisible, onClose, itemData } = props
   const { left, right, top, bottom, radius } = useModalWidth()
   const dataList = useOtpList()
-  const { pin, restore, softDelete, hardDelete } = useOtpMutators()
+  const { pin, restore } = useOtpMutators()
   const modals = useModalStack<ActionModalKey>(ACTION_MODALS)
 
   const handleMaskClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -56,7 +60,26 @@ const ItemActions: React.FC<{
     onClose()
   }
 
-  const handleShare = () => {}
+  const handleShare = async () => {
+    const url = generateOtpAuthUrl(itemData)
+    const shareData = {
+      title: `${itemData.issuer} 的 2FA 配置`,
+      text: url
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (e) {
+        // 用户主动取消分享时不回退到剪贴板
+        if (e instanceof DOMException && e.name === "AbortError") return
+      }
+    }
+
+    await copyTextToClipboardV2(url)
+    message.success("已复制分享链接")
+  }
 
   const handlePin = async () => {
     const item = dataList.find((it) => it.id === itemData.id)
@@ -65,11 +88,11 @@ const ItemActions: React.FC<{
     onClose()
   }
 
-  if (!visible) return null
+  if (!isVisible) return null
 
   const { pinned, account, issuer, recoveryCodes, deleted } = itemData
 
-  const recoveryBtnVisible =
+  const isRecoveryButtonVisible =
     Array.isArray(recoveryCodes) && recoveryCodes.length > 0
 
   return (
@@ -91,7 +114,7 @@ const ItemActions: React.FC<{
       />
       <EditModal
         data={itemData}
-        visible={modals.isOpen("edit")}
+        isVisible={modals.isOpen("edit")}
         onClose={() => {
           modals.close("edit")
           onClose()
@@ -100,20 +123,22 @@ const ItemActions: React.FC<{
       <RecoveryCodeModal
         data={itemData}
         title="恢复密钥"
-        visible={modals.isOpen("recovery")}
+        isVisible={modals.isOpen("recovery")}
         onClose={() => {
           modals.close("recovery")
           onClose()
         }}
       />
-      <QRCodeModal
-        data={itemData}
-        visible={modals.isOpen("qr")}
-        onClose={() => modals.close("qr")}
-      />
+      <React.Suspense fallback={null}>
+        <QRCodeModal
+          data={itemData}
+          isVisible={modals.isOpen("qr")}
+          onClose={() => modals.close("qr")}
+        />
+      </React.Suspense>
       <DeleteModal
         data={itemData}
-        visible={modals.isOpen("delete")}
+        isVisible={modals.isOpen("delete")}
         onClose={() => {
           modals.close("delete")
           onClose()
@@ -174,7 +199,7 @@ const ItemActions: React.FC<{
               </div>
             </button>
           )}
-          {recoveryBtnVisible && (
+          {isRecoveryButtonVisible && (
             <button
               onClick={() => modals.open("recovery")}
               className="btn btn-ghost px-2 hover:text-success">
@@ -214,102 +239,6 @@ const ItemActions: React.FC<{
         </div>
       </div>
     </div>
-  )
-}
-
-const QRCodeModal: React.FC<{
-  data: DataProps
-  visible: boolean
-  onClose: () => void
-}> = (props) => {
-  const { visible, onClose, data } = props
-  const { issuer, account } = data
-  const { width } = useModalWidth()
-  const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
-  const url = generateOtpAuthUrl(data)
-
-  const handleCopy = () => {
-    copyTextToClipboardV2(url)
-    message.success("复制成功")
-  }
-
-  const handleDownload = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const url = canvas.toDataURL("image/png")
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${issuer}-${account}-${new Date().toLocaleString()}.png`
-    a.click()
-  }
-
-  return (
-    <Modal
-      title={
-        <div className="flex items-center justify-center gap-2">
-          <FaviconMinimal className="!text-2xl" issuer={issuer} />
-          <span>{account}</span>
-        </div>
-      }
-      width={width}
-      visible={visible}
-      onClose={onClose}
-      footer={null}>
-      <div className="w-full h-full flex flex-col items-center">
-        <QRCodeCanvas value={url} size={240} ref={canvasRef} />
-        <div>
-          <div className="flex items-center justify-center">
-            <button onClick={handleCopy} className="btn btn-link">
-              复制
-            </button>
-            <button onClick={handleDownload} className="btn btn-link">
-              下载
-            </button>
-          </div>
-        </div>
-      </div>
-    </Modal>
-  )
-}
-
-const DeleteModal: React.FC<{
-  data: DataProps
-  visible: boolean
-  onClose: () => void
-}> = (props) => {
-  const { visible, onClose, data } = props
-  const { width } = useModalWidth()
-  const { softDelete, hardDelete } = useOtpMutators()
-
-  const { issuer, account, deleted } = data
-
-  const handleDelete = async () => {
-    if (deleted) {
-      await hardDelete(data.id)
-    } else {
-      await softDelete(data.id)
-    }
-    onClose()
-  }
-
-  const text = deleted ? "删除后不可恢复，确定删除？" : "确定删除？"
-
-  return (
-    <Modal
-      width={width}
-      title={
-        <div className="flex items-center gap-2">
-          <FaviconMinimal className="!text-2xl" issuer={issuer} />
-          <span>{account}</span>
-        </div>
-      }
-      visible={visible}
-      onClose={onClose}
-      onOk={handleDelete}
-      okText="删除"
-      confirmButtonClassName="btn-error">
-      <div className="font-bold text-lg flex items-center gap-2">{text}</div>
-    </Modal>
   )
 }
 

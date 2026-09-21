@@ -112,6 +112,9 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - 数据存 `sync:` 区（与 Plasmo 旧版兼容，跨设备同步）。
   - 单条上限 8KB（10 条账户约 1–2KB，典型足够）。
   - 写入前必须经过 `addOtp` 纯函数处理去重 / 软删合并（见 ADR-0001）。
+  - `store.ts` 还维护进程内缓存与订阅：`getCachedOtpList` / `subscribeOtpList`
+    给 React 侧同步读取，`mutateOtpList` 基于最新缓存做纯变更再落库。
+    非 React 侧（content / background）仍走 `dataStore` + `saveOTP`，不依赖缓存。
 
 ### 4. OtpProvider
 
@@ -124,7 +127,8 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   </OtpProvider>
   ```
 - **边界**：
-  - Provider 内部 watch + setState，所有订阅者同步重渲染。
+  - Provider 经 `useSyncExternalStore` 订阅 `store.ts` 的列表缓存，跨 tab 由 `storage.watch` 同步。
+  - 写入统一走 `mutateOtpList`：基于最新缓存计算，避免并发调用互相覆盖。
   - **不在 content script 内使用**（content 没有 React 树）；content 直接读 `dataStore`。
 
 ### 5. OtpMutators
@@ -257,6 +261,16 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - 多个 toast 叠加会自动堆叠，无需上层排队。
   - 不要和 `features/messaging` 混：那是结构化 postMessage 协议，不碰宿主 DOM。
 
+### 15. Shared OTP Clock
+
+- **是什么**：全局唯一的秒级 ticker，供 OTP 渲染点订阅，替代“每个条目各起 2–3 个 `setInterval`”。
+- **在哪里**：`features/ui-state/use-otp-tick.ts` 的 `useOtpStepIndex` / `useOtpRemaining`。
+- **典型用法**：`const stepIndex = useOtpStepIndex(period)` 作为 `generateOtp` 的 `useMemo` 依赖。
+- **边界**：
+  - 模块级单例 interval：首个订阅者创建、订阅清空后销毁；组件内不要自行 `setInterval`。
+  - 快照返回数字，`useSyncExternalStore` 在值不变时不重渲染（周期切换才重算 HMAC）。
+  - `OtpText` 只由 `config` + `stepIndex` 派生，不持有 OTP 状态。
+
 ## 命名冲突表（不要混）
 
 | 易混 | 含义 |
@@ -289,6 +303,11 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 - 2026 修复 OTP 生成参数被丢弃：`digits` / `period` / `algorithm` 从存储条目
   透传到 `generateOtp`，组件改收 `config` 而非 `secret`（ADR-0008）。
   **改任何 OTP 渲染点时先读该 ADR 的「参数透传不变式」。**
+- 2026 前端组件 review 修复：`GlobalContext` → `HomeContext` / `HomeProvider`
+  （`components/home/home-context.tsx`），移除未读的 `source` 字段与 `SourceType`；
+  拆分 `item-actions.tsx` 的 modal、抽 `CreateFab`、删除 `useFilter`；OTP 计时改
+  共享时钟（见词条 15）；`OtpProvider` / `useStorage` 改用 `useSyncExternalStore`；
+  `Modal` 以 ref 驱动 `<dialog>` 并消除 stale `onClose`。
 
 ## 维护
 

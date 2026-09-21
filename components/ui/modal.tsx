@@ -1,18 +1,9 @@
-import { cn } from "~/utils/cn"
 import React from "react"
+
+import { cn } from "~/utils/cn"
 
 import Button from "./button"
 import QProgress from "./qprogress"
-
-/**
- * 进程级唯一 modal id 生成器
- *
- * 原实现用 `Date.now()`（毫秒）作 id，同一毫秒挂载的多个 Modal 会
- * 拿到同一个 id，导致 `getElementById` 操作错元素（两个 dialog 互切换）。
- * 改用自增计数器保证唯一。
- */
-let modalIdCounter = 0
-const nextModalId = (): string => `modal_${++modalIdCounter}`
 
 export interface ModalShortcuts {
   Space?: () => void
@@ -25,80 +16,90 @@ export interface ModalShortcuts {
 
 export interface ModalProps {
   width?: number | string
-  visible: boolean
+  isVisible: boolean
   onOk?: () => void
   title?: React.ReactNode
   footer?: React.ReactNode
   onClose?: () => void
   children: React.ReactNode
-  okLoading?: boolean
-  okDisabled?: boolean
-  qprogressLoading?: boolean
+  isOkLoading?: boolean
+  isOkDisabled?: boolean
+  isProgressLoading?: boolean
   okText?: string
   closeButtonClassName?: string
   confirmButtonClassName?: string
   footerLeft?: React.ReactNode
-  full?: boolean
+  isFull?: boolean
   style?: React.CSSProperties
   placeholder?: React.ReactNode
   keyboardEvents?: ModalShortcuts
-  shortcutKeySave?: boolean
+  isShortcutKeySave?: boolean
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
   const {
-    full,
+    isFull,
     style,
-    visible,
+    isVisible,
     onClose,
     onOk,
-    okDisabled,
+    isOkDisabled,
     children,
     title,
     width,
     footer,
     footerLeft,
-    okLoading,
-    qprogressLoading,
+    isOkLoading,
+    isProgressLoading,
     confirmButtonClassName,
     closeButtonClassName,
     okText = "Confirm",
     keyboardEvents,
-    shortcutKeySave,
+    isShortcutKeySave,
     placeholder
   } = props
-  const [id] = React.useState(nextModalId)
+
+  const dialogRef = React.useRef<HTMLDialogElement>(null)
+  const onCloseRef = React.useRef(onClose)
 
   React.useEffect(() => {
-    const dialog = document.getElementById(id) as HTMLDialogElement | null
+    onCloseRef.current = onClose
+  })
+
+  React.useEffect(() => {
+    const dialog = dialogRef.current
     if (!dialog) return
-    if (visible) {
+
+    if (isVisible && !dialog.open) {
       dialog.showModal()
-    } else {
+      return
+    }
+    if (!isVisible && dialog.open) {
       dialog.close()
     }
-  }, [visible])
+  }, [isVisible])
 
   React.useEffect(() => {
-    const dialog = document.getElementById(id) as HTMLDialogElement | null
+    const dialog = dialogRef.current
     if (!dialog) return
-    dialog.addEventListener("close", handleClose)
-    return () => {
-      dialog.removeEventListener("close", handleClose)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
 
-  const handleClose = React.useCallback(() => {
+    const handleNativeClose = () => onCloseRef.current?.()
+    dialog.addEventListener("close", handleNativeClose)
+    return () => {
+      dialog.removeEventListener("close", handleNativeClose)
+    }
+  }, [])
+
+  const handleClose = () => {
     onClose?.()
-  }, [onClose])
+  }
 
   const handleConfirm = () => {
     onOk?.()
   }
 
   const onKeyDown: React.KeyboardEventHandler<HTMLDialogElement> = (event) => {
-    if (event.metaKey && event.code === "KeyS" && shortcutKeySave) {
+    if (event.metaKey && event.code === "KeyS" && isShortcutKeySave) {
       handleConfirm()
       event.preventDefault()
       event.stopPropagation()
@@ -121,12 +122,9 @@ const Modal: React.FC<ModalProps> = (props) => {
         <div className="flex items-center">
           {onOk && (
             <Button
-              loading={okLoading}
-              className={cn(
-                "btn btn-neutral mr-2",
-                confirmButtonClassName
-              )}
-              disabled={okDisabled}
+              isLoading={isOkLoading}
+              className={cn("btn btn-neutral mr-2", confirmButtonClassName)}
+              disabled={isOkDisabled}
               onClick={handleConfirm}>
               {okText}
             </Button>
@@ -142,12 +140,12 @@ const Modal: React.FC<ModalProps> = (props) => {
   }
 
   return (
-    <dialog onKeyDown={onKeyDown} id={id} className="modal">
+    <dialog ref={dialogRef} onKeyDown={onKeyDown} className="modal">
       <QProgress
-        loading={qprogressLoading}
+        isLoading={isProgressLoading}
         style={{ width, maxWidth: width, ...style }}
         className={cn("modal-box flex flex-col", {
-          "w-full h-full max-h-full rounded-none": full
+          "w-full h-full max-h-full rounded-none": isFull
         })}>
         <div className="w-full h-full absolute -z-10 left-0 top-0">
           {placeholder}

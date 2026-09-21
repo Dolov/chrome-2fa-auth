@@ -1,11 +1,13 @@
 import React from "react"
 
-import { GlobalContext } from "./context"
+import { ContainerType } from "~/utils/types"
+
+import { HomeContext } from "./home-context"
 
 export const useModalWidth = () => {
-  const { containerType } = React.useContext(GlobalContext)
+  const { containerType } = React.useContext(HomeContext)
 
-  if (containerType === "phone") {
+  if (containerType === ContainerType.PHONE) {
     return {
       width: "85%",
       left: "15px",
@@ -21,11 +23,7 @@ export const useModalWidth = () => {
     left: "0",
     right: "0",
     top: "0",
-    bottom: "0"
+    bottom: "0",
+    radius: "0"
   }
-}
-
-export const useFilter = () => {
-  const { filter, setFilter } = React.useContext(GlobalContext)
-  return [filter, setFilter] as const
 }

@@ -1,11 +1,13 @@
-import { cn } from "~/utils/cn"
 import { Menu, Search, Trash, X } from "lucide-react"
 import React from "react"
 
 import Dropdown from "~/components/ui/dropdown"
 import { useOtpList } from "~/features/otp-store"
+import { openSettingsPage } from "~/features/runtime/open-settings"
+import { cn } from "~/utils/cn"
+import { ContainerType } from "~/utils/types"
 
-import { GlobalContext } from "./context"
+import { HomeContext } from "./home-context"
 
 interface HeaderProps {
   keyword: string
@@ -13,27 +15,29 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { containerType, filter, setFilter } = React.useContext(GlobalContext)
+  const { containerType, filter, setFilter } = React.useContext(HomeContext)
   const accounts = useOtpList()
   const { keyword, setKeyword } = props
-  const [search, setSearch] = React.useState(false)
-
-  const goSettings = () => {
-    browser.tabs.create({
-      url: browser.runtime.getURL("/settings.html")
-    })
-  }
+  const [isSearching, setIsSearching] = React.useState(false)
 
   const handleSearch = () => {
-    setSearch(!search)
-    if (search) {
+    setIsSearching((prev) => !prev)
+    if (isSearching) {
       setKeyword("")
     }
   }
 
-  const deletedCount = accounts.filter((item) => item.deleted).length
-  const normalCount = accounts.filter((item) => !item.deleted).length
-  const deletedFilter = filter === "deleted"
+  // 一次遍历同时统计，避免两次 filter 扫描
+  let deletedCount = 0
+  let normalCount = 0
+  for (const account of accounts) {
+    if (account.deleted) {
+      deletedCount += 1
+    } else {
+      normalCount += 1
+    }
+  }
+  const isDeletedFilter = filter === "deleted"
 
   const menuItems = React.useMemo(() => {
     const items = []
@@ -67,22 +71,22 @@ const Header: React.FC<HeaderProps> = (props) => {
     items.push({
       key: "settings",
       label: "设置",
-      onClick: goSettings
+      onClick: openSettingsPage
     })
 
     return items
-  }, [filter, normalCount, deletedCount])
+  }, [filter, normalCount, deletedCount, setFilter])
 
   return (
     <div
       className={cn("grid grid-cols-[1fr_2fr_1fr] items-center px-4 h-16", {
-        "mt-4": containerType === "phone"
+        "mt-4": containerType === ContainerType.PHONE
       })}>
       <Dropdown trigger="hover" menus={menuItems}>
         <button
           className="btn btn-sm btn-circle btn-ghost relative"
           tabIndex={0}>
-          {deletedFilter && (
+          {isDeletedFilter && (
             <div>
               <Trash size={18} className="text-error" />
               <div className="badge badge-neutral absolute -right-4 -top-3">
@@ -90,11 +94,11 @@ const Header: React.FC<HeaderProps> = (props) => {
               </div>
             </div>
           )}
-          {!deletedFilter && <Menu size={20} />}
+          {!isDeletedFilter && <Menu size={20} />}
         </button>
       </Dropdown>
       <div className="text-2xl font-bold text-center whitespace-nowrap">
-        {search && (
+        {isSearching && (
           <input
             autoFocus
             className="input input-sm input-ghost border-none !outline-none"
@@ -103,14 +107,14 @@ const Header: React.FC<HeaderProps> = (props) => {
             onChange={(e) => setKeyword(e.target.value)}
           />
         )}
-        {!search && <span>2FA Auth</span>}
+        {!isSearching && <span>2FA Auth</span>}
       </div>
       <div className="flex justify-end">
         <button
           onClick={handleSearch}
           className="btn btn-ghost btn-sm btn-circle">
-          {search && <X size={20} />}
-          {!search && <Search size={20} />}
+          {isSearching && <X size={20} />}
+          {!isSearching && <Search size={20} />}
         </button>
       </div>
     </div>

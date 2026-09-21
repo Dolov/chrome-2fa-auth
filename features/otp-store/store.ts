@@ -101,5 +101,85 @@ export const isRecoveryCodesSaved = async (
   )
 }
 
+/** 空列表常量：保证首次加载完成前 `getCachedOtpList()` 返回稳定引用 */
+const EMPTY_OTP_LIST: DataProps[] = []
+
+let cachedList: DataProps[] | null = null
+let stopWatching: (() => void) | null = null
+let initialLoad: Promise<DataProps[]> | null = null
+const listListeners = new Set<() => void>()
+
+const emitListChange = (): void => {
+  for (const listener of listListeners) listener()
+}
+
+/** 同步读取最近一次已知的列表；首次加载完成前返回空数组 */
+export const getCachedOtpList = (): DataProps[] => cachedList ?? EMPTY_OTP_LIST
+
+/** 确保列表至少从存储读取一次；并发调用共享同一个 Promise */
+export const ensureOtpListLoaded = (): Promise<DataProps[]> => {
+  if (cachedList !== null) return Promise.resolve(cachedList)
+  if (initialLoad !== null) return initialLoad
+
+  initialLoad = dataStore
+    .getValue()
+    .then((stored) => {
+      if (cachedList === null) {
+        cachedList = stored ?? []
+        emitListChange()
+      }
+      return cachedList
+    })
+    .finally(() => {
+      initialLoad = null
+    })
+
+  return initialLoad
+}
+
+/** 唯一写入通道：先同步更新缓存并通知订阅者，再落存储 */
+export const commitOtpList = async (next: DataProps[]): Promise<void> => {
+  cachedList = next
+  emitListChange()
+  await dataStore.setValue(next)
+}
+
+/**
+ * 以**最新缓存**为基准做一次纯变更并落库，返回变更附带的结果。
+ *
+ * 通过“读最新快照 → 同步写缓存”消除并发调用之间的丢更新：
+ * 连续两次 `mutateOtpList` 不会再各自基于同一份过期数组互相覆盖。
+ */
+export const mutateOtpList = async <T>(
+  mutator: (current: DataProps[]) => { items: DataProps[]; result: T }
+): Promise<T> => {
+  const current = await ensureOtpListLoaded()
+  const { items: next, result } = mutator(current)
+  if (next !== current) await commitOtpList(next)
+  return result
+}
+
+/** 订阅列表变化；首个订阅者负责建立 `storage.watch` 并触发首次加载 */
+export const subscribeOtpList = (listener: () => void): (() => void) => {
+  listListeners.add(listener)
+
+  if (stopWatching === null) {
+    stopWatching = dataStore.watch((next) => {
+      cachedList = next ?? []
+      emitListChange()
+    })
+  }
+
+  void ensureOtpListLoaded()
+
+  return () => {
+    listListeners.delete(listener)
+    if (listListeners.size === 0 && stopWatching !== null) {
+      stopWatching()
+      stopWatching = null
+    }
+  }
+}
+
 // expose legacy key for background migration
 export { LEGACY_KEY }

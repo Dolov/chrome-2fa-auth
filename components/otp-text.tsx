@@ -1,9 +1,10 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 
 import message from "~/features/page-ui/toast"
-import { generateOtp } from "~/utils/totp"
+import { useOtpStepIndex } from "~/features/ui-state/use-otp-tick"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
+import { cn } from "~/utils/cn"
+import { generateOtp } from "~/utils/totp"
 import type { OtpAuthConfig } from "~/utils/types"
 
 interface OtpTextProps {
@@ -22,31 +23,37 @@ interface OtpTextProps {
 const OtpText: React.FC<OtpTextProps> = (props) => {
   const { config, className, small, next = false } = props
   const { secret, digits, period, algorithm } = config
-  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const [otp, setOtp] = React.useState(() => {
-    return generateOtp(secret, { digits, period, algorithm, next })
-  })
-  const first = otp.slice(0, 3)
-  const last = otp.slice(3)
+  // 周期序号只在 OTP 切换时变化：避免每秒重算一次 HMAC
+  const stepIndex = useOtpStepIndex(period)
 
-  React.useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setOtp(generateOtp(secret, { digits, period, algorithm, next }))
-    }, 1000)
+  const otp = React.useMemo(
+    () => generateOtp(secret, { digits, period, algorithm, next }),
+    [algorithm, digits, next, period, secret, stepIndex]
+  )
+  // 按位数对半分组：6 位 3+3、8 位 4+4（写死 3 会让 8 位码显示成 3+5）
+  const half = Math.ceil(otp.length / 2)
+  const first = otp.slice(0, half)
+  const last = otp.slice(half)
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [algorithm, digits, next, period, secret])
-
-  const handleClick = () => {
-    copyTextToClipboardV2(otp)
+  const handleCopy = () => {
+    void copyTextToClipboardV2(otp)
     message.success("复制成功")
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return
+    event.preventDefault()
+    handleCopy()
+  }
+
   return (
-    <div className={className} onClick={handleClick}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleCopy}
+      onKeyDown={handleKeyDown}
+      className={className}>
       <span
         className={cn({
           "mr-1": small,

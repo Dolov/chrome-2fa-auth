@@ -1,9 +1,9 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 
+import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
 
-import { GlobalContext } from "../context"
+import { HomeContext } from "../home-context"
 import Phone from "./phone"
 
 export interface ContainerProps {
@@ -13,7 +13,7 @@ export interface ContainerProps {
 
 const Container: React.FC<ContainerProps> = (props) => {
   const { children } = props
-  const { containerType } = React.useContext(GlobalContext)
+  const { containerType } = React.useContext(HomeContext)
   if (containerType === ContainerType.PHONE) {
     return <Phone className="relative w-[378px] h-[600px]">{children}</Phone>
   }

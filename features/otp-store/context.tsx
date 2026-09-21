@@ -1,20 +1,21 @@
-import { storage } from "@wxt-dev/storage"
 import React from "react"
 
-import type { DataProps, OtpAuthConfig } from "~/utils/types"
-import {
-  DATA_KEY,
-  dataStore,
-  isRecoveryCodesSaved
-} from "~/features/otp-store/store"
 import { addOtp, otpExists } from "~/features/otp-store/otp-crud"
+import {
+  ensureOtpListLoaded,
+  getCachedOtpList,
+  isRecoveryCodesSaved,
+  mutateOtpList,
+  subscribeOtpList
+} from "~/features/otp-store/store"
+import type { DataProps, OtpAuthConfig } from "~/utils/types"
 
 /**
- * OTP 数据的 React 上下文（OTPStore）：
+ * OTP 数据的 React 上下文（OtpStore）：
  *
- * - 单一数据源：dataStore（@wxt-dev/storage defineItem）由上下文持有
- * - 单一变更入口：mutators 内部封装 saveOTP 合并语义，避免 7 个镜像各自 setItem
- * - watch 跨 tab 同步：上层 storage.watch 触发 setState，所有订阅者重渲染
+ * - 单一数据源：`dataStore`（@wxt-dev/storage defineItem）
+ * - 读取经 `useSyncExternalStore` 订阅存储层缓存；跨 tab 由 `storage.watch` 同步
+ * - 写入统一走 `mutateOtpList`：基于最新缓存计算，避免并发写丢更新
  */
 
 export interface OtpMutators {
@@ -44,125 +45,125 @@ const useOtpContext = (): OtpContextValue => {
   return ctx
 }
 
-/** Provider — 挂在 popup root */
-export const OtpProvider: React.FC<{ children: React.ReactNode }> = ({
-  children
-}) => {
-  const [items, setItems] = React.useState<DataProps[]>([])
-
-  React.useEffect(() => {
-    let cancelled = false
-
-    dataStore.getValue().then((initial) => {
-      if (!cancelled) setItems(initial ?? [])
-    })
-
-    const unwatch = storage.watch<DataProps[]>(DATA_KEY, (next) => {
-      if (next !== null && next !== undefined) {
-        setItems(next)
-      }
-    })
-
-    return () => {
-      cancelled = true
-      unwatch()
+/**
+ * 模块级常量：mutators 不依赖任何渲染态。
+ *
+ * 这样可以保证引用稳定 —— 消费者的 `useMemo` / `useEffect` 不会因为列表
+ * 变化而收到新的 mutator 引用。
+ */
+const mutators: OtpMutators = {
+  add: async (otp) => {
+    if (!otp.type || !otp.secret || !otp.issuer || !otp.account) {
+      throw new Error(`otp is invalid: ${JSON.stringify(otp, null, 2)}`)
     }
-  }, [])
 
-  const persist = React.useCallback(async (next: DataProps[]) => {
-    setItems(next)
-    await dataStore.setValue(next)
-  }, [])
+    return mutateOtpList((current) => {
+      const { items, inserted } = addOtp(current, otp)
+      return { items, result: inserted }
+    })
+  },
 
-  const mutators = React.useMemo<OtpMutators>(
-    () => ({
-      add: async (otp) => {
-        if (
-          !otp.type ||
-          !otp.secret ||
-          !otp.issuer ||
-          !otp.account
-        ) {
-          throw new Error(
-            `otp is invalid: ${JSON.stringify(otp, null, 2)}`
-          )
-        }
+  update: async (id, patch) => {
+    await mutateOtpList((current) => ({
+      items: current.map((item) =>
+        item.id === id ? { ...item, ...patch } : item
+      ) as DataProps[],
+      result: undefined
+    }))
+  },
 
-        const { items: nextItems, inserted } = addOtp(items, otp)
-        await persist(nextItems)
-        return inserted
-      },
+  softDelete: async (id) => {
+    await mutateOtpList((current) => ({
+      items: current.map((item) =>
+        item.id === id ? { ...item, deleted: true } : item
+      ) as DataProps[],
+      result: undefined
+    }))
+  },
 
-      update: async (id, patch) => {
-        const next = items.map((item) =>
-          item.id === id ? { ...item, ...patch } : item
-        ) as DataProps[]
-        await persist(next)
-      },
+  restore: async (id) => {
+    await mutateOtpList((current) => ({
+      items: current.map((item) =>
+        item.id === id ? { ...item, deleted: false } : item
+      ) as DataProps[],
+      result: undefined
+    }))
+  },
 
-      softDelete: async (id) => {
-        const next = items.map((item) =>
-          item.id === id ? { ...item, deleted: true } : item
-        ) as DataProps[]
-        await persist(next)
-      },
+  hardDelete: async (id) => {
+    await mutateOtpList((current) => ({
+      items: current.filter((item) => item.id !== id),
+      result: undefined
+    }))
+  },
 
-      restore: async (id) => {
-        const next = items.map((item) =>
-          item.id === id ? { ...item, deleted: false } : item
-        ) as DataProps[]
-        await persist(next)
-      },
+  pin: async (id, shouldPin) => {
+    await mutateOtpList((current) => {
+      const target = current.find((item) => item.id === id)
+      if (!target) return { items: current, result: undefined }
 
-      hardDelete: async (id) => {
-        await persist(items.filter((item) => item.id !== id))
-      },
+      const rest = current.filter((item) => item.id !== id)
+      const othersPinned = rest.filter((item) => item.pinned)
+      const othersUnpinned = rest.filter((item) => !item.pinned)
 
-      pin: async (id, shouldPin) => {
-        const target = items.find((item) => item.id === id)
-        if (!target) return
-        const rest = items.filter((item) => item.id !== id)
-        const othersPinned = rest.filter((item) => item.pinned)
-        const othersUnpinned = rest.filter((item) => !item.pinned)
-
-        if (shouldPin) {
-          await persist([
+      if (shouldPin) {
+        return {
+          items: [
             { ...target, pinned: true },
             ...othersPinned,
             ...othersUnpinned
-          ])
-        } else {
-          await persist([
-            ...othersPinned,
-            { ...target, pinned: false },
-            ...othersUnpinned
-          ])
+          ],
+          result: undefined
         }
-      },
-
-      exists: async (otp) => otpExists(items, otp),
-
-      isRecoveryCodesSavedFor: async (item) => isRecoveryCodesSaved(item),
-
-      markRecoveryCodeCopied: async (id, codeValue) => {
-        const next = items.map((item) => {
-          if (item.id !== id || !Array.isArray(item.recoveryCodes)) return item
-          const updatedCodes = item.recoveryCodes.map((code) =>
-            code.value === codeValue && !code.copied
-              ? { ...code, copied: true }
-              : code
-          )
-          return { ...item, recoveryCodes: updatedCodes }
-        }) as DataProps[]
-        await persist(next)
       }
-    }),
-    [items, persist]
+
+      return {
+        items: [
+          ...othersPinned,
+          { ...target, pinned: false },
+          ...othersUnpinned
+        ],
+        result: undefined
+      }
+    })
+  },
+
+  exists: async (otp) => {
+    const current = await ensureOtpListLoaded()
+    return otpExists(current, otp)
+  },
+
+  isRecoveryCodesSavedFor: (item) => isRecoveryCodesSaved(item),
+
+  markRecoveryCodeCopied: async (id, codeValue) => {
+    await mutateOtpList((current) => ({
+      items: current.map((item) => {
+        if (item.id !== id || !Array.isArray(item.recoveryCodes)) return item
+        const updatedCodes = item.recoveryCodes.map((code) =>
+          code.value === codeValue && !code.copied
+            ? { ...code, copied: true }
+            : code
+        )
+        return { ...item, recoveryCodes: updatedCodes }
+      }) as DataProps[],
+      result: undefined
+    }))
+  }
+}
+
+/** Provider — 挂在 popup / settings root */
+export const OtpProvider: React.FC<{ children: React.ReactNode }> = ({
+  children
+}) => {
+  const items = React.useSyncExternalStore(
+    subscribeOtpList,
+    getCachedOtpList,
+    getCachedOtpList
   )
 
   const value = React.useMemo<OtpContextValue>(
     () => ({ items, mutators }),
-    [items, mutators]
+    [items]
   )
 
   return <OtpContext.Provider value={value}>{children}</OtpContext.Provider>

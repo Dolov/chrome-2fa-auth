@@ -2,7 +2,7 @@ import Progress from "qier-progress"
 import React from "react"
 
 interface QProgressProps {
-  loading?: boolean
+  isLoading?: boolean
   children: React.ReactNode
   progressHeight?: number
   className?: string
@@ -12,7 +12,7 @@ interface QProgressProps {
 
 const QProgress: React.FC<QProgressProps> = (props) => {
   const {
-    loading,
+    isLoading,
     children,
     progressHeight = 5,
     className,
@@ -23,12 +23,12 @@ const QProgress: React.FC<QProgressProps> = (props) => {
 
   React.useEffect(() => {
     if (!progressRef.current) return
-    if (loading) {
+    if (isLoading) {
       progressRef.current.start()
     } else {
       progressRef.current.finish()
     }
-  }, [loading])
+  }, [isLoading])
 
   const setRef = React.useCallback((element: HTMLDivElement | null) => {
     if (!element) {

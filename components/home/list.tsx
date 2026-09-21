@@ -1,49 +1,58 @@
-import { cn } from "~/utils/cn"
 import { FileCog } from "lucide-react"
 import React from "react"
 
 import noData from "~/assets/no-data.svg"
-
-import { type DataProps } from "~/utils/types"
 import Favicon from "~/components/favicons"
 import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
 import { useOtpList } from "~/features/otp-store"
+import { cn } from "~/utils/cn"
+import type { DataProps } from "~/utils/types"
 
-import { GlobalContext } from "./context"
+import { HomeContext, type FilterType } from "./home-context"
 import ItemActions from "./item-actions"
 
 interface ListProps {
   keyword: string
 }
 
+const matchesFilter = (item: DataProps, filter: FilterType): boolean =>
+  filter === "deleted" ? Boolean(item.deleted) : !item.deleted
+
+const matchesKeyword = (item: DataProps, loweredKeyword: string): boolean => {
+  const issuerMatches = item.issuer
+    ? item.issuer.toLowerCase().includes(loweredKeyword)
+    : false
+  const accountMatches = item.account
+    ? item.account.toLowerCase().includes(loweredKeyword)
+    : false
+  return issuerMatches || accountMatches
+}
+
 const List: React.FC<ListProps> = (props) => {
   const data = useOtpList()
-  const { filter } = React.useContext(GlobalContext)
+  const { filter } = React.useContext(HomeContext)
 
   const { keyword } = props
+  // 搜索：输入保持即时响应，过滤结果延后到空闲时重算
+  const deferredKeyword = React.useDeferredValue(keyword)
 
   const filteredData = React.useMemo(() => {
+    const loweredKeyword = deferredKeyword.toLowerCase()
+
     return data.filter((item) => {
-      // 先根据 filter 过滤
-      const matchFilter = filter === "deleted" ? item.deleted : !item.deleted
-      if (!matchFilter) return false
-      // 再根据 keyword 过滤
-      if (!keyword) return true
-      const lKeyword = keyword.toLowerCase()
-      // 检查 issuer 和 account 字段是否包含 keyword
-      return (
-        (item.issuer && item.issuer.toLowerCase().includes(lKeyword)) ||
-        (item.account && item.account.toLowerCase().includes(lKeyword))
-      )
+      if (!matchesFilter(item, filter)) return false
+      if (!deferredKeyword) return true
+      return matchesKeyword(item, loweredKeyword)
     })
-  }, [data, filter, keyword])
+  }, [data, filter, deferredKeyword])
 
   return (
     <div className="flex-1 overflow-auto px-4">
       {filteredData.length === 0 && (
         <img
           src={noData}
+          alt="暂无账户"
           className="mt-14 w-full transition-transform duration-700 ease-in-out animate-pulse hover:scale-105"
         />
       )}
@@ -59,10 +68,10 @@ interface ListItemProps {
   data: DataProps
 }
 
-const ListItem: React.FC<ListItemProps> = (props) => {
+const ListItem = React.memo(function ListItem(props: ListItemProps) {
   const { data } = props
   const { pinned, issuer, account, deleted, period } = data
-  const [actionVisible, setActionVisible] = React.useState(false)
+  const [isActionVisible, setIsActionVisible] = React.useState(false)
 
   return (
     <div
@@ -79,8 +88,8 @@ const ListItem: React.FC<ListItemProps> = (props) => {
       />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
       <ItemActions
-        visible={actionVisible}
-        onClose={() => setActionVisible(false)}
+        isVisible={isActionVisible}
+        onClose={() => setIsActionVisible(false)}
         itemData={data}
       />
       <div className="px-4 relative">
@@ -91,7 +100,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
               className="btn btn-circle btn-ghost btn-sm ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               onClick={(e) => {
                 e.stopPropagation()
-                setActionVisible(true)
+                setIsActionVisible(true)
               }}>
               <FileCog size={16} />
             </button>
@@ -125,6 +134,6 @@ const ListItem: React.FC<ListItemProps> = (props) => {
       </div>
     </div>
   )
-}
+})
 
 export default List

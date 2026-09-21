@@ -1,7 +1,4 @@
-import { cn } from "~/utils/cn"
 import React from "react"
-
-import { useStorage } from "~/features/ui-state/use-storage"
 
 import {
   DeviconAzure,
@@ -23,6 +20,8 @@ import {
   SkillIconsInstagram,
   VscodeIconsFileTypeOutlook
 } from "~/components/ui/icon"
+import { useStorage } from "~/features/ui-state/use-storage"
+import { cn } from "~/utils/cn"
 import { DEFAULT_SETTINGS } from "~/utils/constants"
 import { StorageKey } from "~/utils/types"
 
@@ -73,14 +72,14 @@ const Favicon = ({
   className?: string
 }) => {
   const [settings] = useStorage(StorageKey.SETTINGS, DEFAULT_SETTINGS)
-  const minimal = settings?.faviconType === "minimal"
+  const isMinimal = settings?.faviconType === "minimal"
   const vendor = issuer.toLowerCase()
   const Icon = minimalIconMap[vendor]
 
   // 未知 issuer 降级：不渲染图标（避免 React #130: element type undefined）
   if (!Icon) return null
 
-  if (minimal) {
+  if (isMinimal) {
     return <Icon className={cn("text-xl", className)} />
   }
 

@@ -1,17 +1,12 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 
-import { useStorage } from "~/features/ui-state/use-storage"
-
 import Main from "~/components/home"
-import { DEFAULT_SETTINGS } from "~/utils/constants"
-import {
-  ContainerType,
-  SourceType,
-  StorageKey
-} from "~/utils/types"
-import { useThemeChange } from "~/features/ui-state/use-theme-change"
 import { OtpProvider } from "~/features/otp-store"
+import { useStorage } from "~/features/ui-state/use-storage"
+import { useThemeChange } from "~/features/ui-state/use-theme-change"
+import { cn } from "~/utils/cn"
+import { DEFAULT_SETTINGS } from "~/utils/constants"
+import { ContainerType, StorageKey } from "~/utils/types"
 
 const themes = [
   "light",
@@ -54,13 +49,13 @@ const ThemeList = () => {
   return (
     <div className="rounded-box grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       {themes.map((item) => {
-        const checked = theme === item
+        const isChecked = theme === item
         return (
           <div
             key={item}
             onClick={() => setTheme(item)}
             className={cn("overflow-hidden rounded-lg item-border", {
-              "item-border-active": checked
+              "item-border-active": isChecked
             })}>
             <div
               data-theme={item}
@@ -70,9 +65,7 @@ const ThemeList = () => {
                 <div className="bg-base-300 col-start-1 row-start-3"></div>
                 <div className="bg-base-100 col-span-4 col-start-2 row-span-3 row-start-1 flex flex-col gap-1 p-2">
                   <div className="font-bold">{item}</div>
-                  <div
-                    className="flex flex-wrap gap-1"
-                    data-svelte-h="svelte-1kw79c2">
+                  <div className="flex flex-wrap gap-1">
                     <div className="bg-primary flex aspect-square w-5 items-center justify-center rounded lg:w-6">
                       <div className="text-primary-content text-sm font-bold">
                         A
@@ -127,10 +120,7 @@ const ContainerList = () => {
             })
           }}
         />
-        <Main
-          source={SourceType.SETTINGS}
-          containerType={ContainerType.DEFAULT}
-        />
+        <Main containerType={ContainerType.DEFAULT} />
       </div>
       <div className="flex flex-col items-center gap-4">
         <input
@@ -145,38 +135,31 @@ const ContainerList = () => {
             })
           }}
         />
-        <Main
-          source={SourceType.SETTINGS}
-          containerType={ContainerType.PHONE}
-        />
+        <Main containerType={ContainerType.PHONE} />
       </div>
     </div>
   )
 }
 
-export interface SettingProps {}
-
-const Setting: React.FC<SettingProps> = (props) => {
-  const {} = props
-
+const Setting: React.FC = () => {
   return (
     <OtpProvider>
-    <div className="flex-1 overflow-auto">
-      <div className="collapse bg-base-200 mb-4">
-        <input type="radio" name="container" defaultChecked />
-        <div className="collapse-title text-xl font-medium">布局模式</div>
-        <div className="collapse-content">
-          <ContainerList />
+      <div className="flex-1 overflow-auto">
+        <div className="collapse bg-base-200 mb-4">
+          <input type="radio" name="container" defaultChecked />
+          <div className="collapse-title text-xl font-medium">布局模式</div>
+          <div className="collapse-content">
+            <ContainerList />
+          </div>
+        </div>
+        <div className="collapse bg-base-200 mb-4">
+          <input type="radio" name="theme" />
+          <div className="collapse-title text-xl font-medium">主题</div>
+          <div className="collapse-content">
+            <ThemeList />
+          </div>
         </div>
       </div>
-      <div className="collapse bg-base-200 mb-4">
-        <input type="radio" name="theme" />
-        <div className="collapse-title text-xl font-medium">主题</div>
-        <div className="collapse-content">
-          <ThemeList />
-        </div>
-      </div>
-    </div>
     </OtpProvider>
   )
 }
