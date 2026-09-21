@@ -1,7 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-import Popup from "./App"
+import Popup from "./app"
 
 import "~/style.css"
 

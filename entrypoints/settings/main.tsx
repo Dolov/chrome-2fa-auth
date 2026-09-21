@@ -2,7 +2,7 @@ import { cn } from "~/utils/cn"
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-import Setting from "./App"
+import Setting from "./app"
 
 import "~/style.css"
 
