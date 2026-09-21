@@ -12,12 +12,46 @@
 - **典型用法**：一段最少代码示例。
 - **边界 / 不变式**：列 3–5 条不能违反的事实，避免误用。
 
+## 分层不变式（执行环境）
+
+生产代码按**运行环境**分层。这是硬约束，不是风格偏好——改目录或加 import 前先确认落在哪一层。
+
+| 层 | 目录 | 允许 | 禁止 |
+|---|---|---|---|
+| 双端纯原语 | `utils/` | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态 |
+| 页面注入 UI | `features/page-ui/` | 操作宿主页面 DOM 与 CSS（`mountStyle` 是唯一 `<style>` 注入通道） | import React |
+| React 页面状态 | `features/ui-state/`、`components/` | React hooks / 组件 | 被 content script import |
+| React 业务状态 | `features/otp-store/`；`context.tsx` 是唯一 React 入口 | Provider + mutators | 被 content script import；向 content 侧 re-export `dataStore` |
+| content 专属 | `features/site-content/dom/`、`entrypoints/*.content/` | 依赖宿主页面结构（SPA 路由、DOM 选择器） | 被 popup / settings import |
+
+### 硬规则 1：barrel 不变式
+
+**content script 会 import 的 barrel 必须 React-free。**
+
+项目未声明 `package.json` 的 `sideEffects: false`，Rollup 无法 tree-shake 掉带副作用的模块。
+因此 barrel 里一行 `export { useX } from "./x.tsx"` 就足以把 react + react-dom 打进**每个** content bundle（实测每 entry +6.4 KB）。
+
+- `features/otp-intake/index.ts`、`features/messaging/index.ts` 属此列，只导出 React-free 面。
+- popup-only 适配器走深路径，不进 barrel（如 `features/otp-intake/adapters/popup`）。
+
+### 硬规则 2：content bundle 预算
+
+`global.content` 的 `matches` 是 `<all_urls>`，它的体积要乘以「用户访问的每个网页」。
+改动 content 侧依赖后跑 `pnpm build`，对比 `content-scripts/*.js`：
+
+| entrypoint | 预算 | 成因 |
+|---|---|---|
+| `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP |
+| `github.js` / `npm.js` | < 620 KB | 需要 `generateOtp`，含 otplib + Node 垫片（见 ADR-0004 待办） |
+
+超了说明新依赖把大件（Node 垫片 / React / UI 框架）拖进了 content 侧。
+
 ## 模块词汇（按依赖顺序）
 
 ### 1. OTPAuth URL
 
 - **是什么**：RFC 6238 描述的 `otpauth://totp/<label>?secret=...&issuer=...` 字符串。
-- **在哪里**：`utils/auth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`。
+- **在哪里**：`utils/otpauth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`。
 - **典型用法**：从 GitHub 设置页 QR 解码出来的字符串 → `parseOtpAuthUrl(data)` → `OtpAuthConfig`。
 - **边界**：
   - URL 必须以 `otpauth://` 开头且包含 `secret=`，否则 `isOtpAuthUrl` 返回 false。
@@ -31,7 +65,7 @@
 ### 2. OtpItem（= `DataProps`）
 
 - **是什么**：单条账户（issuer + account + secret + 时间参数 + 元数据），扩展自 `OtpAuthConfig`。
-- **在哪里**：`utils/constant.ts` 的 `DataProps`；渲染列表在 `components/home/list.tsx`。
+- **在哪里**：`utils/types.ts` 的 `DataProps`；渲染列表在 `components/home/list.tsx`。
 - **典型用法**：
   ```ts
   const item: DataProps = {
@@ -50,7 +84,7 @@
 ### 3. OtpStore
 
 - **是什么**：chrome.storage 中所有 OTP 条目的**单一数据源**（`storage.defineItem<DataProps[]>(DATA_KEY, { fallback: [] })`）。
-- **在哪里**：`utils/storage.ts` 的 `dataStore`。
+- **在哪里**：`features/otp-store/store.ts` 的 `dataStore`（存储层与 `context.tsx` 分开：前者无 React，content / background 走深路径）。
 - **典型用法**：永远不直接调用 `dataStore.setValue`，只通过 `OtpProvider` 派发的 mutators。
 - **边界**：
   - 数据存 `sync:` 区（与 Plasmo 旧版兼容，跨设备同步）。
@@ -60,7 +94,7 @@
 ### 4. OtpProvider
 
 - **是什么**：React Context，把 OtpStore 暴露为 `items` + `mutators`。挂在 popup root 与 settings root。
-- **在哪里**：`features/otp-store/otp-store.tsx`；对外表面 `features/otp-store/index.ts`。
+- **在哪里**：`features/otp-store/context.tsx`；对外表面 `features/otp-store/index.ts`（只导出 React 侧）。
 - **典型用法**：
   ```tsx
   <OtpProvider>
@@ -74,7 +108,7 @@
 ### 5. OtpMutators
 
 - **是什么**：9 个变更原语的接口，封装去重 / 软删合并语义。
-- **在哪里**：`features/otp-store/otp-store.tsx` 的 `OtpMutators` 接口。
+- **在哪里**：`features/otp-store/context.tsx` 的 `OtpMutators` 接口。
 - **典型用法**：
   ```tsx
   const { add, update, softDelete, hardDelete, pin, exists } = useOtpMutators()
@@ -100,6 +134,8 @@
   - 三类来源统一收口：`qr-data` / `file` / `parsed-config`。
   - 解析失败、缺账号、重复、未实现——四种状态分别走 toast 路径，不抛异常。
   - 调用方负责持久化（writer）与提示（notifier），intake 只做编排。
+  - **barrel 不变式**：`features/otp-intake/index.ts` 必须 React-free（content script 会 import 它）；
+    popup 适配器走深路径 `features/otp-intake/adapters/popup`。
 
 ### 7. SiteAdapter
 
@@ -150,7 +186,7 @@
 ### 11. CSS Portal
 
 - **是什么**：内容脚本注入样式的**单一 host `<style>`**（id=`g2fa-portal-style-sheet`），按 dedupe key 幂等。
-- **在哪里**：`utils/css-portal.ts` 的 `mountStyle`。
+- **在哪里**：`features/page-ui/css-portal.ts` 的 `mountStyle`。
 - **典型用法**：
   ```ts
   mountStyle(`${CSS_PREFIX}-selection-style`, `...CSS...`)
@@ -185,14 +221,19 @@
   - 任何新 action 必须在 `MessageMap` 注册；否则 `sendSiteAction<T>` 编译失败。
   - background 仍是裸回调（生命周期简单），但 payload 形状仍走 Map 类型。
 
-### 14. Toast / message.ts
+### 14. Toast
 
-- **是什么**：popup 用的固定位 toast 通知，content script **不调用**。
-- **在哪里**：`utils/message.ts`。
+- **是什么**：往 `document` 里插入的固定位提示条（vanilla DOM，无 React）。
+- **在哪里**：`features/page-ui/toast.ts`（旧名 `utils/message.ts`）。
 - **典型用法**：`message.success("已复制")`；`message.error("失败")`。
 - **边界**：
-  - 不在 popup 外（content、background、settings 独立页）调用。
-  - 进程级 DOM 元素，多个 toast 叠加会自动堆叠。
+  - **双端可用**：popup 侧（`components/otp-text.tsx`、`components/home/item-actions.tsx`）
+    与 content 侧（`read-qr.ts`、`manual-scan.ts`、`otp-autofill.ts`）都在用。
+    本文旧版写「content script **不调用**」与代码相反，已更正；`toast.ts` 文件头旧注释
+    写「不在 content script 之外使用」也错。
+  - z-index 取 `contentBaseZindex + 1`，压在其他注入 UI 之上。
+  - 多个 toast 叠加会自动堆叠，无需上层排队。
+  - 不要和 `features/messaging` 混：那是结构化 postMessage 协议，不碰宿主 DOM。
 
 ## 命名冲突表（不要混）
 
@@ -202,12 +243,17 @@
 | `OtpForm`（=表单组件）vs `Form`（HTMLFormElement）| 一个组件、一个 DOM 类型 |
 | `SiteAdapter`（站点描述）vs `Adapter`（react 适配器模式）| 上下文里没有第二个 Adapter，别瞎联想 |
 | `global.content` vs `github.content` vs `npm.content` | global 是 <all_urls>，两个站点的内容脚本只跑对应 host |
-| `chrome.*` vs `browser.*` | WXT 同时暴露两者；统一用 `browser.*`（commit history 已迁移） |
+| `chrome.*` vs `browser.*` | WXT 同时暴露两者；统一用 `browser.*`（原 `utils/runtime-utils.ts` 违规，已改） |
+| `toast`（`features/page-ui/toast.ts`）vs `messaging`（`features/messaging`）| 前者是页面内 DOM 提示条，后者是 popup↔content↔background 消息协议。两者旧名都叫 `message`，已更名消歧 |
+| `store.ts`（存储层）vs `context.tsx`（React Provider）| 同在 `features/otp-store/`；前者无 React，后者是唯一 React 入口 |
+| `utils/qr-decode.ts` vs「生成二维码」| 库里只有解码没有生成，不要往这里加 encode |
 
 ## 版本
 
 - v2.0.0（迁移期 Plasmo → WXT）
 - 词汇表会随每个 S 系列 commit 更新。
+- 2026 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`。
+  理由与实测数据见 `docs/adr/0004-execution-environment-layering.md`。
 
 ## 维护
 
@@ -216,3 +262,4 @@
 1. 在本文加词条（4 要素）。
 2. 如果它取代了一个旧名词，把旧词条移到 `## 已弃用` 区，注明被哪个 PR 取代。
 3. 同一概念如果有两种实现（如 `saveOTP` 与 `addOtpItem`），必须收敛到一个，不留双名。
+4. 新增或搬迁文件前，先对照 `## 分层不变式（执行环境）` 确认落在正确的层。

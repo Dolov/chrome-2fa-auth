@@ -35,10 +35,11 @@ feat/test-e2e   → E2E 全绿 → feat/migrate-wxt → 阶段化迁移 → rele
 
 **原则：黑盒**。E2E 不依赖、不 import 项目内部代码，仅通过：
 
-- 加载 unpacked 扩展（`build/chrome-mv3`）
+- 加载 unpacked 扩展（`.output/chrome-mv3`）
 - 模拟用户操作（点按钮、输文本）
 - 断言 DOM、剪贴板、`chrome.storage`、扩展 ID 注入
-- TOTP 用独立 `otplib` 算期望值对比，不调用项目 `utils/auth.ts`
+- TOTP 用独立 `otplib` 算期望值对比，不调用项目 `utils/totp.ts`
+  （E2E 侧类型也本地结构化声明，不 import 项目内任何代码）
 
 **真实 / Mock 边界**：
 
@@ -57,6 +58,26 @@ feat/test-e2e   → E2E 全绿 → feat/migrate-wxt → 阶段化迁移 → rele
 - P1（7）：QR 上传、GitHub/NPM 自动填充、recovery codes、设置页（导出/导入/主题/语言）
 - P2（5）：QR 摄像头/选区、错误 secret、重名检测
 
+## 目录分层（改文件前必读）
+
+生产代码按**执行环境**分层，详见 `CONTEXT.md` 的 `## 分层不变式（执行环境）` 与
+[`docs/adr/0004`](./docs/adr/0004-execution-environment-layering.md)。速查：
+
+| 目录 | 定位 | 硬性禁止 |
+|---|---|---|
+| `utils/` | 双端纯原语（仅 7 个文件） | import React；注入持久 DOM；调用扩展 API；持有业务状态 |
+| `features/page-ui/` | 宿主页面 DOM/CSS 注入 | import React |
+| `features/ui-state/` | React hooks（theme / storage / modal） | 被 content script import |
+| `features/otp-store/` | `store.ts` 存储层 + `context.tsx` 唯一 React 入口 | content 侧 re-export `dataStore`；被 content 绕过 mutators |
+| `features/site-content/dom/` | content-only 的 SPA 等待 / 路由匹配 | 被 popup 或 settings import |
+
+两条硬规则：
+
+1. **content script 会 import 的 barrel 必须 React-free**（`features/otp-intake`、`features/messaging`）。
+   项目没有 `sideEffects: false`，Rollup 无法 tree-shake，barrel 里一行 React 导出就会让每个 content bundle +6.4 KB。
+2. **content bundle 预算**：`global.js` < 200 KB，`github.js` / `npm.js` < 620 KB。
+   改动 content 侧依赖后必须 `pnpm build` 对比 `content-scripts/*.js`。
+
 ## 验收标准
 
 E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完成一个模块，跑同一份 spec，必须 0 regression。
@@ -72,3 +93,8 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 - [ ] F1-F6 + F10-F12 主体 spec 全绿
 - [ ] CI 接入（GitHub Actions secrets 注入 test 账号）
 - [ ] 复核 spec 数是否覆盖真实分支密度（必要时增减）
+- [x] 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`
+      （ADR-0004）。实测总产物 3.44 MB → 2.96 MB，`global.content` 608 → 156 KB，
+      三个 content bundle 中 React 痕迹归零；E2E 8/8 全绿
+- [ ] ADR-0004 待办：用 Web Crypto 重写 TOTP 以移除 otplib + Node 垫片
+      （预期 content 侧再降 ~440 KB；需纯 JS HMAC-SHA1 兜底 http 页面）
