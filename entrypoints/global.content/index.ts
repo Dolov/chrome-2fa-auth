@@ -1,5 +1,5 @@
 import { ActionType } from "~/utils/constant"
-import { highlightElement } from "~/utils/dom-highlight"
+import { highlightElement } from "~/features/page-ui/highlight"
 import { scanPage } from "~/utils/qr"
 import { handleSiteAction } from "~/features/messaging"
 

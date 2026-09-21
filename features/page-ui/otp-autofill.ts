@@ -1,8 +1,8 @@
-import message from "./message"
-import { copyTextToClipboard } from "./clipboard-utils"
+import message from "./toast"
+import { copyTextToClipboard } from "~/utils/clipboard-utils"
 import { CSS_PREFIX, mountStyle } from "./css-portal"
-import { generateOtp, getRemainingTime } from "./auth"
-import { createGradientTextContainer } from "./gradient-text"
+import { generateOtp, getRemainingTime } from "~/utils/auth"
+import { createGradientTextContainer } from "./gradient-border"
 
 /** OTP 消息更新器的配置选项 */
 export interface OtpAutofillOptions {

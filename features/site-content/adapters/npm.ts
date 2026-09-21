@@ -1,5 +1,5 @@
 import { Issuers } from "~/utils/constant"
-import { extractDynamicSegment } from "~/utils/dom-utils"
+import { extractDynamicSegment } from "~/features/site-content/dom/path-match"
 import { scanPage } from "~/utils/qr"
 
 import type { SiteAdapter } from "../site-adapter"

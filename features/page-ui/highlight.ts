@@ -1,4 +1,4 @@
-import { COLORS } from "./constant"
+import { COLORS } from "~/utils/constant"
 
 /**
  * 给目标元素打多色高亮脉冲（彩虹色 box-shadow 循环闪烁）。

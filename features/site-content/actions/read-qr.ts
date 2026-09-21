@@ -1,9 +1,9 @@
-import message from "~/utils/message"
-import { highlightElement } from "~/utils/dom-highlight"
+import message from "~/features/page-ui/toast"
+import { highlightElement } from "~/features/page-ui/highlight"
 import { parseOtpAuthUrl } from "~/utils/auth"
-import { waitForElement } from "~/utils/dom-utils"
+import { waitForElement } from "~/features/site-content/dom/wait-element"
 import { readFromImage, scanPage } from "~/utils/qr"
-import { startOtpMessageUpdater } from "~/utils/otp-autofill"
+import { startOtpMessageUpdater } from "~/features/page-ui/otp-autofill"
 import { createContentIntake } from "~/features/otp-intake"
 
 import type { SiteAdapter } from "../site-adapter"

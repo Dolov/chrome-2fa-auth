@@ -1,6 +1,6 @@
 import { getOTPList } from "~/utils/storage"
-import { displayRecoveryCodeSaveMessage } from "~/utils/recovery-prompt"
-import { waitForElement } from "~/utils/dom-utils"
+import { displayRecoveryCodeSaveMessage } from "~/features/page-ui/recovery-prompt"
+import { waitForElement } from "~/features/site-content/dom/wait-element"
 
 import type { SiteAdapter } from "../site-adapter"
 

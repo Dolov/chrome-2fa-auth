@@ -1,6 +1,6 @@
 import { getOTPList } from "~/utils/storage"
-import { startOtpMessageUpdater } from "~/utils/otp-autofill"
-import { waitForElement } from "~/utils/dom-utils"
+import { startOtpMessageUpdater } from "~/features/page-ui/otp-autofill"
+import { waitForElement } from "~/features/site-content/dom/wait-element"
 
 import type { SiteAdapter } from "../site-adapter"
 

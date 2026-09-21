@@ -1,5 +1,5 @@
-import { contentBaseZindex } from "~/utils/css-portal"
-import { createSelectionBox } from "~/utils/selection-overlay"
+import { contentBaseZindex } from "~/features/page-ui/css-portal"
+import { createSelectionBox } from "~/features/page-ui/gradient-border"
 import { sendCaptureScreenshot } from "~/features/messaging"
 
 import { cropImage } from "./crop"

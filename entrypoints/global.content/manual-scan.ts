@@ -1,6 +1,6 @@
 import { ActionType } from "~/utils/constant"
 import { createContentIntake } from "~/features/otp-intake"
-import message from "~/utils/message"
+import message from "~/features/page-ui/toast"
 
 import { captureAndDecode, createScreenshotOverlay } from "./overlay"
 

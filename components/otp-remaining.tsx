@@ -1,12 +1,18 @@
-import { cn } from "~/utils/cn"
 import React from "react"
 
 import { getRemainingTime } from "~/utils/auth"
-import { getProgressColor } from "~/utils/css-portal"
+import { cn } from "~/utils/cn"
 
 interface OtpRemainingProps {
   deleted?: boolean
   className?: string
+}
+
+/** 剩余秒数 → daisyUI progress 颜色类名 */
+const getProgressColor = (timeRemaining: number): string => {
+  if (timeRemaining > 10) return "progress-primary"
+  if (timeRemaining > 3) return "progress-warning"
+  return "progress-error"
 }
 
 const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {

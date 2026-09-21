@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 
 import { useOtpMutators } from "~/features/otp-store"
-import message from "~/utils/message"
+import message from "~/features/page-ui/toast"
 
 import { intakeOtp } from "../intake"
 import type {

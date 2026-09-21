@@ -1,7 +1,7 @@
-import message from "./message"
-import type { DataProps } from "./constant"
-import { isRecoveryCodesSaved, saveOTP } from "./storage"
-import { createGradientTextContainer } from "./gradient-text"
+import message from "./toast"
+import type { DataProps } from "~/utils/constant"
+import { isRecoveryCodesSaved, saveOTP } from "~/utils/storage"
+import { createGradientTextContainer } from "./gradient-border"
 
 /** 恢复码提示的配置项 */
 export interface RecoveryPromptOptions {

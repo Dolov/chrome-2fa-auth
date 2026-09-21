@@ -1,8 +1,9 @@
 /**
- * 全局 CSS 注入的单一入口。
+ * 注入到宿主页面的 CSS 单一入口（content script + popup 的 DOM UI 共用）。
  *
- * 把原本硬编码在 `utils/ui.ts` 里的 `"github-2fa-1746543013856"` 前缀换成
- * 一个稳定、可读、不带构建时间戳的命名空间；并保证整个页面内只有一个 `<style>`。
+ * - 全文档只有一个 host `<style>`，按 dedupe key 幂等注入
+ * - prefix 是稳定常量，不带构建时间戳，避免每次构建换命名空间
+ * - 禁止在调用方直接 `appendChild(<style>)`
  */
 
 const PREFIX = "g2fa-portal" as const
@@ -37,15 +38,4 @@ export const mountStyle = (styleId: string, cssBody: string) => {
     document.createTextNode(`${dedupeKey}\n${cssBody}\n`)
   )
   return hostStyle
-}
-
-/**
- * 把剩余秒数映射到 daisyUI progress 颜色类名
- *
- * 从 utils/auth.ts 搬到此处：候选 D（auth.ts 应聚焦 OTP 领域，不再含 UI 助手）。
- */
-export const getProgressColor = (timeRemaining: number): string => {
-  if (timeRemaining > 10) return "progress-primary"
-  if (timeRemaining > 3) return "progress-warning"
-  return "progress-error"
 }

@@ -1,7 +1,7 @@
 import { dataStore } from "~/utils/storage"
 import { addOtp } from "~/utils/otp-crud"
 import type { OtpAuthConfig } from "~/utils/constant"
-import message from "~/utils/message"
+import message from "~/features/page-ui/toast"
 
 import { intakeOtp } from "../intake"
 import type {
@@ -15,7 +15,7 @@ import type {
 /**
  * Content script 用 toast notifier
  *
- * 内容脚本也用 utils/message.ts（DOM 内 div 注入），无 React 依赖。
+ * 内容脚本也用 features/page-ui/toast（DOM 内 div 注入），无 React 依赖。
  */
 const contentNotifier: IntakeNotifier = {
   success: (text) => message.success(text),
