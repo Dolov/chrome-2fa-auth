@@ -1,4 +1,4 @@
-import { contentBaseZindex } from "~/utils/constant"
+import { contentBaseZindex } from "~/utils/css-portal"
 import { readFromCanvas } from "~/utils/qr"
 
 /** 开发模式下 debug canvas 的 class 名 */

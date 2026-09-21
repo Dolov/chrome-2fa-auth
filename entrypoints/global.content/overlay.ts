@@ -1,4 +1,4 @@
-import { contentBaseZindex } from "~/utils/constant"
+import { contentBaseZindex } from "~/utils/css-portal"
 import { createSelectionBox } from "~/utils/selection-overlay"
 import { sendCaptureScreenshot } from "~/features/messaging"
 

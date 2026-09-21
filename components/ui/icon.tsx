@@ -1,4 +1,25 @@
+/**
+ * Vendor icons
+ *
+ * 来源 / License：
+ * - Simple Icons (CC0): MdiGithub
+ *   https://github.com/simple-icons/simple-icons
+ * - Devicon (MIT): DeviconNpm, DeviconAzure, DeviconCloudflare,
+ *   DeviconDigitalocean, DeviconGooglecloud, DeviconLinkedin
+ *   https://github.com/devicons/devicon
+ * - Logos Icons (CC0): LogosAws, LogosBitbucket, LogosDockerIcon,
+ *   LogosFacebook, LogosGitlab, LogosRedditIcon, LogosTwitter
+ *   https://github.com/gilbarbara/logos
+ * - Skill Icons (CC0): SkillIconsDiscord, SkillIconsGmailLight,
+ *   SkillIconsInstagram
+ *   https://github.com/tandpfun/skill-icons
+ * - VSCode Icons (CC0): VscodeIconsFileTypeOutlook
+ *   https://github.com/vscode-icons/vscode-icons
+ *
+ * 本项目以原样集成，不改路径、不重新分发；尊重上游 CC0/MIT/CC0。
+ */
 import type React from "react"
+
 export function MdiGithub(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg

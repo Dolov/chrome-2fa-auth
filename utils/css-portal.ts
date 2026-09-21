@@ -9,6 +9,9 @@ const PREFIX = "g2fa-portal" as const
 const STYLE_NODE_ID = `${PREFIX}-style-sheet`
 const ANIMATION_DURATION = "6s"
 
+/** content script 注入元素的 z-index 基线（手动 1000w 给 toast 留 1 偏移） */
+export const contentBaseZindex = 10_000_000
+
 export const CSS_PREFIX = PREFIX
 export const CSS_ANIMATION_DURATION = ANIMATION_DURATION
 

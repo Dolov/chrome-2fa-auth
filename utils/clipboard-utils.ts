@@ -5,6 +5,9 @@
  * - `copyTextToClipboardV2`：现代 Clipboard API
  *
  * 入口仍同时暴露两条路径，按权限/场景选用。
+ *
+ * 失败处理：函数本身只吞错；调用方（OtpText 等）负责 toast。
+ * 这避免 SW / content script 里 console.log 噪音。
  */
 
 /** 写入剪贴板：fallback 路径 */
@@ -15,10 +18,9 @@ export const copyTextToClipboard = (text: string) => {
   textArea.select()
 
   try {
-    const hasCopied = document.execCommand("copy")
-    console.log(hasCopied ? "已复制到剪贴板" : "复制失败")
-  } catch (err) {
-    console.error("无法复制文本", err)
+    document.execCommand("copy")
+  } catch {
+    // 静默失败：调用方决定是否 toast 提示
   }
   document.body.removeChild(textArea)
 }
@@ -27,8 +29,7 @@ export const copyTextToClipboard = (text: string) => {
 export const copyTextToClipboardV2 = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text)
-    console.log("已复制到剪贴板")
-  } catch (err) {
-    console.error("复制失败", err)
+  } catch {
+    // 静默失败：调用方决定是否 toast 提示
   }
 }

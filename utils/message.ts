@@ -7,7 +7,7 @@
  * - 自动超期销毁，可手动调 returned.destroy() 提前关闭
  */
 
-import { contentBaseZindex } from "./constant"
+import { contentBaseZindex } from "./css-portal"
 
 const baseDuration = 3000
 
