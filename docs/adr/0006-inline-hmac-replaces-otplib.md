@@ -127,11 +127,8 @@ otplib 内部一行 `require('crypto')`。
 
 ## 待办
 
-1. **【既有 bug，本次未修】** `generateOtp` 的 `algorithm` / `digits` / `period` /
-   `type` 参数从未被任何调用方传递：`components/otp-text.tsx` 只传
-   `{ next }`，`features/page-ui/otp-autofill.ts` 只传 `secret`。
-   结果是**存了但不用** —— 用户添加一个 `algorithm=SHA256` 的账户会看到 SHA1 码，
-   无法通过验证；`type=hotp` 也一律按 TOTP 算。
-   修复需要把完整条目传下去，属于行为变更，需独立 ADR + 相应 E2E。
+1. **【已完成】** `generateOtp` 的 `algorithm` / `digits` / `period` 被组件层丢弃，
+   导致三类账户永远显示错误的码 —— 已由 ADR-0008 修复。
+   （`type=hotp` / `algorithm=MD5` 仍不支持，已在 ADR-0008 显式声明。）
 2. F5 剩余 case：32（每秒刷新）、33（点击复制）、35（进度条颜色）。
 3. jsQR 471 KB —— popup 侧已完成（ADR-0007），content 侧 382 KB 待改造。

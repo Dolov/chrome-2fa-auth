@@ -43,7 +43,7 @@ export const setupReadQR = async (adapter: SiteAdapter) => {
     adapter.selectors.otpVerifyInput ?? adapter.selectors.otpInput
   const verifyInput = document.querySelector<HTMLInputElement>(verifySelector)
   if (verifyInput) {
-    startOtpMessageUpdater(verifyInput, parsed.secret, {
+    startOtpMessageUpdater(verifyInput, parsed, {
       placeholder: true
     })
   }

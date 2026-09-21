@@ -21,6 +21,15 @@
  * 6. **剩余秒数** = `step - (Math.floor(epoch / 1000) % step)`，是整数。
  * 7. **忽略 `type` / `counter` 字段**：otplib 的 `authenticator` 是 TOTP 类，
  *    即使条目标记为 hotp 也按时间生成。这是既有行为，不是本次引入的缺陷。
+ *    `type=hotp` 不支持计数器 UI，属于独立特性。
+ * 8. `algorithm=MD5`（OTPAuth 规范里存在、但 otplib 也不支持）回退为 sha1。
+ *    与改造前行为一致，属于已知限制而非本次引入。
+ *
+ * **参数透传不变式**：`digits` / `period` / `algorithm` 必须由调用方从存储条目
+ * 一路传到本模块。它们在 `parseOtpAuthUrl` 里被解析并校验、也确实落了库，
+ * 但曾经在 `OtpText` / `OtpRemaining` / `otp-autofill` 三处被丢掉 ——
+ * 结果是 `digits=8`、`algorithm=SHA256`、`period=60` 三类账户**永远显示错误的码**。
+ * 回归由 `e2e/specs/05-otp.spec.ts` 的三个对应用例看守。
  *
  * 正确性保障：`e2e/specs/05-otp.spec.ts` 用独立 otplib 算期望值做黑盒断言；
  * 开发期另与 node `crypto` / otplib 随机对拍。
@@ -63,6 +72,31 @@ const toHmacAlgorithm = (
   const lowered = algorithm.toLowerCase()
   return HMAC_ALGORITHMS.find((value) => value === lowered) ?? DEFAULT_HASH_ALGORITHM
 }
+
+/** OTPAuth 规范允许的位数（与 `parseOtpAuthUrl` 的校验集合保持一致） */
+const isSupportedDigits = (digits: number): boolean =>
+  digits === 6 || digits === 7 || digits === 8
+
+/**
+ * 归一 digits：非 6/7/8 一律回退默认值。
+ *
+ * 存储里的条目可能来自导入的 JSON 或历史数据，绕过 `parseOtpAuthUrl` 的校验。
+ * 不归一会失控：`digits=999` → `10 ** 999` 为 `Infinity` → `%` 不生效 →
+ * 渲染出一个近千字符的“码”。
+ */
+const resolveOtpDigits = (digits: number | undefined): number =>
+  digits != null && isSupportedDigits(digits) ? digits : DEFAULT_OTP_DIGITS
+
+/**
+ * 归一 OTP 周期（秒）：必须是有限正数，否则回退默认值。
+ *
+ * 导出给渲染层算 progress 的 `max` 用 —— 必须与生成逻辑用同一个归一结果，
+ * 否则非法 period（如 `-5`，能被 `parseOtpAuthUrl` 放行）会让 max 与 value 不同基准。
+ */
+export const resolveOtpStep = (period: number | undefined): number =>
+  period != null && Number.isFinite(period) && period > 0
+    ? period
+    : DEFAULT_OTP_STEP
 
 const toHex = (bytes: Uint8Array): string =>
   Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("")
@@ -115,8 +149,8 @@ export const generateOtp = (
   secret: string,
   options: OtpGenerateOptions = {}
 ): string => {
-  const step = options.period ?? DEFAULT_OTP_STEP
-  const digits = options.digits ?? DEFAULT_OTP_DIGITS
+  const step = resolveOtpStep(options.period)
+  const digits = resolveOtpDigits(options.digits)
   const algorithm = toHmacAlgorithm(options.algorithm)
   const epoch = resolveEpoch(options, step)
 
@@ -134,7 +168,7 @@ export const generateOtp = (
 export const getRemainingTime = (
   options: OtpGenerateOptions = {}
 ): number => {
-  const step = options.period ?? DEFAULT_OTP_STEP
+  const step = resolveOtpStep(options.period)
   const epoch = resolveEpoch(options, step)
 
   return step - (Math.floor(epoch / 1000) % step)

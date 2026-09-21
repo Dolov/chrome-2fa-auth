@@ -20,9 +20,8 @@ export const fillOtp = async (adapter: SiteAdapter) => {
   if (data.length === 0) return
 
   data.forEach((item) => {
-    const { account: itemAccount, secret } = item
-    startOtpMessageUpdater(input, secret, {
-      account: itemAccount,
+    startOtpMessageUpdater(input, item, {
+      account: item.account,
       autoFill: data.length === 1,
       style: adapter.fillOtpItemStyle ?? {}
     })

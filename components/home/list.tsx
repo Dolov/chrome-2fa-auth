@@ -61,7 +61,7 @@ interface ListItemProps {
 
 const ListItem: React.FC<ListItemProps> = (props) => {
   const { data } = props
-  const { pinned, issuer, secret, account, deleted } = data
+  const { pinned, issuer, account, deleted, period } = data
   const [actionVisible, setActionVisible] = React.useState(false)
 
   return (
@@ -72,7 +72,11 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         "bg-base-200": !deleted,
         "hover:shadow-lg": !deleted
       })}>
-      <OtpRemaining deleted={deleted} className="absolute top-[0px] h-[3px]" />
+      <OtpRemaining
+        period={period}
+        deleted={deleted}
+        className="absolute top-[0px] h-[3px]"
+      />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
       <ItemActions
         visible={actionVisible}
@@ -99,7 +103,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
         </div>
         <div className="mt-2 flex justify-between items-center">
           <OtpText
-            secret={secret}
+            config={data}
             className={cn("font-bold text-2xl", {
               "text-primary": !deleted,
               "text-base-content": deleted
@@ -110,7 +114,7 @@ const ListItem: React.FC<ListItemProps> = (props) => {
             <OtpText
               next
               small
-              secret={secret}
+              config={data}
               className={cn("text-sm font-medium", {
                 "text-secondary": !deleted,
                 "text-base-content": deleted

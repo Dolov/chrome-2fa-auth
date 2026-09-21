@@ -101,9 +101,16 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
       `utils/base32.ts`），逐条复刻 otplib 语义，移除 `vite-plugin-node-polyfills`
       （ADR-0006）。开发期 18 万项对拍 0 失败；实测原始 2.96 → 1.07 MB、
       下载 1.11 → 0.34 MB，`github.js` 605 → 159 KB；E2E 12/12 全绿
-- [ ] **【既有 bug】** `generateOtp` 的 `algorithm/digits/period/type` 从未被调用方
-      传值 → 存了但不用：`algorithm=SHA256` 的账户会显示 SHA1 码而无法通过验证，
-      `type=hotp` 也按 TOTP 算。修复属行为变更，需独立 ADR + E2E（ADR-0006 待办 1）
+- [x] **【既有 bug】** `generateOtp` 的 `algorithm/digits/period` 被丢弃（ADR-0008）——
+      三类非默认配置的账户**永远显示错误的码**，content 侧还会把错的码填进
+      目标网站。修复前 3 条新用例均失败且都显示同一个 SHA1/6/30 值；
+      修复后同一份 spec 8/8 通过。顺带修掉 `progress max` 硬编码 30，
+      并为导入的脏数据（`digits=999` 会渲染 999 字符）加防御性归一；E2E 20/20
+- [ ] 补 F8/F9 后加一条「8 位码账户的自动填充值正确」——
+      content 侧 `startOtpMessageUpdater` 的签名变更目前只有类型检查兜底
+- [ ] `type=hotp` 与 `algorithm=MD5` 仍不支持（已在代码注释与 ADR-0008 显式声明）。
+      HOTP 需要计数器递增策略与 UI，属独立特性
+- [ ] `OtpText` 的位数分组写死 3+3，8 位码会显示成 3+5（视觉细节，无测试兜底）
 - [x] jsQR 按需加载（popup 侧）：`utils/qr-decode.ts` 的 jsQR 改为动态 `import()`，
       顺带修掉 `upload-modal.tsx` 里从未生效的 `[INEFFECTIVE_DYNAMIC_IMPORT]`。
       popup 共享 chunk 363.5 → 236.2 KB；新增 F7 上传路径验收网 3 条 +

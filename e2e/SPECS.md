@@ -46,6 +46,9 @@ e2e/
 - **OTP 断言**：用 `otplib` 独立库计算期望值（不 import 项目 `utils/totp.ts`）。
   数值正确性类断言用 `page.clock.setFixedTime()` 固定时钟做**精确相等**，不用容差；
   只有无法固定时钟的场景才容忍 ±1s。参考 `05-otp.spec.ts`
+- **OTP 参数覆盖**：新增跟 OTP 显示相关的 case 时，至少覆盖一个**非默认配置**
+  （`digits=8` / `algorithm=SHA256` / `period=60`）—— 这三个参数曾经在组件层被
+  静默丢弃，而默认配置的用例完全测不出来（ADR-0008）
 - **第三方测试前重置**：`e2e/setup/reset-2fa.ts` 读 env → 自动 disable GitHub / NPM 现有 2FA → 保证 idempotent
 - **时间控制**：用 `page.clock.install()` 控制 fake 时钟；或容忍 ±1s
 - **摄像头 / 选区**：用 `fakeMediaStream` 注入视频流；手动截图选区用 `page.mouse.down/move/up`
@@ -115,9 +118,14 @@ e2e/
 | 35 | P1 | `otp > 进度条颜色` | `>10s 蓝，>3s 黄，≤3s 红` |
 | 36 | P1 | `otp > 下一周期` | `数字与 otplib 算的一致` |
 
-> **当前进度**：31 / 34 / 36 + （补充）多账户各自正确 已实现于 `05-otp.spec.ts`，
-> 均用固定时钟做精确断言，并已用变异测试验证断言有区分力。
+> **当前进度**：31 / 34 / 36 / digits=8 / algorithm=SHA256 / period=60 /
+> 脏数据兜底 已实现于 `05-otp.spec.ts`（共 8 条），均用固定时钟做精确断言，
+> 并已用变异测试验证断言有区分力。
 > 32（每秒刷新）/ 33（点击复制）/ 35（进度条颜色）待补。
+>
+> 后 4 条是 ADR-0008 的回归网：它们盯的是「存储条目里的
+> `digits` / `period` / `algorithm` 是否被一路传到生成函数」。
+> **修复前这 3 条全部失败**（都显示同一个 SHA1/6/30 值），可作为“验收网确实生效”的证据。
 
 ### F6. 恢复码 → `06-recovery-codes.spec.ts`
 

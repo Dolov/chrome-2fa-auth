@@ -133,10 +133,10 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     onClose()
   }
 
-  const { secret, account } = preview || {}
+  const { account } = preview || {}
   const okDisabled =
     isSubmitting ||
-    (!!secret && !account && !accountName) ||
+    (!!preview?.secret && !account && !accountName) ||
     !!error
 
   return (
@@ -163,7 +163,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       </div>
       <div className="p-2">
         <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
-        {!account && secret && (
+        {!account && preview?.secret && (
           <label className="input input-bordered flex items-center mt-6">
             <input
               autoFocus
@@ -178,12 +178,12 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
             />
           </label>
         )}
-        {secret && (
+        {preview && (
           <div className={cn({ "mt-4": containerType !== "phone" })}>
-            <OtpRemaining />
+            <OtpRemaining period={preview.period} />
             <OtpText
               small
-              secret={secret}
+              config={preview}
               className="text-primary font-bold text-2xl"
             />
           </div>

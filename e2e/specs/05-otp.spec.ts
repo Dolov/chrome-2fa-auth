@@ -128,4 +128,125 @@ test.describe("F5 otp > 数值正确性", () => {
       await popup.close()
     }
   })
+
+  test("digits=8：显示 8 位码，且与 otplib 一致", async ({ helper }) => {
+    await helper.seedData([
+      { ...sampleAccount("1", "TestApp", "alice", TEST_SECRET), digits: 8 }
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const expected = expectedOtp({
+        secret: TEST_SECRET,
+        digits: 8,
+        date: FIXED_TIME
+      })
+      expect(expected).toMatch(/^\d{8}$/)
+
+      await expect(currentOtpOf(cards(popup).first())).toHaveText(expected)
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("algorithm=SHA256：与 otplib 的 sha256 结果一致", async ({ helper }) => {
+    await helper.seedData([
+      {
+        ...sampleAccount("1", "TestApp", "alice", TEST_SECRET),
+        algorithm: "SHA256"
+      }
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const expectedSha256 = expectedOtp({
+        secret: TEST_SECRET,
+        algorithm: "sha256",
+        date: FIXED_TIME
+      })
+      const expectedSha1 = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
+      // 两个算法必须算出不同结果，否则这条断言没有区分力
+      expect(expectedSha256).not.toBe(expectedSha1)
+
+      await expect(currentOtpOf(cards(popup).first())).toHaveText(
+        expectedSha256
+      )
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("period=60：码与进度条都按 60 秒周期", async ({ helper }) => {
+    await helper.seedData([
+      { ...sampleAccount("1", "TestApp", "alice", TEST_SECRET), period: 60 }
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const expected = expectedOtp({
+        secret: TEST_SECRET,
+        step: 60,
+        date: FIXED_TIME
+      })
+      const expectedWithStep30 = expectedOtp({
+        secret: TEST_SECRET,
+        step: 30,
+        date: FIXED_TIME
+      })
+      expect(expected).not.toBe(expectedWithStep30)
+
+      const card = cards(popup).first()
+      await expect(currentOtpOf(card)).toHaveText(expected)
+      await expect(nextOtpOf(card)).toHaveText(
+        expectedNextOtp({ secret: TEST_SECRET, step: 60, date: FIXED_TIME })
+      )
+
+      // 进度条：max 与剩余秒数都得按 60 走（当前实现把 30 写死了）
+      const progress = card.locator("progress")
+      await expect(progress).toHaveAttribute("max", "60")
+      await expect(progress).toHaveAttribute(
+        "value",
+        String(expectedRemainingTime(FIXED_TIME, 60))
+      )
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("脏数据兜底：digits=999 / period=-5 回退默认，不渲染畸形码", async ({
+    helper
+  }) => {
+    // 这些值过不了 parseOtpAuthUrl 的校验，但能通过「导入设置」等路径直接落库
+    await helper.seedData([
+      {
+        ...sampleAccount("1", "TestApp", "alice", TEST_SECRET),
+        digits: 999,
+        period: -5
+      }
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      // digits=999 若不归一：10**999 为 Infinity，% 不生效 → 渲染出 999 个字符
+      const expected = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
+      const card = cards(popup).first()
+      const shown = (await currentOtpOf(card).innerText()).trim()
+      expect(shown).toBe(expected)
+      expect(shown).toHaveLength(6)
+
+      // period=-5 若不归一：counter 变负数 → 垃圾码；progress max 也会是负数
+      const progress = card.locator("progress")
+      await expect(progress).toHaveAttribute("max", "30")
+      await expect(progress).toHaveAttribute(
+        "value",
+        String(expectedRemainingTime(FIXED_TIME, 30))
+      )
+    } finally {
+      await popup.close()
+    }
+  })
 })

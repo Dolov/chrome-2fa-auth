@@ -3,6 +3,7 @@ import { copyTextToClipboard } from "~/utils/clipboard"
 import { CSS_PREFIX, mountStyle } from "./css-portal"
 import { generateOtp, getRemainingTime } from "~/utils/totp"
 import { createGradientTextContainer } from "./gradient-border"
+import type { OtpAuthConfig } from "~/utils/types"
 
 /** OTP 消息更新器的配置选项 */
 export interface OtpAutofillOptions {
@@ -20,11 +21,15 @@ export interface OtpAutofillOptions {
  * 在 input 之后注入一个浮动盒子，每秒更新 OTP 信息。
  * 用户点击盒子时复制当前 OTP。
  *
+ * `config` 必须传完整条目而不是只传 secret —— `digits` / `period` / `algorithm`
+ * 要透传给 `generateOtp` / `getRemainingTime`，否则非默认配置的账户会把
+ * **错误的码直接填进目标网站**。
+ *
  * @returns setInterval id，调用方可清理
  */
 export const startOtpMessageUpdater = (
   input: HTMLInputElement,
-  secret: string,
+  config: OtpAuthConfig,
   options: OtpAutofillOptions = {}
 ) => {
   const { style = {}, placeholder, account, autoFill = true } = options
@@ -49,8 +54,8 @@ export const startOtpMessageUpdater = (
   input.insertAdjacentElement("afterend", container)
 
   const updateOtpMessage = () => {
-    const timeRemaining = getRemainingTime()
-    const otp = generateOtp(secret)
+    const timeRemaining = getRemainingTime(config)
+    const otp = generateOtp(config.secret, config)
 
     if (autoFill && placeholder) {
       input.placeholder = `请输入 ${otp}`
@@ -78,7 +83,7 @@ export const startOtpMessageUpdater = (
 
   updateOtpMessage()
   container.addEventListener("click", () => {
-    const code = generateOtp(secret)
+    const code = generateOtp(config.secret, config)
     copyTextToClipboard(code)
     message.success(`已复制 ${code} 到剪贴板`)
   })

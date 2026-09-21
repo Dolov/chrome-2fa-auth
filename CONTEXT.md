@@ -75,6 +75,14 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
     内部要求小写 `sha1 | sha256 | sha512`。因此必须经 `utils/totp.ts` 的
     `toHmacAlgorithm()` 归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。
     违反此不变式会导致 popup 一有数据就白屏（见 commit `496abe9`）。
+  - **参数透传不变式**：`digits` / `period` / `algorithm` 必须由调用方从存储条目
+    一路传到 `generateOtp`。它们被 `parseOtpAuthUrl` 解析并校验、也确实落了库，
+    但曾经在 `OtpText` / `OtpRemaining` / `otp-autofill` 三处被丢掉 —— 后果是
+    `digits=8`、`algorithm=SHA256`、`period=60` 三类账户**永远显示错误的码**
+    （content 侧会直接把错的码填进 GitHub / NPM）。所以组件收的是 `config`
+    而不是 `secret`（ADR-0008）。
+  - `utils/totp.ts` 会对越界的 `digits` / `period` 做防御性归一（导入的脏数据
+    能绕开 `parseOtpAuthUrl` 的校验；`digits=999` 不归一会渲染出 999 个字符）。
 
 ### 2. OtpItem（= `DataProps`）
 
@@ -278,6 +286,9 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 - 2026 jsQR 按需加载：`utils/qr-decode.ts` 的 jsQR 改为动态 `import()`（ADR-0007）。
   popup 共享 chunk 363.5 → 236.2 KB 已生效；content 侧因产物是 IIFE 仍内联，
   **剩下 382 KB 需先补 F7 验收网再改造链路**。
+- 2026 修复 OTP 生成参数被丢弃：`digits` / `period` / `algorithm` 从存储条目
+  透传到 `generateOtp`，组件改收 `config` 而非 `secret`（ADR-0008）。
+  **改任何 OTP 渲染点时先读该 ADR 的「参数透传不变式」。**
 
 ## 维护
 
