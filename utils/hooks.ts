@@ -60,13 +60,3 @@ export const useUpdateCopiedCodeStatus = () => {
 
   return [updater, data] as const
 }
-
-export const useUpdater = () => {
-  const [data, setData] = React.useState<number>(0)
-
-  const updater = () => {
-    setData(Math.random())
-  }
-
-  return updater
-}

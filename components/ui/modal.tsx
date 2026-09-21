@@ -147,35 +147,4 @@ const Modal: React.FC<ModalProps> = (props) => {
     </dialog>
   )
 }
-
-/**
- * HOC to control the visibility of a component
- * @param WrappedComponent - The component to be wrapped
- */
-function withVisibility<T extends object>(
-  WrappedComponent: React.ComponentType<T>
-) {
-  return function (props: T & ModalProps) {
-    const { visible } = props
-
-    const rendered = React.useRef(visible)
-
-    React.useEffect(() => {
-      if (visible) {
-        rendered.current = true
-      }
-    }, [visible])
-
-    if (!visible && !rendered.current) {
-      return null
-    }
-
-    if (visible) {
-      return <WrappedComponent {...props} />
-    }
-
-    return <WrappedComponent {...props} />
-  }
-}
-
-export default withVisibility(Modal)
+export default Modal
