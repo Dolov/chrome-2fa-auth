@@ -1,5 +1,5 @@
 import { contentBaseZindex } from "~/utils/constant"
-import { createSelectionBox } from "~/utils/ui"
+import { createSelectionBox } from "~/utils/selection-overlay"
 
 import { cropImage } from "./crop"
 

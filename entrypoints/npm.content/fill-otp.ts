@@ -1,5 +1,5 @@
 import { getOTPList } from "~/utils/storage"
-import { startOtpMessageUpdater } from "~/utils/ui"
+import { startOtpMessageUpdater } from "~/utils/otp-autofill"
 import { extractDynamicSegment, waitForElement } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"
 

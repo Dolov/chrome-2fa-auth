@@ -1,4 +1,4 @@
-import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
+import { displayRecoveryCodeSaveMessage } from "~/utils/recovery-prompt"
 import { getOTPList } from "~/utils/storage"
 import { waitForElement } from "~/utils/dom-utils"
 import { Issuers } from "~/utils/constant"

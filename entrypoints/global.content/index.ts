@@ -1,4 +1,4 @@
-import { highlightElement } from "~/utils/ui"
+import { highlightElement } from "~/utils/dom-highlight"
 import { ActionType } from "~/utils/constant"
 
 import { scanQRCode } from "./scan"

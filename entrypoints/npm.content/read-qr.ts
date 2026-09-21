@@ -3,7 +3,8 @@ import jsQR from "jsqr"
 import message from "~/utils/message"
 import { parseOtpAuthUrl } from "~/utils/auth"
 import { saveOTP } from "~/utils/storage"
-import { highlightElement, startOtpMessageUpdater } from "~/utils/ui"
+import { highlightElement } from "~/utils/dom-highlight"
+import { startOtpMessageUpdater } from "~/utils/otp-autofill"
 import {
   extractDynamicSegment,
   waitForPathMatchStrict
