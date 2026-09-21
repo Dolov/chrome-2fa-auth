@@ -1,7 +1,8 @@
 import { cn } from "~/utils/cn"
 import React from "react"
 
-import { getProgressColor, getRemainingTime } from "~/utils/auth"
+import { getRemainingTime } from "~/utils/auth"
+import { getProgressColor } from "~/utils/css-portal"
 
 interface OtpRemainingProps {
   deleted?: boolean

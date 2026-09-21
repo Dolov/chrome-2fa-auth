@@ -35,3 +35,14 @@ export const mountStyle = (styleId: string, cssBody: string) => {
   )
   return hostStyle
 }
+
+/**
+ * 把剩余秒数映射到 daisyUI progress 颜色类名
+ *
+ * 从 utils/auth.ts 搬到此处：候选 D（auth.ts 应聚焦 OTP 领域，不再含 UI 助手）。
+ */
+export const getProgressColor = (timeRemaining: number): string => {
+  if (timeRemaining > 10) return "progress-primary"
+  if (timeRemaining > 3) return "progress-warning"
+  return "progress-error"
+}

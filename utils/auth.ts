@@ -76,16 +76,6 @@ export const getRemainingTime = (
 }
 
 /**
- * 根据剩余秒数算出进度条 daisyUI 类名
- * @param timeRemaining 剩余秒数
- */
-export const getProgressColor = (timeRemaining: number): string => {
-  if (timeRemaining > 10) return "progress-primary"
-  if (timeRemaining > 3) return "progress-warning"
-  return "progress-error"
-}
-
-/**
  * 简易 OTPAuth URL 探测：必须以 `otpauth://` 开头且包含 `secret=`
  * @param data 要校验的字符串
  */
