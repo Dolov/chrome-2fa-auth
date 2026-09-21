@@ -6,7 +6,7 @@ import OtpRemaining from "~/components/otp-remaining"
 import OtpText from "~/components/otp-text"
 import Modal from "~/components/ui/modal"
 import { parseOtpAuthUrl } from "~/utils/otpauth"
-import { usePopupIntake } from "~/features/otp-intake"
+import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 
 import { GlobalContext } from "./context"
 import { useModalWidth } from "./hooks"

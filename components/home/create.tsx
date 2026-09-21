@@ -10,7 +10,7 @@ import React from "react"
 
 import Button from "~/components/ui/button"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
-import { usePopupIntake } from "~/features/otp-intake"
+import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import {
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab
