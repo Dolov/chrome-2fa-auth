@@ -6,6 +6,7 @@ import { defineConfig } from "wxt"
 // https://wxt.dev/api/config.html
 export default defineConfig({
   srcDir: ".",
+  entrypointsDir: "content",
   outDir: ".output",
   modules: ["@wxt-dev/module-react"],
   manifest: {
