@@ -1,11 +1,16 @@
 import { storage } from "@wxt-dev/storage"
 
-import type { DataProps } from "./types"
-import { StorageKey } from "./types"
+import type { DataProps } from "~/utils/types"
+import { StorageKey } from "~/utils/types"
+
 import { addOtp } from "./otp-crud"
 
 /**
- * 类型化存储项（store-use-define-item 最佳实践）
+ * OtpStore 的存储层：chrome.storage 声明 + React 树外的读写路径。
+ *
+ * - `dataStore`：全应用单一数据源（ADR-0001）。React 侧经 features/otp-store
+ *   的 mutators 写入；content script / background 没有 React 树，直接用它 + 纯函数 addOtp。
+ * - `saveOTP` / `getOTPList` / `isRecoveryCodesSaved`：为后者准备的现成入口。
  *
  * 用 storage.defineItem 提供：
  * - 类型安全的 getValue/setValue
@@ -15,7 +20,6 @@ import { addOtp } from "./otp-crud"
  * 存储区域：
  * - DATA: sync:（与 Plasmo 旧版兼容，避免现有用户数据丢失；
  *   sync 单项 8KB，>10 帐号 约 1-2KB，典型场景足够）
- * - SETTINGS: sync:（主题/布局小，跨设备同步）
  * - LEGACY_DATA: local:（v1 迁移数据，迁移后清空）
  */
 export const DATA_KEY = `sync:${StorageKey.DATA}` as const

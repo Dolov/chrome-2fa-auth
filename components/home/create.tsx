@@ -9,13 +9,13 @@ import {
 import React from "react"
 
 import Button from "~/components/ui/button"
-import { canInjectContentScript } from "~/utils/runtime-utils"
+import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
 import { usePopupIntake } from "~/features/otp-intake"
 import {
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab
 } from "~/features/messaging"
-import { useModalStack } from "~/utils/use-modal-stack"
+import { useModalStack } from "~/features/ui-state/use-modal-stack"
 
 import { GlobalContext } from "./context"
 import OptForm from "./otp-form"

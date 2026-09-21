@@ -1,4 +1,4 @@
-import { getOTPList } from "~/utils/storage"
+import { getOTPList } from "~/features/otp-store/store"
 import { displayRecoveryCodeSaveMessage } from "~/features/page-ui/recovery-prompt"
 import { waitForElement } from "~/features/site-content/dom/wait-element"
 

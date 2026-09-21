@@ -1,11 +1,11 @@
 import React from "react"
 
-import { useStorage } from "~/utils/storage-hook"
+import { useStorage } from "~/features/ui-state/use-storage"
 
 import Main from "~/components/home"
 import { DEFAULT_SETTINGS } from "~/utils/constants"
 import { SourceType, StorageKey } from "~/utils/types"
-import { useThemeChange } from "~/utils/hooks"
+import { useThemeChange } from "~/features/ui-state/use-theme-change"
 import { OtpProvider } from "~/features/otp-store"
 
 const Popup = () => {

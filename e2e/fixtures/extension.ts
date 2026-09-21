@@ -89,7 +89,7 @@ export const test = base.extend<
     }
     const h: Helpers = {
       seedData: async (data) => {
-        // WXT storage：data 存在 sync:data（utils/storage.ts 的 dataStore）
+        // WXT storage：data 存在 sync:data（features/otp-store/store.ts 的 dataStore）
         // 注意 StorageKey.DATA = "data" 小写
         await getSw().evaluate(
           (d) => chrome.storage.sync.set({ data: d }),

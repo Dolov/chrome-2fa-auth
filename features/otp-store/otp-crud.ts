@@ -1,9 +1,9 @@
-import type { DataProps, OtpAuthConfig } from "./types"
+import type { DataProps, OtpAuthConfig } from "~/utils/types"
 
 /**
  * 将一个新 OTP `Omit<DataProps, "id">` 合并入 `existing` 数组。
  *
- * 合并规则（与原 storage.ts saveOTP 一致）：
+ * 合并规则：
  * 1. 已存在同 type+issuer+secret+account 的非删除条目 → 字段合并
  * 2. 否则若存在同 type+issuer+account 的非删除条目 → 旧条目标记 deleted=true，
  *    新条目（携带旧 recoveryCodes）追加到末尾

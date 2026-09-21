@@ -6,8 +6,8 @@ import {
   DATA_KEY,
   dataStore,
   isRecoveryCodesSaved
-} from "~/utils/storage"
-import { addOtp, otpExists } from "~/utils/otp-crud"
+} from "~/features/otp-store/store"
+import { addOtp, otpExists } from "~/features/otp-store/otp-crud"
 
 /**
  * OTP 数据的 React 上下文（OTPStore）：

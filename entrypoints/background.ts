@@ -1,7 +1,7 @@
 import { storage } from "@wxt-dev/storage"
 import type { Browser } from "wxt/browser"
 
-import { LEGACY_KEY, dataStore } from "~/utils/storage"
+import { LEGACY_KEY, dataStore } from "~/features/otp-store/store"
 import { ActionType } from "~/utils/types"
 import { registerRuntimeHandler } from "~/features/messaging"
 

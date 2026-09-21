@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useOtpList, useOtpMutators } from "./otp-store"
+import { useOtpList, useOtpMutators } from "./context"
 
 /**
  * 当前 OTP 列表 + 把指定恢复码标记为已复制。

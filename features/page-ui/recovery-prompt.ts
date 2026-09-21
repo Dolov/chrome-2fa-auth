@@ -1,6 +1,6 @@
 import message from "./toast"
 import type { DataProps } from "~/utils/types"
-import { isRecoveryCodesSaved, saveOTP } from "~/utils/storage"
+import { isRecoveryCodesSaved, saveOTP } from "~/features/otp-store/store"
 import { createGradientTextContainer } from "./gradient-border"
 
 /** 恢复码提示的配置项 */

@@ -4,7 +4,7 @@ import React from "react"
 import cloudflare from "~/assets/cloudflare.png"
 import github from "~/assets/github.png"
 
-import { useStorage } from "~/utils/storage-hook"
+import { useStorage } from "~/features/ui-state/use-storage"
 
 import {
   DeviconAzure,

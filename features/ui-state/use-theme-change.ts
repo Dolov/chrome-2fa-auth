@@ -1,6 +1,6 @@
 import React from "react"
 
-import { useStorage } from "~/utils/storage-hook"
+import { useStorage } from "./use-storage"
 
 import { DEFAULT_SETTINGS } from "~/utils/constants"
 import { StorageKey } from "~/utils/types"
