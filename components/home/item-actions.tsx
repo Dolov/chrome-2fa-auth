@@ -15,10 +15,10 @@ import React, { Fragment } from "react"
 import { useStorage } from "~/utils/storage-hook"
 
 import { FaviconMinimal } from "~/components/favicons"
-import message from "~/components/ui/message"
 import Modal from "~/components/ui/modal"
 import { generateOtpAuthUrl } from "~/utils/auth"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
+import message from "~/utils/message"
 import { StorageKey, type DataProps } from "~/utils/constant"
 
 import { useModalWidth } from "./hooks"

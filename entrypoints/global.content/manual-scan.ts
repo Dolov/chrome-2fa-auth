@@ -36,7 +36,7 @@ export const startManualScreenshot = async (messageText: string): Promise<void> 
 
 const handleQRResult = async (qrData: string): Promise<void> => {
   if (!isOtpAuthUrl(qrData)) {
-    message.warn(
+    message.warning(
       `检测到二维码，但其格式【${qrData}】不符合 OTPAuth 规范`,
       10_000
     )

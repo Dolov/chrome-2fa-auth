@@ -1,7 +1,7 @@
 import { cn } from "~/utils/cn"
 import React from "react"
 
-import message from "~/components/ui/message"
+import message from "~/utils/message"
 import { generateOtp } from "~/utils/auth"
 import { copyTextToClipboardV2 } from "~/utils/clipboard-utils"
 

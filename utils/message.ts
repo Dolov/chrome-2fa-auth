@@ -3,7 +3,7 @@ import { contentBaseZindex } from "./constant"
 const baseDuration = 3000
 
 const message = {
-  warn(text, duration = baseDuration) {
+  warning(text, duration = baseDuration) {
     return showMessage("warn", text, duration)
   },
   info(text, duration = baseDuration) {
