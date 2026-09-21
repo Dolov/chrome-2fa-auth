@@ -1,9 +1,6 @@
 import { cn } from "~/utils/cn"
 import React from "react"
 
-import cloudflare from "~/assets/cloudflare.png"
-import github from "~/assets/github.png"
-
 import { useStorage } from "~/features/ui-state/use-storage"
 
 import {
@@ -27,9 +24,9 @@ import {
   VscodeIconsFileTypeOutlook
 } from "~/components/ui/icon"
 import { DEFAULT_SETTINGS } from "~/utils/constants"
-import { Issuers, StorageKey } from "~/utils/types"
+import { StorageKey } from "~/utils/types"
 
-export const minimalIconMap: Record<
+const minimalIconMap: Record<
   string,
   React.FC<React.SVGProps<SVGSVGElement>>
 > = {
@@ -53,9 +50,19 @@ export const minimalIconMap: Record<
   outlook: VscodeIconsFileTypeOutlook
 }
 
-export const elegantImageMap: Record<string, string> = {
-  github,
-  cloudflare
+/**
+ * elegant 模式的装饰性大图标。
+ *
+ * 取代原来的两张位图贴纸（github.png 3840×2160 / cloudflare.png 1256×632，
+ * 共 505 KB，占扩展下载体积 37%），改用 icon.tsx 里已有的品牌 SVG。
+ * 尺寸取 72px 是为了对齐旧图的垂直占用：旧图 w-[120px] × 16:9 ≈ 67.5px 高。
+ */
+const elegantIconMap: Record<
+  string,
+  React.FC<React.SVGProps<SVGSVGElement>>
+> = {
+  github: MdiGithub,
+  cloudflare: DeviconCloudflare
 }
 
 const Favicon = ({
@@ -76,15 +83,16 @@ const Favicon = ({
   if (minimal) {
     return <Icon className={cn("text-xl", className)} />
   }
-  const img = elegantImageMap[vendor]
-  if (img) {
+
+  const ElegantIcon = elegantIconMap[vendor]
+  if (ElegantIcon) {
     return (
-      <img
-        src={img}
-        className={cn("w-[120px] absolute right-0 -top-4", className)}
+      <ElegantIcon
+        className={cn("w-[72px] h-[72px] absolute right-0 -top-4", className)}
       />
     )
   }
+
   return <Icon className={cn("text-2xl", className)} />
 }
 

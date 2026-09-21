@@ -96,11 +96,19 @@ E2E 跑通 + CI 全绿后，才允许开始 WXT 迁移。迁移过程中每完�
 - [x] 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`
       （ADR-0004）。实测总产物 3.44 MB → 2.96 MB，`global.content` 608 → 156 KB，
       三个 content bundle 中 React 痕迹归零；E2E 8/8 全绿
-- [ ] ADR-0004 待办：用 Web Crypto 重写 TOTP 以移除 otplib + Node 垫片
-      （预期 content 侧再降 ~440 KB；需纯 JS HMAC-SHA1 兜底 http 页面）
+- [ ] ADR-0004/0005 待办：用 Web Crypto 重写 TOTP 以移除 otplib + Node 垫片
+      （实测可省 ~452 KB × 3；ADR-0004 曾担心的 `http://` 页面兜底不成立——
+      调用 OTP 生成的路径全是 secure context，见 ADR-0005 待办 1）
 - [ ] popup / settings 共享 chunk 809 KB（react-dom + otplib 垫片 + qrcode.react +
       lucide），以 modulepreload 在打开 popup 时拉取；另有一个 154 KB 的
       `assets/style-*.css`。属独立性能议题，不阻塞迁移
 - [ ] 收敛 `saveOTP` 与 `addOtp` 两个 OTP 合并入口（契约不同：前者收带 `id` 的
       `DataProps`，后者收 `Omit<DataProps,"id">`）。**前置条件**：先补 F5
       recovery code 保存路径的 E2E spec —— 当前无覆盖，不改语义先改结构等于裸奔
+- [x] 去位图化：删掉 2 张 PNG 贴纸 + 4 个零引用死资源，elegant favicon 改用
+      `icon.tsx` 已有的品牌 SVG（ADR-0005）。实测原始 2.96 → 2.44 MB、
+      下载 1.11 → 0.71 MB；E2E 8/8 全绿
+- [ ] Favicon 渲染无自动化断言（`e2e/SPECS.md` 第 81 行尚未写成 spec），
+      写 F1-F6 主体 spec 时补上
+- [ ] 待评：移除已无必要的 `web_accessible_resources: assets/*`（ADR-0005 待办 4）
+- [ ] 待评：jsQR 改为按需加载（`global.js` 里占 86%，ADR-0005 待办 2）

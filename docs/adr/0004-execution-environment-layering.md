@@ -77,9 +77,15 @@
 qrcode.react + lucide，以 modulepreload 在打开 popup 时拉取）。
 
 - 选项 1：用 Web Crypto `crypto.subtle` 重写 TOTP（约 60 行），移除 `otplib` 与
-  `vite-plugin-node-polyfills`。预计 content 侧降到 ~170 KB。
-  **风险**：`crypto.subtle` 仅存在于 secure context，`http://` 页面为 `undefined`，
-  需要纯 JS HMAC-SHA1 兜底，否则 http 站点填码功能退化。
+  `vite-plugin-node-polyfills`。实测可省 442.5 KB × 3（ADR-0005 的 E1/E2 实验：
+  github.js 605.5 → 163.0）。
+  ~~**风险**：`crypto.subtle` 仅存在于 secure context，`http://` 页面为 `undefined`，
+  需要纯 JS HMAC-SHA1 兜底~~
+  **更正（2026）**：该风险按当前架构不成立。调用 OTP 生成的全部路径都在
+  secure context —— popup 是 `chrome-extension://`，github / npm content 的
+  `matches` 均为 `https://`；唯一匹配 `<all_urls>`（含 http）的 `global.content`
+  不碰 OTP 生成。详见 ADR-0005 待办 1。实施时仍需实测确认隔离世界中的
+  `crypto.subtle` 可用性，但不再需要手写 HMAC 兜底。
 - 选项 2：把 OTP 生成移到 background service worker，content 侧走消息。
   **风险**：`otp-autofill` 每秒刷新一次，会产生每秒一条消息。
 - 无论选哪个都需要单独立 ADR；验收网是 E2E 里用独立 `otplib` 算期望值的黑盒断言。

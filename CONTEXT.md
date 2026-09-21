@@ -42,9 +42,15 @@
 | entrypoint | 预算 | 成因 |
 |---|---|---|
 | `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP |
-| `github.js` / `npm.js` | < 620 KB | 需要 `generateOtp`，含 otplib + Node 垫片（见 ADR-0004 待办） |
+| `github.js` / `npm.js` | < 620 KB | 需要 `generateOtp`，含 otplib + Node 垫片 |
 
 超了说明新依赖把大件（Node 垫片 / React / UI 框架）拖进了 content 侧。
+各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`。
+
+### 硬规则 3：不引入位图品牌素材
+
+品牌标识一律用 `components/ui/icon.tsx` 里已有的矢量图标，**不新增 PNG/JPG**。
+需要新品牌标识时先查那个文件。详见 ADR-0005。
 
 ## 模块词汇（按依赖顺序）
 
@@ -254,6 +260,9 @@
 - 词汇表会随每个 S 系列 commit 更新。
 - 2026 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`。
   理由与实测数据见 `docs/adr/0004-execution-environment-layering.md`。
+- 2026 去位图化：品牌标识只用 `components/ui/icon.tsx` 的矢量图标，不引入 PNG。
+  理由、产物体积归因与实测数据见 `docs/adr/0005-bitmap-free-brand-assets.md`。
+  **新增品牌标识前先查 `icon.tsx`。**
 
 ## 维护
 
