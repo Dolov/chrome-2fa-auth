@@ -3,13 +3,18 @@ import { startOtpMessageUpdater } from "~/utils/ui"
 import { extractDynamicSegment, waitForElement } from "~/utils/helpers"
 import { Issuers } from "~/utils/constant"
 
+/**
+ * NPM 二步验证页（www.npmjs.com/*）：自动填充 OTP
+ *
+ * NPM 是 SPA，URL 变化重跑 setup。
+ */
 export default defineContentScript({
   matches: ["https://www.npmjs.com/*"],
   allFrames: false,
-  main() {
+  main(ctx) {
     // https://www.npmjs.com/login/otp?next=%2Fsettings%2Fshisongyan%2Ftfa%2Flist
 
-    const waitConfirmAccess = async () => {
+    const setup = async () => {
       const input = await waitForElement<HTMLInputElement>("input[id=login_otp]")
       const account = extractDynamicSegment(decodeURIComponent(location.href), [
         "/settings/*/tfa",
@@ -27,6 +32,9 @@ export default defineContentScript({
       })
     }
 
-    waitConfirmAccess()
+    setup()
+    ctx.addEventListener(window, "wxt:locationchange", () => {
+      setup()
+    })
   }
 })

@@ -3,10 +3,13 @@ import { displayRecoveryCodeSaveMessage } from "~/utils/ui"
 import { extractDynamicSegment } from "~/utils/helpers"
 import { Issuers } from "~/utils/constant"
 
+/**
+ * NPM recovery codes 页
+ */
 export default defineContentScript({
   matches: ["https://www.npmjs.com/settings/*/recovery-codes"],
   allFrames: false,
-  main() {
+  main(ctx) {
     const init = async () => {
       const account = extractDynamicSegment(
         location.href,
@@ -17,7 +20,7 @@ export default defineContentScript({
       if (data.length === 0) return
       const container = document.querySelector(
         'div[role="button"][tabindex="0"]'
-      ) as HTMLInputElement
+      ) as HTMLDivElement
       const pTags = container.querySelectorAll("p")
       const codes = Array.from(pTags)
         .map((p) => p.innerText)

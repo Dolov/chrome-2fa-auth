@@ -5,10 +5,15 @@ import { readQRCodeFromImage, waitForElement } from "~/utils/helpers"
 import { type DataProps } from "~/utils/constant"
 import message from "~/utils/message"
 
+/**
+ * GitHub 2FA 设置页 QR code 扫描
+ *
+ * GitHub 是 SPA，URL 变化时重跑（用户从其他设置页跳到 2FA 页时需要重新扫描）。
+ */
 export default defineContentScript({
   matches: ["<all_urls>"],
   allFrames: false,
-  main() {
+  main(ctx) {
     const waitQRCodeImage = async () => {
       const qrImg = await waitForElement<HTMLImageElement>("img.qr-code-img")
       let parsedData: Awaited<ReturnType<typeof parseImage2faUrl>> | null = null
@@ -30,7 +35,7 @@ export default defineContentScript({
 
       if (!saveButton) return
 
-      saveButton.addEventListener("click", async (e) => {
+      saveButton.addEventListener("click", async () => {
         if (!parsedData) return
 
         await saveOTP({
@@ -71,5 +76,8 @@ export default defineContentScript({
     }
 
     waitQRCodeImage()
+    ctx.addEventListener(window, "wxt:locationchange", () => {
+      waitQRCodeImage()
+    })
   }
 })

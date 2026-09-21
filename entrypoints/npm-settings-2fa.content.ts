@@ -9,6 +9,11 @@ import {
   waitForPathMatchStrict
 } from "~/utils/helpers"
 
+/**
+ * NPM 2FA 设置页：扫描 QR 并填充 input
+ *
+ * URL 严格匹配（/settings/<user>/tfa/...），NPM SPA 路由变化时需重跑。
+ */
 export default defineContentScript({
   matches: [
     "https://www.npmjs.com/settings/*/tfa",
@@ -17,12 +22,12 @@ export default defineContentScript({
     "https://www.npmjs.com/settings/*/tfa/manageTfa?action=setup-totp"
   ],
   allFrames: false,
-  main() {
+  main(ctx) {
     // 🎯 依次尝试解析二维码（canvas > img）
     const scanQRCode = async (): Promise<{
       data: string
       element: HTMLElement
-    }> => {
+    } | null> => {
       const canvases = Array.from(document.querySelectorAll("canvas"))
       for (const canvas of canvases) {
         try {
@@ -43,11 +48,13 @@ export default defineContentScript({
         }
       }
 
-      throw new Error("未找到有效的二维码")
+      return null
     }
 
     // 🎯 解析 <canvas> 里的二维码
-    const readQRCodeFromCanvas = (canvas: HTMLCanvasElement): Promise<string> => {
+    const readQRCodeFromCanvas = (
+      canvas: HTMLCanvasElement
+    ): Promise<string> => {
       return new Promise((resolve, reject) => {
         const ctx = canvas.getContext("2d")
         if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
@@ -117,5 +124,8 @@ export default defineContentScript({
     }
 
     init()
+    ctx.addEventListener(window, "wxt:locationchange", () => {
+      init()
+    })
   }
 })

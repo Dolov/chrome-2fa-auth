@@ -3,12 +3,24 @@ import jsQR from "jsqr"
 import { highlightElement } from "~/utils/ui"
 import { ActionType } from "~/utils/constant"
 
+/**
+ * 自动扫描页面上的 canvas / img 元素，识别二维码内容
+ *
+ * matches: <all_urls>：扫描所有页面，需要持久 listener。
+ * cleanup：
+ *     chrome.runtime.onMessage 由 ctx.addEventListener 在 context
+ *     invalidated 时自动移除（inject-use-ctx-invalidated）。
+ */
 export default defineContentScript({
   matches: ["<all_urls>"],
   allFrames: false,
-  main() {
-    // 监听消息并确保发送响应
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  main(ctx) {
+    // 监听消息并确保发送响应（msg-return-true-for-async）
+    ctx.addEventListener(browser.runtime.onMessage, (
+      message,
+      _sender,
+      sendResponse
+    ) => {
       if (message.action === ActionType.AUTOSCAN) {
         scanQRCode()
           .then((result) => {
@@ -19,7 +31,6 @@ export default defineContentScript({
             sendResponse({ success: false, error: error.message })
           })
       }
-
       return true
     })
 

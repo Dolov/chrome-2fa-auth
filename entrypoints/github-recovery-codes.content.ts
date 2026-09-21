@@ -5,18 +5,21 @@ import { Issuers } from "~/utils/constant"
 
 import { getGitHubUserName } from "~/utils/github"
 
+/**
+ * GitHub recovery codes 页：提示用户保存
+ */
 export default defineContentScript({
   matches: [
     "https://github.com/settings/auth/recovery-codes",
     "https://github.com/settings/auth/recovery-codes?"
   ],
   allFrames: false,
-  main() {
+  main(ctx) {
     const saveRecoveryCodes = async () => {
       const account = getGitHubUserName()
       const data = await getOTPList(Issuers.GITHUB, account)
       if (data.length === 0) return
-      const ul = await waitForElement<HTMLImageElement>(
+      const ul = await waitForElement<HTMLUListElement>(
         `ul.two-factor-recovery-codes`
       )
       const liTags: HTMLLIElement[] = Array.from(

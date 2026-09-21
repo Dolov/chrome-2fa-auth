@@ -6,23 +6,32 @@ import { createSelectionBox } from "~/utils/ui"
 import { ActionType, contentBaseZindex } from "~/utils/constant"
 import message from "~/utils/message"
 
+/** Toast 默认时长 60s（让用户有充分时间完成截图操作） */
+const DEFAULT_TOAST_DURATION_MS = 60_000
+
+/**
+ * 手动截图模式 content script
+ *
+ * matches: <all_urls>：用户从 popup 触发后注入 overlay + 选区。
+ * cleanup：所有 document.addEventListener / overlay 都通过 ctx 自动清理。
+ */
 export default defineContentScript({
   matches: ["<all_urls>"],
   allFrames: false,
-  main() {
-    const debugCanvasSelector = "github-2fa-container-1742783738736-debug-canvas"
+  main(ctx) {
+    const debugCanvasSelector =
+      "github-2fa-container-1742783738736-debug-canvas"
 
-    // 监听消息并确保发送响应
-    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // 监听消息并确保发送响应（ctx 自动 cleanup）
+    ctx.addEventListener(browser.runtime.onMessage, (message) => {
       if (message.action === ActionType.MANUAL_SCREENSHOT) {
-        addScreenshotOverlay(sendResponse, message.message)
+        addScreenshotOverlay(message.message)
       }
-
       return true
     })
 
     // 🎯 选取截图区域
-    const addScreenshotOverlay = (sendResponse, messageText) => {
+    const addScreenshotOverlay = (messageText: string) => {
       const overlay = document.createElement("div")
       overlay.style.position = "fixed"
       overlay.style.top = "0"
@@ -34,9 +43,9 @@ export default defineContentScript({
       overlay.style.background = "rgba(0, 0, 0, 0.5)"
       document.body.appendChild(overlay)
 
-      const messageVm = message.info(messageText, 60000)
+      const messageVm = message.info(messageText, DEFAULT_TOAST_DURATION_MS)
 
-      const handleEsc = (e) => {
+      const handleEsc = (e: KeyboardEvent) => {
         if (e.key !== "Escape") return
         dismissAll()
       }
@@ -44,15 +53,21 @@ export default defineContentScript({
       const dismissAll = () => {
         overlay.remove()
         messageVm.destroy()
-        const debugCanvas = document.querySelectorAll(`.${debugCanvasSelector}`)
+        const debugCanvas = document.querySelectorAll(
+          `.${debugCanvasSelector}`
+        )
         debugCanvas.forEach((canvas) => canvas.remove())
-        selectionBox && selectionBox.remove()
+        selectionBox?.remove()
         document.removeEventListener("keydown", handleEsc)
         document.removeEventListener("mouseup", handleMouseUp)
         document.removeEventListener("mousemove", handleMouseMove)
       }
 
-      let startX, startY, endX, endY, selectionBox
+      let startX = 0
+      let startY = 0
+      let endX = 0
+      let endY = 0
+      let selectionBox: HTMLElement | null = null
       let isMouseDown = false
 
       overlay.addEventListener("mousedown", (e) => {
@@ -71,7 +86,7 @@ export default defineContentScript({
         document.addEventListener("mousemove", handleMouseMove)
       })
 
-      const handleMouseMove = (e) => {
+      const handleMouseMove = (e: MouseEvent) => {
         if (!selectionBox || !isMouseDown) return
         endX = e.clientX
         endY = e.clientY
@@ -82,7 +97,7 @@ export default defineContentScript({
         selectionBox.style.height = Math.abs(endY - startY) + "px"
       }
 
-      const handleMouseUp = (e) => {
+      const handleMouseUp = () => {
         isMouseDown = false
         document.removeEventListener("mousemove", handleMouseMove)
         if (!selectionBox) return
@@ -90,7 +105,7 @@ export default defineContentScript({
         browser.runtime.sendMessage(
           { action: ActionType.CAPTURE_SCREENSHOT },
           async (response) => {
-            if (!response.success) {
+            if (!response?.success) {
               message.error("截图失败")
               return
             }
@@ -101,7 +116,7 @@ export default defineContentScript({
               startY,
               endX - startX,
               endY - startY
-            ).catch((error) => {
+            ).catch((error: Error) => {
               message.error(`解析二维码失败：${error.message}`)
             })
             if (!qrData) return
@@ -109,7 +124,7 @@ export default defineContentScript({
             if (!available) {
               message.warn(
                 `检测到二维码，但其格式【${qrData}】不符合 OTPAuth 规范`,
-                10000
+                10_000
               )
               return
             }
@@ -137,7 +152,13 @@ export default defineContentScript({
     }
 
     // 🎯 裁剪截图并解析二维码
-    const cropImage = (dataUrl, x, y, width, height): Promise<string> => {
+    const cropImage = (
+      dataUrl: string,
+      x: number,
+      y: number,
+      width: number,
+      height: number
+    ): Promise<string> => {
       return new Promise((resolve, reject) => {
         const img = new Image()
         img.src = dataUrl
@@ -147,6 +168,7 @@ export default defineContentScript({
           // 创建 canvas 元素
           const canvas = document.createElement("canvas")
           const ctx = canvas.getContext("2d")
+          if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
 
           // 设置画布的实际像素尺寸为裁剪区域的大小
           canvas.width = width * dpr
@@ -197,6 +219,7 @@ export default defineContentScript({
           canvas.width = image.width
           canvas.height = image.height
           const ctx = canvas.getContext("2d")
+          if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
           ctx.drawImage(image, 0, 0)
           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
