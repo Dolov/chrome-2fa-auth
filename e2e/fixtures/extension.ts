@@ -58,7 +58,7 @@ export const test = base.extend<
     async ({}, use) => {
       const ctx = await chromium.launchPersistentContext("", {
         channel: "chromium",
-        headless: false,
+        headless: process.env.PW_HEADLESS ? process.env.PW_HEADLESS === "true" : true,
         args: [
           `--disable-extensions-except=${EXT_PATH}`,
           `--load-extension=${EXT_PATH}`,
@@ -89,7 +89,8 @@ export const test = base.extend<
     }
     const h: Helpers = {
       seedData: async (data) => {
-        // WXT storage 直接存 raw object（chrome.storage 内部自动序列化）
+        // WXT storage：data 存在 sync:data（utils/storage.ts 的 dataStore）
+        // 注意 StorageKey.DATA = "data" 小写
         await getSw().evaluate(
           (d) => chrome.storage.sync.set({ data: d }),
           data as unknown[]
@@ -97,7 +98,12 @@ export const test = base.extend<
       },
       clearStorage: async () => {
         const [sw] = context.serviceWorkers()
-        if (sw) await sw.evaluate(() => chrome.storage.sync.clear())
+        if (sw) {
+          await sw.evaluate(() => {
+            chrome.storage.sync.clear()
+            chrome.storage.local.clear()
+          })
+        }
       },
       getStorage: async () => {
         return await getSw().evaluate(() => chrome.storage.sync.get(null))

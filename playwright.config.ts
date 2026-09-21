@@ -32,7 +32,11 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] }
+      use: {
+        ...devices["Desktop Chrome"],
+        // 无头运行：以后再跑自动化统一使用 headless
+        launchOptions: { headless: true }
+      }
     }
   ]
 })

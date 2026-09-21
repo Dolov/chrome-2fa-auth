@@ -1,8 +1,12 @@
 import { storage } from "@wxt-dev/storage"
 
+import { LEGACY_KEY, dataStore } from "~/utils/storage"
 import { ActionType, StorageKey } from "~/utils/constant"
 
-/** 定义右键菜单列表 */
+/**
+ * 右键菜单列表
+ * 类型用 browser.contextMenus.CreateProperties（WXT auto-imports browser）
+ */
 const menuList: (browser.contextMenus.CreateProperties & {
   action?(tab: browser.tabs.Tab): void
 })[] = [
@@ -38,24 +42,24 @@ const menuList: (browser.contextMenus.CreateProperties & {
   }
 ]
 
-// 将 v1 版本的数据迁移到新数据格式
+/**
+ * 将 v1 版本的数据迁移到新数据格式
+ */
 const adaptLegacyData = async () => {
-  const data = await storage.getItem<DataProps[]>(StorageKey.DATA)
-  if (Array.isArray(data) && data.length) return
+  const data = await dataStore.getValue()
+  if (data.length) return
 
-  const legacyData = await storage.getItem<Record<string, any>>(
-    StorageKey.LEGACY_DATA
+  const legacyData = await storage.getItem<Record<string, LegacyOTPItem>>(
+    LEGACY_KEY
   )
   if (!legacyData) return
   const keys = Object.keys(legacyData)
   if (!keys.length) return
 
   const list = keys
-    .map((key) => {
+    .map<LegacyOTPItem | null>((key) => {
       const item = legacyData[key]
-      if (!item?.secret || !item?.issuer || !item?.account) {
-        return null
-      }
+      if (!item?.secret || !item?.issuer || !item?.account) return null
       const { account, issuer, secret } = item
       const recoveryCodes = Array.isArray(item.recoveryCodes)
         ? item.recoveryCodes
@@ -67,30 +71,35 @@ const adaptLegacyData = async () => {
         id: `${key}-${Date.now()}`,
         type: "totp" as const,
         recoveryCodes: recoveryCodes
-          .map((code: any) => {
+          .map((code) => {
             if (!code?.value) return null
-            const { value, copyed } = code
-            return {
-              value,
-              copied: !!copyed
-            }
+            return { value: code.value, copied: !!code.copyed }
           })
-          .filter(Boolean)
+          .filter(Boolean) as Array<{ value: string; copied: boolean }>
       }
     })
-    .filter(Boolean)
+    .filter((item): item is LegacyOTPItem => item !== null)
 
   if (list.length) {
     try {
-      await storage.setItem(StorageKey.DATA, list)
+      await dataStore.setValue(list)
     } catch (error) {
-      console.error("Legacy data migration failed:", error)
+      console.error("[background] Legacy data migration failed:", error)
     }
   }
 }
 
+interface LegacyOTPItem {
+  id: string
+  type: "totp"
+  issuer: string
+  account: string
+  secret: string
+  recoveryCodes: Array<{ value: string; copied: boolean }>
+}
+
 export default defineBackground(() => {
-  // 初始化右键菜单
+  // svc-register-listeners-synchronously：listener 在顶层同步注册
   browser.runtime.onInstalled.addListener(() => {
     menuList.forEach((item) => {
       const { action, ...menuProps } = item
@@ -106,7 +115,7 @@ export default defineBackground(() => {
     menu.action?.(tab!)
   })
 
-  // 内容脚本消息路由
+  // 内容脚本消息路由（msg-return-true-for-async）
   browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === ActionType.CAPTURE_SCREENSHOT) {
       browser.tabs.captureVisibleTab(
