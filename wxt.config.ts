@@ -16,8 +16,6 @@ export default defineConfig({
     // 故意不写 action.default_title：popup 入口的 <title> 会覆盖它。
     // 省掉两者 → 工具栏提示回退到本地化的 manifest.name。
     icons: {
-      "16": "icon/16.png",
-      "48": "icon/48.png",
       "128": "icon/128.png"
     },
     web_accessible_resources: [
