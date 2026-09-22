@@ -87,6 +87,12 @@ export const test = base.extend<
       if (!sw) throw new Error("MV3 service worker not started")
       return sw
     }
+
+    // 收集 test 期间的 pageerror；use(h) 之后若非空就抛，让该 test 失败。
+    // React 渲染期 unhandled rejection / throw 都从这里走出来 —— 验收
+    // 「断言绿但页面报 unhandled 错误」这种最常见假阳性。
+    const pageErrors: string[] = []
+
     const h: Helpers = {
       seedData: async (data) => {
         // WXT storage：data 存在 sync:data（features/otp-store/store.ts 的 dataStore）
@@ -109,6 +115,9 @@ export const test = base.extend<
       },
       gotoPopup: async () => {
         const page = await context.newPage()
+        page.on("pageerror", (err) =>
+          pageErrors.push(`pageerror: ${err.message}`)
+        )
         await page.goto(`chrome-extension://${extensionId}/popup.html`)
         await page.waitForLoadState("domcontentloaded")
         return page
@@ -116,6 +125,11 @@ export const test = base.extend<
     }
     await h.clearStorage()
     await use(h)
+    if (pageErrors.length > 0) {
+      throw new Error(
+        `Unexpected page errors during test:\n  ${pageErrors.join("\n  ")}`
+      )
+    }
     await h.clearStorage()
   },
 
