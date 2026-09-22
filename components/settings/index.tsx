@@ -21,7 +21,7 @@ import { useSettings } from "~/features/ui-state/use-settings"
  */
 const SettingsPage: React.FC = () => {
   const [settings] = useSettings()
-  const { containerType, faviconType, theme } = settings
+  const { containerType } = settings
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -54,11 +54,7 @@ const SettingsPage: React.FC = () => {
             <IconPicker />
           </section>
         </div>
-        <Specimen
-          theme={theme}
-          faviconType={faviconType}
-          containerType={containerType}
-        />
+        <Specimen containerType={containerType} />
       </div>
     </div>
   )
