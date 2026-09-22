@@ -242,7 +242,7 @@ export const test = baseTest.extend<{
   extension: { context, extensionId, popup }
 }>({
   extension: async ({}, use) => {
-    const EXT_PATH = 'build/chrome-mv3' // WXT 迁移后改为 '.output/chrome-mv3'
+    const EXT_PATH = '.output/chrome-mv3'
     const userDataDir = `.pw-userdata-${Date.now()}-${Math.random()}`
     const context = await chromium.launchPersistentContext(userDataDir, {
       args: [`--disable-extensions-except=${EXT_PATH}`, `--load-extension=${EXT_PATH}`]
@@ -325,13 +325,3 @@ expect(shown).toBe(expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME }))
 - ❌ 真实 GitHub / NPM 页面（用 mock）
 - ❌ React 组件内部 state 断言（只看渲染 DOM）
 
-## 7. 迁移到 WXT 后
-
-迁移完成后只需改一处：
-
-```diff
-- const EXT_PATH = 'build/chrome-mv3'
-+ const EXT_PATH = '.output/chrome-mv3'
-```
-
-其余 93 条 spec 一行不改，全部复用。

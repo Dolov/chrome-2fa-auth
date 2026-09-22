@@ -98,66 +98,7 @@ main()
 export default async function globalSetup() { ... }
 ```
 
-## 8. Plasmo 0.88 + daisyUI 4.0.0 build 失败 "toGamut is not a function"
-
-**现象**：`pnpm build` 在 daisyUI 处理时报 `toGamut is not a function`。
-
-**根因**：daisyUI 4.0.0 用了 `require('culori').toGamut`，但 culori 2.x 没这函数、3.x 是 ESM（CJS require 拿不到）。daisyUI 4.0.0 与 culori 不兼容。
-
-**解决**：升级 daisyUI 到 `^4.12.24`（修复了 culori 3 兼容）。`pnpm add -D daisyui@4.12.24`。
-
-## 9. Plasmo 0.88 + sharp 0.32 build 失败 "Cannot find module '../build/Release/sharp-darwin-arm64v8.node'"
-
-**现象**：`pnpm build` Plasmo 加载 sharp 时报 sharp native binding 缺失。
-
-**根因**：
-- sharp 0.32.6 在 Plasmo 0.88 是 locked dependency
-- sharp 0.32.6 用 `prebuild-install` 下载 native binding，pnpm 11 默认 ignore build scripts 导致 binding 没下载
-- Plasmo 0.88 还调用了 `sharp.toGamut()`，但 sharp 0.32 没这 API（0.33+ 才有）
-
-**解决**：
-1. 在 `scripts/patch-sharp.js` 注入 stub `module.exports.toGamut = buf => buf`
-2. 手动从 https://github.com/lovell/sharp/releases/download/v0.32.6/ 下载 prebuilt binary：
-   ```bash
-   cd node_modules/.pnpm/sharp@0.32.6/node_modules/sharp
-   mkdir -p build/Release
-   curl -sL "https://github.com/lovell/sharp/releases/download/v0.32.6/sharp-v0.32.6-napi-v7-darwin-arm64.tar.gz" | tar -xz
-   ```
-3. `global-setup` 自动跑 patch
-
-## 10. plasmo `@plasmohq/storage` 1.15.0 双重 JSON 序列化 bug（项目 bug，非测试 bug）
-
-**现象**：
-- 在 popup context 里读 `chrome.storage.sync.get("data")` 返回 `{data: "[json string]"}`（字符串，不是对象）
-- plasmo hook 的 `parseValue({data: "[json string]"})` 调用 `JSON.parse({...})` 抛错 → `console.error: SyntaxError: "[object Object]" is not valid JSON`
-- 后果：useStorage 的 initial get 返回 undefined → state 永远 = defaultValue → list 永远不渲染
-- 连用户走 UI 添加账户后也会触发 `Minified React error #130`（element type undefined）→ popup 变空白
-
-**根因**：
-```js
-// plasmo Storage.set 内部
-set=async(e,t)=>{
-  let s=this.serde.serializer(t);  // JSON.stringify(value)
-  return this.rawSet(r,s);  // chrome.storage.sync.set({key: s})
-};
-// chrome.storage 内部又自动 JSON.stringify 一次 → 双重编码
-// chrome.storage.get 还原后 plasmo 试图 JSON.parse({key: "string"}) 失败
-```
-
-**影响范围**：
-- 项目当前在 Playwright chromium 下**完全 broken**：popup 加载后即使 UI 添加账户也会 React #130
-- 用户可能没意识到，因为：
-  1. 真 Chrome 默认 storage quota 100KB，plasmo set 一直在失败但被静默 catch
-  2. React error #130 后整个 popup 空白，用户可能刷新页面后短暂看到 list
-
-**测试策略调整**：
-- F1-F3 所有依赖 list 渲染的 case 暂时无法验证
-- 验证 storage 写入**实际成功**（chrome.storage.sync.get 拿到的 raw 值正确）
-- 等 WXT 迁移修复 plasmo bug 后重新跑 spec
-
-**bug 位置**：plasmo-fx/plasmo `packages/storage/hook.ts` + `Storage` 类的 `set/get` 双重序列化
-
-## 11. pnpm 11 不再读 `package.json` 里的 `pnpm.onlyBuiltDependencies`
+## 8. pnpm 11 不再读 `package.json` 里的 `pnpm.onlyBuiltDependencies`
 
 **现象**：即使配 `"pnpm": { "onlyBuiltDependencies": [...] }`，build scripts 仍被 ignore。
 

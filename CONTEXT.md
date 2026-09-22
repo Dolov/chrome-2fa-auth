@@ -1,7 +1,6 @@
 # CONTEXT — 2fa-auth-otp-authenticator 领域词汇
 
-> 本文件是仓库的**领域词汇表**。所有 S1–S8 重构以及新增功能必须在此登记新词。
-> 评审架构、给新协作者 / AI 助手对齐心智模型时，**先读本文**。
+> 本文件是仓库的**领域词汇表**。新增功能前先在此登记新词；评审架构、给新协作者 / AI 助手对齐心智模型时，**先读本文**。
 
 ## 怎么读
 
@@ -18,11 +17,13 @@
 
 | 层 | 目录 | 允许 | 禁止 |
 |---|---|---|---|
-| 双端纯原语 | `utils/` | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态 |
+| 双端纯原语 | `utils/`（9 个文件：`base32` `clipboard` `cn` `constants` `hmac` `otpauth` `qr-decode` `totp` `types`） | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态 |
 | 页面注入 UI | `features/page-ui/` | 操作宿主页面 DOM 与 CSS（`mountStyle` 是唯一 `<style>` 注入通道） | import React |
 | React 页面状态 | `features/ui-state/`（hooks）、`components/ui/`（设计原语）、`entrypoints/{popup,settings}/components/`（页面专属组件）、`components/favicons.tsx`（跨页面领域组件） | React hooks / 组件 | 被 content script import |
 | React 业务状态 | `features/otp-store/`；`context.tsx` 是唯一 React 入口 | Provider + mutators | 被 content script import；向 content 侧 re-export `dataStore` |
 | content 专属 | `features/site-content/dom/`、`entrypoints/*.content/` | 依赖宿主页面结构（SPA 路由、DOM 选择器） | 被 popup / settings import |
+| 跨层桥接（React-free） | `features/messaging/`、`features/runtime/`、`features/otp-intake/{intake,intake.types,index,adapters/content}.ts` | 可被 popup / settings / content / background 任一侧调用 | 持有持久业务状态 |
+| 跨层 React adapter | `features/otp-intake/adapters/popup.tsx` | popup 侧 React 适配器 | 被 content script import |
 
 ### 硬规则 1：barrel 不变式
 
@@ -39,13 +40,11 @@
 `global.content` 的 `matches` 是 `<all_urls>`，它的体积要乘以「用户访问的每个网页」。
 改动 content 侧依赖后跑 `pnpm build`，对比 `content-scripts/*.js`：
 
-| entrypoint | 预算 | 成因 |
+| entrypoint | 预算 | 当前内含 |
 |---|---|---|
-| `global.js` | < 200 KB | 只做 QR 扫描 + intake，不需要算 OTP；当前 149.6 KB 中 127 KB 是内联的 jsQR |
-| `github.js` / `npm.js` | < 200 KB | 需要 `generateOtp`（零依赖内联实现）+ jsQR；当前 ~159.5 KB |
+| `global.js` | < 200 KB | QR 扫描 + intake，不算 OTP |
+| `github.js` / `npm.js` | < 620 KB | `generateOtp`（零依赖内联）+ jsQR |
 
-超了说明新依赖把大件（Node 垫片 / React / UI 框架）拖进了 content 侧。
-各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`；
 TOTP 去依赖见 `docs/adr/0006-inline-hmac-replaces-otplib.md`；
 jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-lazy-load-jsqr.md`。
 
@@ -53,12 +52,11 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 
 压缩后 >50 KB 的库（如 jsQR）一律用动态 `import()`。ESM 页面（popup/settings）
 会真正拆包；content script（IIFE）会内联，但至少不把负担转嫁给弹窗。
-各项的实测成本占比见 `docs/adr/0005-bitmap-free-brand-assets.md`。
 
 ### 硬规则 3：不引入位图品牌素材
 
 品牌标识一律用 `components/ui/icon.tsx` 里已有的矢量图标，**不新增 PNG/JPG**。
-需要新品牌标识时先查那个文件。详见 ADR-0005。
+需要新品牌标识时先查那个文件。
 
 ## 模块词汇（按依赖顺序）
 
@@ -74,15 +72,11 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - **algorithm 归一不变式**：OTPAuth 规范写的是大写 `SHA1`，而 `generateOtp()`
     内部要求小写 `sha1 | sha256 | sha512`。因此必须经 `utils/totp.ts` 的
     `toHmacAlgorithm()` 归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。
-    违反此不变式会导致 popup 一有数据就白屏（见 commit `496abe9`）。
+    违反此不变式会导致 popup 一有数据就白屏。
   - **参数透传不变式**：`digits` / `period` / `algorithm` 必须由调用方从存储条目
-    一路传到 `generateOtp`。它们被 `parseOtpAuthUrl` 解析并校验、也确实落了库，
-    但曾经在 `OtpText` / `OtpRemaining` / `otp-autofill` 三处被丢掉 —— 后果是
-    `digits=8`、`algorithm=SHA256`、`period=60` 三类账户**永远显示错误的码**
-    （content 侧会直接把错的码填进 GitHub / NPM）。所以组件收的是 `config`
-    而不是 `secret`（ADR-0008）。
+    一路传到 `generateOtp`。组件收的是 `config` 而不是 `secret`（ADR-0008）。
   - `utils/totp.ts` 会对越界的 `digits` / `period` 做防御性归一（导入的脏数据
-    能绕开 `parseOtpAuthUrl` 的校验；`digits=999` 不归一会渲染出 999 个字符）。
+    能绕开 `parseOtpAuthUrl` 的校验）。
 
 ### 2. OtpItem（= `DataProps`）
 
@@ -102,6 +96,8 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - `id` 在 storage 层用 `Date.now()` 生成；不要在前端复用。
   - `deleted: true` 是软删状态，仍占用列表位置。
   - `pinned: true` 时排到顶部，渲染层排序而非存储层。
+  - `recoveryCodes?: { value: string; copied: boolean }[]` 是恢复码列表；存在时列表项多一个入口。
+  - `remark?: string` 是用户备注。
 
 ### 3. OtpStore
 
@@ -109,7 +105,7 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 - **在哪里**：`features/otp-store/store.ts` 的 `dataStore`（存储层与 `context.tsx` 分开：前者无 React，content / background 走深路径）。
 - **典型用法**：永远不直接调用 `dataStore.setValue`，只通过 `OtpProvider` 派发的 mutators。
 - **边界**：
-  - 数据存 `sync:` 区（与 Plasmo 旧版兼容，跨设备同步）。
+  - 数据存 `sync:` 区，跨设备同步。
   - 单条上限 8KB（10 条账户约 1–2KB，典型足够）。
   - 写入前必须经过 `addOtp` 纯函数处理去重 / 软删合并（见 ADR-0001）。
   - `store.ts` 还维护进程内缓存与订阅：`getCachedOtpList` / `subscribeOtpList`
@@ -137,12 +133,12 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 - **在哪里**：`features/otp-store/context.tsx` 的 `OtpMutators` 接口。
 - **典型用法**：
   ```tsx
-  const { add, update, softDelete, hardDelete, pin, exists } = useOtpMutators()
+  const { add, update, softDelete, restore, hardDelete, pin, exists } = useOtpMutators()
   ```
+  完整 9 个：`add` / `update` / `softDelete` / `restore` / `hardDelete` / `pin` / `exists` / `isRecoveryCodesSavedFor` / `markRecoveryCodeCopied`。
 - **边界**：
   - 所有写入经过 mutators；不允许直接 `setValue`。
   - `exists()` 必须先于 `add()` 调用以避免重复提示不一致。
-  - 不写测试时不要拆分 mutators；9 条原子操作是经实测收敛的边界。
 
 ### 6. Intake（候选 A 引入）
 
@@ -161,7 +157,7 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - 解析失败、缺账号、重复、未实现——四种状态分别走 toast 路径，不抛异常。
   - 调用方负责持久化（writer）与提示（notifier），intake 只做编排。
   - **barrel 不变式**：`features/otp-intake/index.ts` 必须 React-free（content script 会 import 它）；
-    popup 适配器走深路径 `features/otp-intake/adapters/popup`。
+    popup 适配器走深路径 `features/otp-intake/adapters/popup.tsx`（**唯一带 React 的文件**，content 禁止 import）。
 
 ### 7. SiteAdapter
 
@@ -173,7 +169,7 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   ```
 - **边界**：
   - 一个站点一个 adapter，不在一个文件里塞两个站点。
-  - `issuer` 必须匹配 `Issuers` 枚举的字面量值（`"NPM"` 或 `"GitHub"`，注意 GitHub 历史大小写）。
+  - `issuer` 必须匹配 `Issuers` 枚举的字面量值。`Issuers.GITHUB = "GitHub"`（**历史大小写保留**——v1 真实存盘值，迁移期不动）；`Issuers.NPM = "NPM"`。
   - 选择器（`selectors.*`）尽量用站点原生 class/id，不要依赖自动生成。
 
 ### 8. SiteScript（ContentScript）
@@ -234,14 +230,16 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 ### 13. Message Protocol（候选 B 引入）
 
 - **是什么**：popup ↔ content ↔ background 之间结构化消息的**类型注册表**。
-- **在哪里**：`features/messaging/messageMap.ts`（候选 B 落点）。
+- **在哪里**：`features/messaging/message-map.ts`（类型表）+ `send-site-action.ts`（发送）+ `handle-site-action.ts`（接收）。
 - **典型用法**：
   ```ts
-  type Map = {
-    AUTOSCAN: { in: void; out: { success: boolean; data?: string; error?: string } }
-    CAPTURE_SCREENSHOT: { in: void; out: { success: boolean; image?: string } }
-  }
-  sendSiteAction<Map, 'AUTOSCAN'>('AUTOSCAN')
+  // 发送（popup 侧）
+  sendSiteAction(ActionType.AUTOSCAN, undefined)
+
+  // 接收（content / background 侧）
+  handleSiteAction(ActionType.AUTOSCAN, (payload, sender) => {
+    // payload / 返回值类型由 MessageMap 自动推断
+  })
   ```
 - **边界**：
   - 任何新 action 必须在 `MessageMap` 注册；否则 `sendSiteAction<T>` 编译失败。
@@ -250,20 +248,18 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 ### 14. Toast
 
 - **是什么**：往 `document` 里插入的固定位提示条（vanilla DOM，无 React）。
-- **在哪里**：`features/page-ui/toast.ts`（旧名 `utils/message.ts`）。
+- **在哪里**：`features/page-ui/toast.ts`。
 - **典型用法**：`message.success("已复制")`；`message.error("失败")`。
 - **边界**：
-  - **双端可用**：popup 侧（`components/otp-text.tsx`、`components/home/item-actions.tsx`）
+  - **双端可用**：popup 侧（`entrypoints/popup/components/otp-text.tsx`、`entrypoints/popup/components/item-action-sheet.tsx`）
     与 content 侧（`read-qr.ts`、`manual-scan.ts`、`otp-autofill.ts`）都在用。
-    本文旧版写「content script **不调用**」与代码相反，已更正；`toast.ts` 文件头旧注释
-    写「不在 content script 之外使用」也错。
   - z-index 取 `contentBaseZindex + 1`，压在其他注入 UI 之上。
   - 多个 toast 叠加会自动堆叠，无需上层排队。
   - 不要和 `features/messaging` 混：那是结构化 postMessage 协议，不碰宿主 DOM。
 
 ### 15. Shared OTP Clock
 
-- **是什么**：全局唯一的秒级 ticker，供 OTP 渲染点订阅，替代“每个条目各起 2–3 个 `setInterval`”。
+- **是什么**：全局唯一的秒级 ticker，供 OTP 渲染点订阅，替代"每个条目各起 2–3 个 `setInterval`"。
 - **在哪里**：`features/ui-state/use-otp-tick.ts` 的 `useOtpStepIndex` / `useOtpRemaining`。
 - **典型用法**：`const stepIndex = useOtpStepIndex(period)` 作为 `generateOtp` 的 `useMemo` 依赖。
 - **边界**：
@@ -279,47 +275,10 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 | `OtpForm`（=表单组件）vs `Form`（HTMLFormElement）| 一个组件、一个 DOM 类型 |
 | `SiteAdapter`（站点描述）vs `Adapter`（react 适配器模式）| 上下文里没有第二个 Adapter，别瞎联想 |
 | `global.content` vs `github.content` vs `npm.content` | global 是 <all_urls>，两个站点的内容脚本只跑对应 host |
-| `chrome.*` vs `browser.*` | WXT 同时暴露两者；统一用 `browser.*`（原 `utils/runtime-utils.ts` 违规，已改） |
-| `toast`（`features/page-ui/toast.ts`）vs `messaging`（`features/messaging`）| 前者是页面内 DOM 提示条，后者是 popup↔content↔background 消息协议。两者旧名都叫 `message`，已更名消歧 |
+| `chrome.*` vs `browser.*` | API 调用统一用 `browser.*`；**两处例外必须用 `chrome.*`**：`chrome.runtime.MessageSender`（类型，来自 `@types/chrome`）与 `chrome.runtime.lastError`（错误检查，browser polyfill 不暴露） |
+| `toast`（`features/page-ui/toast.ts`）vs `messaging`（`features/messaging`）| 前者是页面内 DOM 提示条，后者是 popup↔content↔background 消息协议 |
 | `store.ts`（存储层）vs `context.tsx`（React Provider）| 同在 `features/otp-store/`；前者无 React，后者是唯一 React 入口 |
 | `utils/qr-decode.ts` vs「生成二维码」| 库里只有解码没有生成，不要往这里加 encode |
-
-## 版本
-
-- v2.0.0（迁移期 Plasmo → WXT）
-- 词汇表会随每个 S 系列 commit 更新。
-- 2026 目录重组：`utils/` 收敛为 7 个双端纯原语，其余按执行环境下沉到 `features/*`。
-  理由与实测数据见 `docs/adr/0004-execution-environment-layering.md`。
-- 2026 去位图化：品牌标识只用 `components/ui/icon.tsx` 的矢量图标，不引入 PNG。
-  理由、产物体积归因与实测数据见 `docs/adr/0005-bitmap-free-brand-assets.md`。
-  **新增品牌标识前先查 `icon.tsx`。**
-- 2026 TOTP 去依赖：`utils/totp.ts` 改为内联 HMAC（`utils/hmac.ts` +
-  `utils/base32.ts`），逐条复刻 otplib 语义，移除 `vite-plugin-node-polyfills`。
-  理由、兼容语义清单与 18 万项对拍数据见 `docs/adr/0006-inline-hmac-replaces-otplib.md`。
-  **改 `utils/totp.ts` 前先读该 ADR 的「必须逐条复刻的 otplib 语义」。**
-- 2026 jsQR 按需加载：`utils/qr-decode.ts` 的 jsQR 改为动态 `import()`（ADR-0007）。
-  popup 共享 chunk 363.5 → 236.2 KB 已生效；content 侧因产物是 IIFE 仍内联，
-  **剩下 382 KB 需先补 F7 验收网再改造链路**。
-- 2026 修复 OTP 生成参数被丢弃：`digits` / `period` / `algorithm` 从存储条目
-  透传到 `generateOtp`，组件改收 `config` 而非 `secret`（ADR-0008）。
-  **改任何 OTP 渲染点时先读该 ADR 的「参数透传不变式」。**
-- 2026 前端组件 review 修复：`GlobalContext` → `HomeContext` / `HomeProvider`
-  （旧 `components/home/home-context.tsx`），移除未读的 `source` 字段与 `SourceType`；
-  拆分 `item-actions.tsx` 的 modal、抽 `CreateFab`、删除 `useFilter`；OTP 计时改
-  共享时钟（见词条 15）；`OtpProvider` / `useStorage` 改用 `useSyncExternalStore`；
-  `Modal` 以 ref 驱动 `<dialog>` 并消除 stale `onClose`。
-- 2026 页面专属组件下沉：popup 组件从 `components/home/*` 整体搬到
-  `entrypoints/popup/components/*`；settings 组件从 `components/settings/*`
-  搬到 `entrypoints/settings/components/*`；`OtpText` / `OtpRemaining`
-  从 `components/` 顶层收进 `entrypoints/popup/components/`。
-  理由：popup / settings 各自是单一 mount 点，组件严格按页面归属。
-  **只有跨页面才留在 `components/`**（当前仅 `components/ui/*` 设计原语
-  与 `components/favicons.tsx` 跨页面领域组件）。`HomeProvider` / `HomeContext`
-  → `PopupProvider` / `PopupContext`（与目录对齐），文件 `home-context.tsx`
-  → `context.tsx`（目录已消歧）。`Main` 作为 popup 主视图默认导出名，
-  与两处 import 别名（`entrypoints/popup/app.tsx`、
-  `entrypoints/settings/components/specimen.tsx`）一致。
-  字节级一致：build 产物与重构前完全相同，E2E 20/20 全绿。
 
 ## 维护
 
