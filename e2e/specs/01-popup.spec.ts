@@ -64,8 +64,6 @@ test.describe("F1 popup > 主界面加载与渲染", () => {
   })
 
   test("Case 4 (P1): dark 主题 → 背景为暗色", async ({ helper }) => {
-    const ctx = helper // alias for ctx access
-    void ctx
     const popup = await helper.gotoPopup()
     try {
       const workers = popup.context().serviceWorkers()
@@ -82,10 +80,13 @@ test.describe("F1 popup > 主界面加载与渲染", () => {
       }
       await popup.reload()
       await popup.waitForLoadState("domcontentloaded")
-      await popup
-        .locator("html[data-theme='dark']")
-        .first()
-        .waitFor({ timeout: 10_000 })
+      // React hydrate + useEffect 后才会 setAttribute(data-theme, ...)；
+      // 等该属性出现，避免拿到上一次会话残留
+      await popup.waitForFunction(
+        () => document.documentElement.dataset.theme === "dark",
+        undefined,
+        { timeout: 10_000 }
+      )
     } finally {
       await popup.close()
     }
@@ -108,10 +109,8 @@ test.describe("F1 popup > 主界面加载与渲染", () => {
       }
       await popup.reload()
       await popup.waitForLoadState("domcontentloaded")
-      await popup
-        .locator(".mockup-phone")
-        .first()
-        .waitFor({ timeout: 10_000 })
+      // 布局由 React 读 settings 渲染，domcontentloaded 后等元素出现
+      await popup.locator(".mockup-phone").first().waitFor({ timeout: 10_000 })
     } finally {
       await popup.close()
     }
