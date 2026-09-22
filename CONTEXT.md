@@ -268,6 +268,39 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   - 快照返回数字，`useSyncExternalStore` 在值不变时不重渲染（周期切换才重算 HMAC）。
   - `OtpText` 只由 `config` + `stepIndex` 派生，不持有 OTP 状态。
 
+### 16. Scanner Dust
+
+- **是什么**：`AUTOSCAN` 的可视化粒子层：星点从页面边缘涌现、汇聚到候选元素排出模块点阵，扑空即碎散、命中即环绕。
+- **在哪里**：`features/page-ui/scan-particles.ts`（canvas 绘制与生命周期）+ `scan-particle-model.ts`（类型 / 令牌 / 点阵几何 / 相位推进）。
+- **典型用法**：
+  ```ts
+  const particles = createScanParticles() // null = 该走无动画路径
+  if (!particles) return scanPage()
+  await particles.awaken()
+  await particles.convergeTo(element, { index, total })
+  await particles.markHit(element) // 或 markMiss(element)
+  await particles.settle()
+  particles.destroy()
+  ```
+- **边界**：
+  - 视觉语言全部取自二维码本身（模块网格 / 三个定位图案 / 形态即阶段），不是通用粒子特效。
+  - `prefers-reduced-motion`、后台标签页、拿不到 2d context → 返回 `null`，调用方回落 `highlightElement`。
+  - 时间预算统一在 `VISUAL_BUDGET_MS`（约 2s **整段**，非单候选）；单候选一拍由 `resolveProbeSlot` 按候选数切分。
+  - 各阶段用 `sleep` 计时而非等 rAF，后台标签页下 rAF 会停但计时不会。
+  - 注入的根节点必须带 `SCAN_LAYER_ATTR`（`utils/constants.ts`），否则会被当成扫描候选。
+
+### 17. Scan Sequence
+
+- **是什么**：把「候选收集 → 逐个探测 → 判定 → 落库」编排成一次可视化扫描（`AUTOSCAN` 的唯一入口）。
+- **在哪里**：`features/page-ui/scan-sequence.ts` 的 `runVisualScan`；由 `entrypoints/global.content/index.ts` 接 `ActionType.AUTOSCAN`。
+- **典型用法**：`runVisualScan()` —— 返回 `QRScanResult`，失败抛异常（handler 转成 `AutoScanResult`）。
+- **边界**：
+  - 只服务 `AUTOSCAN`。GitHub / NPM 的站点自动填充走 `site-content/actions/read-qr.ts`，不受影响。
+  - 解码（`decodeCandidate`）与汇聚动画**并行**，jsQR 的延迟藏在动画时长里。
+  - 逐候选是忠实串行的：先让用户看见星点飞向哪里，再给判定。
+  - 两条降级路径：粒子层不可用时、以及预算内候选全扑空后回落裸 `scanPage()`（保证过滤只影响动画、不影响找回二维码）。
+  - 候选预算（可视 + 最小边长 + 上限 8）在 `utils/qr-decode.ts` 的 `collectScanCandidates`；**不要**把它加到 `scanPage` 上。
+
 ## 命名冲突表（不要混）
 
 | 易混 | 含义 |
@@ -280,6 +313,8 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 | `toast`（`features/page-ui/toast.ts`）vs `messaging`（`features/messaging`）| 前者是页面内 DOM 提示条，后者是 popup↔content↔background 消息协议 |
 | `store.ts`（存储层）vs `context.tsx`（React Provider）| 同在 `features/otp-store/`；前者无 React，后者是唯一 React 入口 |
 | `utils/qr-decode.ts` vs「生成二维码」| 库里只有解码没有生成，不要往这里加 encode |
+| `scanPage()`（无上限全量兜底）vs `collectScanCandidates()`（有预算的可视化候选）| 前者是站点自动填充与兜底用的原逻辑，后者只服务粒子动画；别互相替代 |
+| `highlightElement`（彩虹脉冲）vs Scanner Dust（粒子层）| 前者已退为 `prefers-reduced-motion` 与兜底路径的反馈，不再是主路径 |
 
 ## 维护
 

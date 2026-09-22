@@ -1,3 +1,4 @@
+import { i18n } from "#i18n"
 import {
   ImageUp,
   Keyboard,
@@ -16,19 +17,15 @@ import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
-import { i18n } from "#i18n"
 import { ContainerType } from "~/utils/types"
 
+import { PopupContext } from "./context"
 import OtpForm from "./otp-form"
 import UploadModal from "./upload-modal"
-import { PopupContext } from "./context"
 
 /** FAB + 内嵌 modals 的 key 列表 */
 const FAB_MODALS = ["form", "upload"] as const
 type FabModalKey = (typeof FAB_MODALS)[number]
-
-/** 自动扫描成功后给用户的“识别中”视觉反馈时长 */
-const SCAN_FEEDBACK_MS = 600
 
 const TONE_CLASSES = {
   secondary: "btn-secondary",
@@ -95,13 +92,13 @@ const EntryActions: React.FC = () => {
   const handleAutoScan = async () => {
     setIsScanning(true)
     try {
+      // 反馈由 content 侧的扫描仪式提供（星点汇聚 → 环绕 / 消散），
+      // 这里不再叠加假等待：await 返回时判定已经发生。
       const result = await sendAutoScanToActiveTab()
       if (!result?.success || !result.data) {
         await handleManualScan(i18n.t("popup_fab_manual_scan_fallback_msg"))
         return
       }
-      // 短暂反馈，给用户视觉提示“识别中”
-      await new Promise((resolve) => setTimeout(resolve, SCAN_FEEDBACK_MS))
       await intake({ kind: "qr-data", data: result.data })
     } finally {
       setIsScanning(false)
@@ -141,7 +138,9 @@ const EntryActions: React.FC = () => {
           testId="fab-qr-manual"
           tone="info"
           disabled={!canInject}
-          onTrigger={() => void handleManualScan(i18n.t("popup_fab_manual_scan_msg"))}>
+          onTrigger={() =>
+            void handleManualScan(i18n.t("popup_fab_manual_scan_msg"))
+          }>
           <SquareDashedMousePointer />
         </FabAction>
         <FabAction

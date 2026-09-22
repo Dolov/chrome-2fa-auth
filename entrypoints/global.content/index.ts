@@ -1,7 +1,6 @@
-import { ActionType } from "~/utils/types"
-import { highlightElement } from "~/features/page-ui/highlight"
-import { scanPage } from "~/utils/qr-decode"
 import { handleSiteAction } from "~/features/messaging"
+import { runVisualScan } from "~/features/page-ui/scan-sequence"
+import { ActionType } from "~/utils/types"
 
 import { startManualScreenshot } from "./manual-scan"
 
@@ -10,7 +9,7 @@ import { startManualScreenshot } from "./manual-scan"
  *
  * matches: <all_urls>（通用工具，弹窗触发）
  * dispatch：按消息 action 路由
- *   - AUTOSCAN          → 自动扫描页面 QR
+ *   - AUTOSCAN          → 可视化扫描页面 QR（scan-sequence）
  *   - MANUAL_SCREENSHOT → 手动截图选区识别
  *
  * cleanup：所有 listener 通过 browser.runtime.onMessage 注册，
@@ -20,16 +19,20 @@ export default defineContentScript({
   matches: ["<all_urls>"],
   allFrames: false,
   main(ctx) {
-    handleSiteAction(ctx, browser.runtime.onMessage, ActionType.AUTOSCAN, () => {
-      return scanPage()
-        .then((result) => {
-          highlightElement(result.element)
-          return { success: true, data: result.data }
-        })
-        .catch((error: Error) => {
-          return { success: false, error: error.message }
-        })
-    })
+    handleSiteAction(
+      ctx,
+      browser.runtime.onMessage,
+      ActionType.AUTOSCAN,
+      () => {
+        return runVisualScan()
+          .then((result) => {
+            return { success: true, data: result.data }
+          })
+          .catch((error: Error) => {
+            return { success: false, error: error.message }
+          })
+      }
+    )
 
     handleSiteAction(
       ctx,
