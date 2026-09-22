@@ -1,280 +1,280 @@
 {
   "appName": {
-    "message": "2FA Auth - 现代化双因素认证工具",
-    "description": "扩展显示名称"
+    "message": "2FA Auth - 現代化雙因素驗證工具",
+    "description": "擴充功能顯示名稱"
   },
   "appDescription": {
-    "message": "一款专为安全与效率打造的开源免费 2FA 扩展，支持二维码自动扫描、选区扫描、表单输入与上传二维码，轻松应对多平台账户管理，界面优雅、体验出色。",
-    "description": "Chrome 应用商店展示的扩展描述"
+    "message": "一款專為安全與效率打造、開放原始碼且免費的 2FA 擴充功能。支援 QR 碼自動掃描、選區掃描、手動輸入與上傳 QR 碼，輕鬆管理多平台帳號，操作介面優雅、體驗流暢。",
+    "description": "Chrome 線上應用程式商店显示的擴充功能說明"
   },
   "popup_header_title": {
     "message": "2FA Auth"
   },
   "popup_header_search_placeholder": {
-    "message": "搜索"
+    "message": "搜尋"
   },
   "popup_header_menu_all": {
     "message": "全部"
   },
   "popup_header_menu_deleted": {
-    "message": "已删除"
+    "message": "已刪除"
   },
   "popup_header_menu_settings": {
-    "message": "设置"
+    "message": "設定"
   },
   "popup_list_empty_alt": {
-    "message": "暂无账户"
+    "message": "目前沒有帳號"
   },
   "popup_list_next_label": {
-    "message": "下一个"
+    "message": "下一個"
   },
   "popup_fab_form_tip": {
-    "message": "手动输入认证码"
+    "message": "手動輸入驗證碼"
   },
   "popup_fab_qr_auto_tip": {
-    "message": "自动扫描二维码"
+    "message": "自動掃描 QR 碼"
   },
   "popup_fab_qr_manual_tip": {
-    "message": "手动截取二维码"
+    "message": "手動擷取 QR 碼"
   },
   "popup_fab_qr_upload_tip": {
-    "message": "上传二维码截图"
+    "message": "上傳 QR 碼截圖"
   },
   "popup_fab_manual_scan_fallback_msg": {
-    "message": "未检测到二维码，开启手动截图模式，ESC 退出"
+    "message": "未偵測到 QR 碼，切換為手動截圖模式，按 ESC 退出"
   },
   "popup_fab_manual_scan_msg": {
-    "message": "手动截图模式，ESC 退出"
+    "message": "手動截圖模式，按 ESC 退出"
   },
   "popup_form_title": {
-    "message": "输入账户详细信息"
+    "message": "輸入帳號詳細資訊"
   },
   "popup_form_issuer_label": {
     "message": "平台"
   },
   "popup_form_issuer_placeholder": {
-    "message": "例如：Github"
+    "message": "例如：GitHub"
   },
   "popup_form_secret_label": {
-    "message": "密钥"
+    "message": "金鑰"
   },
   "popup_form_secret_placeholder": {
     "message": "例如：JBSWY3DPEHPK3PXP"
   },
   "popup_form_account_label": {
-    "message": "帐户"
+    "message": "帳號"
   },
   "popup_form_account_placeholder": {
-    "message": "例如：Dolov"
+    "message": "例如：octocat"
   },
   "popup_form_remark_label": {
-    "message": "备注"
+    "message": "備註"
   },
   "popup_form_remark_placeholder": {
-    "message": "例如：账户类型、用途等"
+    "message": "例如：帳號類型、用途等"
   },
   "popup_modal_delete_soft_text": {
-    "message": "确定删除？"
+    "message": "確定刪除？"
   },
   "popup_modal_delete_hard_text": {
-    "message": "删除后不可恢复，确定删除？"
+    "message": "刪除後將無法復原，確定刪除？"
   },
   "popup_modal_delete_ok": {
-    "message": "删除"
+    "message": "刪除"
   },
   "popup_modal_recovery_title": {
-    "message": "恢复密钥"
+    "message": "復原碼"
   },
   "popup_modal_qr_copy": {
-    "message": "复制"
+    "message": "複製"
   },
   "popup_modal_qr_download": {
-    "message": "下载"
+    "message": "下載"
   },
   "popup_modal_upload_title": {
-    "message": "上传二维码截图"
+    "message": "上傳 QR 碼截圖"
   },
   "popup_modal_upload_paste_hint": {
-    "message": "你也可以直接粘贴截图"
+    "message": "也可以直接貼上截圖"
   },
   "popup_modal_upload_account_placeholder": {
-    "message": "输入账户名称"
+    "message": "輸入帳號名稱"
   },
   "popup_modal_upload_invalid_error": {
-    "message": "无效的 OTP Auth URL"
+    "message": "無效的 OTP Auth URL"
   },
   "popup_item_action_share": {
     "message": "分享"
   },
   "popup_item_action_pin": {
-    "message": "置顶"
+    "message": "置頂"
   },
   "popup_item_action_unpin": {
     "message": "取消"
   },
   "popup_item_action_qr": {
-    "message": "二维码"
+    "message": "QR 碼"
   },
   "popup_item_action_edit": {
-    "message": "编辑"
+    "message": "編輯"
   },
   "popup_item_action_recovery": {
-    "message": "恢复码"
+    "message": "復原碼"
   },
   "popup_item_action_restore": {
-    "message": "恢复"
+    "message": "復原"
   },
   "popup_item_action_delete": {
-    "message": "删除"
+    "message": "刪除"
   },
   "popup_item_action_close": {
     "message": "取消"
   },
   "popup_item_action_share_title": {
-    "message": "$1 的 2FA 配置"
+    "message": "$1 的 2FA 設定"
   },
   "common_action_confirm": {
-    "message": "确定"
+    "message": "確定"
   },
   "common_action_close": {
-    "message": "关闭"
+    "message": "關閉"
   },
   "common_toast_copied": {
-    "message": "复制成功"
+    "message": "複製成功"
   },
   "common_toast_restored": {
-    "message": "已恢复"
+    "message": "已復原"
   },
   "common_toast_share_link_copied": {
-    "message": "已复制分享链接"
+    "message": "已複製分享連結"
   },
   "common_toast_saved": {
-    "message": "保存成功"
+    "message": "儲存成功"
   },
   "recovery_prompt_saved": {
-    "message": "恢复码已成功保存到 2FA Auth 扩展"
+    "message": "復原碼已成功儲存到 2FA Auth 擴充功能"
   },
   "recovery_prompt_unsaved": {
-    "message": "点击将 $1 - $2 的恢复码保存到 2FA Auth 扩展"
+    "message": "點擊將 $1 - $2 的復原碼儲存到 2FA Auth 擴充功能"
   },
   "settings_theme_title": {
-    "message": "主题"
+    "message": "主題"
   },
   "settings_theme_hint": {
-    "message": "换一套配色，页面与右侧预览同时切换。"
+    "message": "換一套配色，頁面與右側預覽會同步切換。"
   },
   "settings_theme_eyebrow": {
     "message": "theme · 32"
   },
   "settings_frame_title": {
-    "message": "界面尺寸"
+    "message": "視窗大小"
   },
   "settings_frame_hint": {
-    "message": "弹出面板是默认形态；手机外形多一圈机身。"
+    "message": "預設為一般彈出面板；手機外型會多一圈機身。"
   },
   "settings_frame_eyebrow": {
     "message": "frame · 2"
   },
   "settings_frame_standard": {
-    "message": "标准面板"
+    "message": "標準面板"
   },
   "settings_frame_phone": {
-    "message": "手机外形"
+    "message": "手機外型"
   },
   "settings_icon_title": {
-    "message": "图标风格"
+    "message": "圖示風格"
   },
   "settings_icon_hint": {
-    "message": "列表里的服务图标大小。"
+    "message": "列表中服務圖示的大小。"
   },
   "settings_icon_eyebrow": {
     "message": "icon · 2"
   },
   "settings_icon_elegant_label": {
-    "message": "大图标"
+    "message": "大圖示"
   },
   "settings_icon_elegant_hint": {
-    "message": "品牌图标放大做装饰"
+    "message": "品牌圖示放大作為裝飾"
   },
   "settings_icon_minimal_label": {
-    "message": "小图标"
+    "message": "小圖示"
   },
   "settings_icon_minimal_hint": {
-    "message": "统一尺寸，列表更紧凑"
+    "message": "統一尺寸，列表更緊湊"
   },
   "settings_preview_aria_label": {
-    "message": "实时预览"
+    "message": "即時預覽"
   },
   "settings_header_brand": {
     "message": "2FA Auth"
   },
   "settings_header_label": {
-    "message": "设置"
+    "message": "設定"
   },
   "otp_autofill_placeholder": {
-    "message": "请输入 $1"
+    "message": "請輸入 $1"
   },
   "otp_autofill_info_before": {
-    "message": "2FA 服务由 "
+    "message": "2FA 服務由 "
   },
   "otp_autofill_info_after": {
-    "message": " 扩展提供，感谢使用！(有效期：$1秒)"
+    "message": " 擴充功能提供，感謝使用！(有效期限：$1 秒)"
   },
   "otp_autofill_copied": {
-    "message": "已复制 $1 到剪贴板"
+    "message": "已複製 $1 到剪貼簿"
   },
   "intake_prompt_account_name": {
-    "message": "请输入 $1 的账号名称"
+    "message": "請輸入 $1 的帳號名稱"
   },
   "background_menu_issue": {
     "message": "Issues & 需求"
   },
   "background_menu_source": {
-    "message": "查看源码"
+    "message": "查看原始碼"
   },
   "background_menu_settings": {
-    "message": "设置"
+    "message": "設定"
   },
   "intake_warn_invalid_qr": {
-    "message": "检测到二维码，但其格式不符合 OTPAuth 规范"
+    "message": "已偵測到 QR 碼，但其格式不符合 OTPAuth 規範"
   },
   "intake_error_invalid_otpauth": {
-    "message": "无效的 OTP Auth URL"
+    "message": "無效的 OTP Auth URL"
   },
   "intake_error_file_read": {
-    "message": "无法读取文件：$1"
+    "message": "無法讀取檔案：$1"
   },
   "intake_error_prompt_account": {
-    "message": "请输入账号名称"
+    "message": "請輸入帳號名稱"
   },
   "intake_warn_account_exists": {
-    "message": "该账户已存在"
+    "message": "此帳號已存在"
   },
   "intake_success_added": {
-    "message": "$1 - $2 添加成功"
+    "message": "$1 - $2 新增成功"
   },
   "intake_error_add_failed": {
-    "message": "添加失败：$1"
+    "message": "新增失敗：$1"
   },
   "site_content_warning_missing_account": {
-    "message": "未拿到当前账号，QR 内容将缺失 account"
+    "message": "無法取得目前帳號，QR 內容將缺少 account 欄位"
   },
   "site_content_warning_invalid_qr": {
-    "message": "检测到二维码，但其格式【$1】不符合 OTPAuth 规范"
+    "message": "已偵測到 QR 碼，但其格式【$1】不符合 OTPAuth 規範"
   },
   "global_content_error_canvas": {
-    "message": "无法获取 Canvas 上下文"
+    "message": "無法取得 Canvas 內容"
   },
   "global_content_error_screenshot": {
-    "message": "截图失败"
+    "message": "截圖失敗"
   },
   "qr_decode_error_not_found": {
-    "message": "未找到二维码"
+    "message": "未找到 QR 碼"
   },
   "qr_decode_error_no_valid_qr": {
-    "message": "未找到有效的二维码"
+    "message": "未找到有效的 QR 碼"
   },
   "manual_scan_decode_failed": {
-    "message": "解析二维码失败：$1"
+    "message": "解析 QR 碼失敗：$1"
   }
 }

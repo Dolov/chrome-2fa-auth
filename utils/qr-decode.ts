@@ -19,9 +19,11 @@
 
 import type { QRCode } from "jsqr"
 
-/** 唯一允许出现的 jsQR 实例错误文案（翻译键与原 utils/helpers.ts 保持一致） */
-const CANVAS_CONTEXT_MISSING = "无法获取 Canvas 上下文"
-const QR_NOT_FOUND = "未找到二维码"
+import { i18n } from "~/utils/i18n"
+
+/** 解码失败时抛出的 i18n 错误文案（惰性取值，避免模块加载期读 chrome.i18n） */
+const canvasContextMissingError = () => new Error(i18n("global_content_error_canvas"))
+const qrNotFoundError = () => new Error(i18n("qr_decode_error_not_found"))
 
 /** 一条扫码结果 */
 export interface QRScanResult {
@@ -57,13 +59,13 @@ export const readFromCanvas = async (
   canvas: HTMLCanvasElement
 ): Promise<string> => {
   const ctx = canvas.getContext("2d")
-  if (!ctx) throw new Error(CANVAS_CONTEXT_MISSING)
+  if (!ctx) throw canvasContextMissingError()
 
   const decode = await loadDecoder()
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const code = decode(imageData.data, imageData.width, imageData.height)
 
-  if (!code) throw new Error(QR_NOT_FOUND)
+  if (!code) throw qrNotFoundError()
   return code.data
 }
 
@@ -71,7 +73,7 @@ export const readFromCanvas = async (
 export const readFromImage = async (img: HTMLImageElement): Promise<string> => {
   const canvas = document.createElement("canvas")
   const ctx = canvas.getContext("2d")
-  if (!ctx) throw new Error(CANVAS_CONTEXT_MISSING)
+  if (!ctx) throw canvasContextMissingError()
 
   canvas.width = img.width
   canvas.height = img.height
@@ -81,7 +83,7 @@ export const readFromImage = async (img: HTMLImageElement): Promise<string> => {
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
   const code = decode(imageData.data, imageData.width, imageData.height)
 
-  if (!code) throw new Error(QR_NOT_FOUND)
+  if (!code) throw qrNotFoundError()
   return code.data
 }
 
@@ -121,5 +123,5 @@ export const scanPage = async (): Promise<QRScanResult> => {
     }
   }
 
-  throw new Error("未找到有效的二维码")
+  throw new Error(i18n("qr_decode_error_no_valid_qr"))
 }

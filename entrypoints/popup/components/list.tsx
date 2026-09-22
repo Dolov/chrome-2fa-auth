@@ -7,6 +7,7 @@ import OtpRemaining from "./otp-remaining"
 import OtpText from "./otp-text"
 import { useOtpList } from "~/features/otp-store"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import type { DataProps } from "~/utils/types"
 
 import { PopupContext, type FilterType } from "./context"
@@ -52,7 +53,7 @@ const List: React.FC<ListProps> = (props) => {
       {filteredData.length === 0 && (
         <img
           src={noData}
-          alt="暂无账户"
+          alt={i18n("popup_list_empty_alt")}
           className="mt-14 w-full transition-transform duration-700 ease-in-out animate-pulse hover:scale-105"
         />
       )}
@@ -98,6 +99,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
           <div className="flex items-center">
             <span className="base-content font-medium text-lg">{issuer}</span>
             <button
+              data-testid="list-item-cog"
               className="btn btn-circle btn-ghost btn-sm ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               onClick={(e) => {
                 e.stopPropagation()
@@ -120,7 +122,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
             })}
           />
           <div>
-            <div className="base-content text-[0.6rem] text-right">下一个</div>
+            <div className="base-content text-[0.6rem] text-right">{i18n("popup_list_next_label")}</div>
             <OtpText
               next
               small

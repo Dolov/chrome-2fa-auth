@@ -4,6 +4,7 @@ import OptionCard from "./option-card"
 
 import Favicon from "~/components/favicons"
 import { useSettings } from "~/features/ui-state/use-settings"
+import { i18n } from "~/utils/i18n"
 import { FaviconType } from "~/utils/types"
 
 interface IconOption {
@@ -12,18 +13,28 @@ interface IconOption {
   value: FaviconType
 }
 
-const OPTIONS: IconOption[] = [
-  { hint: "品牌图标放大做装饰", label: "大图标", value: FaviconType.ELEGANT },
-  { hint: "统一尺寸，列表更紧凑", label: "小图标", value: FaviconType.MINIMAL }
-]
-
 const IconPicker: React.FC = () => {
   const [settings, patchSettings] = useSettings()
   const { faviconType } = settings
 
+  // label / hint 走 i18n；Card 预览里的 "GitHub" / "rachel.lumina" 是
+  // 视觉样板数据（与语言无关），保持原样。
+  const options: IconOption[] = [
+    {
+      hint: i18n("settings_icon_elegant_hint"),
+      label: i18n("settings_icon_elegant_label"),
+      value: FaviconType.ELEGANT
+    },
+    {
+      hint: i18n("settings_icon_minimal_hint"),
+      label: i18n("settings_icon_minimal_label"),
+      value: FaviconType.MINIMAL
+    }
+  ]
+
   return (
     <div className="flex flex-wrap gap-3">
-      {OPTIONS.map(({ hint, label, value }) => (
+      {options.map(({ hint, label, value }) => (
         <OptionCard
           key={value}
           name="favicon-type"

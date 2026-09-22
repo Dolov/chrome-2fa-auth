@@ -14,7 +14,7 @@ export default defineConfig({
     permissions: ["storage", "tabs", "scripting", "activeTab", "contextMenus"],
     host_permissions: ["https://*/*"],
     action: {
-      default_title: "2FA Auth - 现代化双因素认证工具"
+      default_title: "__MSG_appName__"
     },
     icons: {
       "16": "icon/16.png",

@@ -1,0 +1,280 @@
+{
+  "appName": {
+    "message": "2FA Auth - モダン二要素認証ツール",
+    "description": "拡張機能の表示名"
+  },
+  "appDescription": {
+    "message": "セキュリティと効率のために作られたオープンソースの無料 2FA 拡張機能。QR コードの自動スキャン、範囲指定スキャン、手動入力、QR アップロードに対応し、複数プラットフォームのアカウント管理をエレガントな UI と優れた操作性で実現します。",
+    "description": "Chrome ウェブストアに表示される拡張機能の説明"
+  },
+  "popup_header_title": {
+    "message": "2FA Auth"
+  },
+  "popup_header_search_placeholder": {
+    "message": "検索"
+  },
+  "popup_header_menu_all": {
+    "message": "すべて"
+  },
+  "popup_header_menu_deleted": {
+    "message": "削除済み"
+  },
+  "popup_header_menu_settings": {
+    "message": "設定"
+  },
+  "popup_list_empty_alt": {
+    "message": "アカウントがありません"
+  },
+  "popup_list_next_label": {
+    "message": "次回"
+  },
+  "popup_fab_form_tip": {
+    "message": "手動で認証コードを入力"
+  },
+  "popup_fab_qr_auto_tip": {
+    "message": "QR コードを自動スキャン"
+  },
+  "popup_fab_qr_manual_tip": {
+    "message": "QR コードを手動キャプチャ"
+  },
+  "popup_fab_qr_upload_tip": {
+    "message": "QR スクリーンショットをアップロード"
+  },
+  "popup_fab_manual_scan_fallback_msg": {
+    "message": "QR を検出できません — 手動キャプチャモードに切り替えます。ESC で終了。"
+  },
+  "popup_fab_manual_scan_msg": {
+    "message": "手動キャプチャモード — ESC で終了します。"
+  },
+  "popup_form_title": {
+    "message": "アカウントの詳細"
+  },
+  "popup_form_issuer_label": {
+    "message": "プラットフォーム"
+  },
+  "popup_form_issuer_placeholder": {
+    "message": "例: GitHub"
+  },
+  "popup_form_secret_label": {
+    "message": "シークレット"
+  },
+  "popup_form_secret_placeholder": {
+    "message": "例: JBSWY3DPEHPK3PXP"
+  },
+  "popup_form_account_label": {
+    "message": "アカウント"
+  },
+  "popup_form_account_placeholder": {
+    "message": "例: octocat"
+  },
+  "popup_form_remark_label": {
+    "message": "メモ"
+  },
+  "popup_form_remark_placeholder": {
+    "message": "例: アカウント種別、用途など"
+  },
+  "popup_modal_delete_soft_text": {
+    "message": "このアカウントを削除しますか？"
+  },
+  "popup_modal_delete_hard_text": {
+    "message": "このアカウントは完全に削除されます。続行しますか？"
+  },
+  "popup_modal_delete_ok": {
+    "message": "削除"
+  },
+  "popup_modal_recovery_title": {
+    "message": "リカバリーコード"
+  },
+  "popup_modal_qr_copy": {
+    "message": "コピー"
+  },
+  "popup_modal_qr_download": {
+    "message": "ダウンロード"
+  },
+  "popup_modal_upload_title": {
+    "message": "QR スクリーンショットをアップロード"
+  },
+  "popup_modal_upload_paste_hint": {
+    "message": "スクリーンショットを直接貼り付けることもできます。"
+  },
+  "popup_modal_upload_account_placeholder": {
+    "message": "アカウント名"
+  },
+  "popup_modal_upload_invalid_error": {
+    "message": "無効な OTP Auth URL です"
+  },
+  "popup_item_action_share": {
+    "message": "共有"
+  },
+  "popup_item_action_pin": {
+    "message": "ピン留め"
+  },
+  "popup_item_action_unpin": {
+    "message": "解除"
+  },
+  "popup_item_action_qr": {
+    "message": "QR"
+  },
+  "popup_item_action_edit": {
+    "message": "編集"
+  },
+  "popup_item_action_recovery": {
+    "message": "コード"
+  },
+  "popup_item_action_restore": {
+    "message": "復元"
+  },
+  "popup_item_action_delete": {
+    "message": "削除"
+  },
+  "popup_item_action_close": {
+    "message": "キャンセル"
+  },
+  "popup_item_action_share_title": {
+    "message": "$1 の 2FA 設定"
+  },
+  "common_action_confirm": {
+    "message": "確認"
+  },
+  "common_action_close": {
+    "message": "閉じる"
+  },
+  "common_toast_copied": {
+    "message": "コピーしました"
+  },
+  "common_toast_restored": {
+    "message": "復元しました"
+  },
+  "common_toast_share_link_copied": {
+    "message": "共有リンクをコピーしました"
+  },
+  "common_toast_saved": {
+    "message": "保存しました"
+  },
+  "recovery_prompt_saved": {
+    "message": "リカバリーコードを 2FA Auth に保存しました"
+  },
+  "recovery_prompt_unsaved": {
+    "message": "クリックして $1 — $2 のリカバリーコードを 2FA Auth に保存"
+  },
+  "settings_theme_title": {
+    "message": "テーマ"
+  },
+  "settings_theme_hint": {
+    "message": "配色を切り替えると、ページとプレビューが同時に更新されます。"
+  },
+  "settings_theme_eyebrow": {
+    "message": "theme · 32"
+  },
+  "settings_frame_title": {
+    "message": "ウィンドウサイズ"
+  },
+  "settings_frame_hint": {
+    "message": "デフォルトは通常パネル。スマートフォン型はフレームが追加されます。"
+  },
+  "settings_frame_eyebrow": {
+    "message": "frame · 2"
+  },
+  "settings_frame_standard": {
+    "message": "標準"
+  },
+  "settings_frame_phone": {
+    "message": "スマートフォン"
+  },
+  "settings_icon_title": {
+    "message": "アイコンスタイル"
+  },
+  "settings_icon_hint": {
+    "message": "リスト内のサービスアイコンのサイズ。"
+  },
+  "settings_icon_eyebrow": {
+    "message": "icon · 2"
+  },
+  "settings_icon_elegant_label": {
+    "message": "大"
+  },
+  "settings_icon_elegant_hint": {
+    "message": "ブランドアイコンを大きく表示して装飾に"
+  },
+  "settings_icon_minimal_label": {
+    "message": "小"
+  },
+  "settings_icon_minimal_hint": {
+    "message": "サイズを統一してリストをコンパクトに"
+  },
+  "settings_preview_aria_label": {
+    "message": "ライブプレビュー"
+  },
+  "settings_header_brand": {
+    "message": "2FA Auth"
+  },
+  "settings_header_label": {
+    "message": "設定"
+  },
+  "otp_autofill_placeholder": {
+    "message": "$1 を入力"
+  },
+  "otp_autofill_info_before": {
+    "message": "2FA サービスは "
+  },
+  "otp_autofill_info_after": {
+    "message": " 拡張機能が提供しています。ご利用ありがとうございます！(有効期限: $1 秒)"
+  },
+  "otp_autofill_copied": {
+    "message": "$1 をクリップボードにコピーしました"
+  },
+  "intake_prompt_account_name": {
+    "message": "$1 のアカウント名を入力してください"
+  },
+  "background_menu_issue": {
+    "message": "Issues & フィードバック"
+  },
+  "background_menu_source": {
+    "message": "ソースを表示"
+  },
+  "background_menu_settings": {
+    "message": "設定"
+  },
+  "intake_warn_invalid_qr": {
+    "message": "QR を検出しましたが、形式が OTPAuth 仕様に準拠していません"
+  },
+  "intake_error_invalid_otpauth": {
+    "message": "無効な OTP Auth URL です"
+  },
+  "intake_error_file_read": {
+    "message": "ファイルを読み込めません: $1"
+  },
+  "intake_error_prompt_account": {
+    "message": "アカウント名を入力してください"
+  },
+  "intake_warn_account_exists": {
+    "message": "このアカウントは既に存在します"
+  },
+  "intake_success_added": {
+    "message": "$1 — $2 を追加しました"
+  },
+  "intake_error_add_failed": {
+    "message": "アカウントを追加できません: $1"
+  },
+  "site_content_warning_missing_account": {
+    "message": "現在のアカウントを取得できませんでした — QR に account フィールドが含まれません"
+  },
+  "site_content_warning_invalid_qr": {
+    "message": "QR を検出しましたが、形式 [$1] が OTPAuth 仕様に準拠していません"
+  },
+  "global_content_error_canvas": {
+    "message": "Canvas コンテキストを取得できません"
+  },
+  "global_content_error_screenshot": {
+    "message": "スクリーンショットに失敗しました"
+  },
+  "qr_decode_error_not_found": {
+    "message": "QR コードが見つかりません"
+  },
+  "qr_decode_error_no_valid_qr": {
+    "message": "有効な QR コードが見つかりません"
+  },
+  "manual_scan_decode_failed": {
+    "message": "QR コードの解析に失敗しました: $1"
+  }
+}

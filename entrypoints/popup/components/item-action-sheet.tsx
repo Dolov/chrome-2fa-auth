@@ -16,6 +16,7 @@ import message from "~/features/page-ui/toast"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { generateOtpAuthUrl } from "~/utils/libs/otpauth"
 import type { DataProps } from "~/utils/types"
 
@@ -56,14 +57,14 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
   // 恢复已删除的条目
   const handleRestore = async () => {
     await restore(itemData.id)
-    message.success("已恢复")
+    message.success(i18n("common_toast_restored"))
     onClose()
   }
 
   const handleShare = async () => {
     const url = generateOtpAuthUrl(itemData)
     const shareData = {
-      title: `${itemData.issuer} 的 2FA 配置`,
+      title: i18n("popup_item_action_share_title", itemData.issuer),
       text: url
     }
 
@@ -78,7 +79,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
     }
 
     await copyTextToClipboardV2(url)
-    message.success("已复制分享链接")
+    message.success(i18n("common_toast_share_link_copied"))
   }
 
   const handlePin = async () => {
@@ -122,7 +123,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
       />
       <RecoveryCodesModal
         data={itemData}
-        title="恢复密钥"
+        title={i18n("popup_modal_recovery_title")}
         isVisible={modals.isOpen("recovery")}
         onClose={() => {
           modals.close("recovery")
@@ -154,28 +155,31 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
           {!deleted && (
             <button
               onClick={handleShare}
+              data-testid="item-action-share"
               className="btn btn-ghost px-2 hover:text-primary">
               <div className="flex flex-col items-center justify-center gap-1">
                 <Share2 size={18} />
-                <span className="text-xs font-normal">分享</span>
+                <span className="text-xs font-normal">{i18n("popup_item_action_share")}</span>
               </div>
             </button>
           )}
           {!deleted && (
             <button
               onClick={handlePin}
+              data-testid="item-action-pin"
+              data-pin-state={pinned ? "pinned" : "unpinned"}
               className="btn btn-ghost px-2 hover:text-secondary">
               <div className="flex flex-col items-center justify-center gap-1">
                 {!pinned && (
                   <Fragment>
                     <Pin size={18} />
-                    <span className="text-xs font-normal">置顶</span>
+                    <span className="text-xs font-normal">{i18n("popup_item_action_pin")}</span>
                   </Fragment>
                 )}
                 {pinned && (
                   <Fragment>
                     <PinOff size={18} />
-                    <span className="text-xs font-normal">取消</span>
+                    <span className="text-xs font-normal">{i18n("popup_item_action_unpin")}</span>
                   </Fragment>
                 )}
               </div>
@@ -183,48 +187,53 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
           )}
           <button
             onClick={() => modals.open("qr")}
+            data-testid="item-action-qr"
             className="btn btn-ghost px-2 hover:text-accent">
             <div className="flex flex-col items-center justify-center gap-1">
               <QrCode size={18} />
-              <span className="text-xs font-normal">二维码</span>
+              <span className="text-xs font-normal">{i18n("popup_item_action_qr")}</span>
             </div>
           </button>
           {!deleted && (
             <button
               onClick={() => modals.open("edit")}
+              data-testid="item-action-edit"
               className="btn btn-ghost px-2 hover:text-info">
               <div className="flex flex-col items-center justify-center gap-1">
                 <Pencil size={18} />
-                <span className="text-xs font-normal">编辑</span>
+                <span className="text-xs font-normal">{i18n("popup_item_action_edit")}</span>
               </div>
             </button>
           )}
           {isRecoveryButtonVisible && (
             <button
               onClick={() => modals.open("recovery")}
+              data-testid="item-action-recovery"
               className="btn btn-ghost px-2 hover:text-success">
               <div className="flex flex-col items-center justify-center gap-1">
                 <KeyRound size={18} />
-                <span className="text-xs font-normal">恢复码</span>
+                <span className="text-xs font-normal">{i18n("popup_item_action_recovery")}</span>
               </div>
             </button>
           )}
           {deleted && (
             <button
               onClick={handleRestore}
+              data-testid="item-action-restore"
               className="btn btn-ghost px-2 hover:text-info">
               <div className="flex flex-col items-center justify-center gap-1">
                 <History size={18} />
-                <span className="text-xs font-normal">恢复</span>
+                <span className="text-xs font-normal">{i18n("popup_item_action_restore")}</span>
               </div>
             </button>
           )}
           <button
             onClick={() => modals.open("delete")}
+            data-testid="item-action-delete"
             className="btn btn-ghost px-2 hover:text-error">
             <div className="flex flex-col items-center justify-center gap-1">
               <Trash2 size={18} />
-              <span className="text-xs font-normal">删除</span>
+              <span className="text-xs font-normal">{i18n("popup_item_action_delete")}</span>
             </div>
           </button>
         </div>
@@ -233,8 +242,11 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
             <FaviconMinimal issuer={issuer} />
             {account && <span>{account}</span>}
           </div>
-          <button onClick={closeAll} className="btn btn-sm btn-ghost">
-            取消
+          <button
+            onClick={closeAll}
+            data-testid="item-action-close"
+            className="btn btn-sm btn-ghost">
+            {i18n("popup_item_action_close")}
           </button>
         </div>
       </div>

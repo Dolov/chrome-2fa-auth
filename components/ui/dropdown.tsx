@@ -25,6 +25,8 @@ export interface DropdownMenu {
   label: ReactNode
   disabled?: boolean
   onClick?: () => void
+  /** 透传到 button 的 data-testid，便于 E2E 在 i18n 下稳定断言 */
+  testId?: string
 }
 
 export interface DropdownProps {
@@ -88,6 +90,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           <li key={item.key}>
             <button
               type="button"
+              data-testid={item.testId}
               disabled={item.disabled}
               onClick={() => {
                 if (item.disabled) return

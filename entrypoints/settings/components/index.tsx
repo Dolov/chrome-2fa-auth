@@ -8,6 +8,7 @@ import SectionHeader from "./section-header"
 import ThemeGrid from "./theme-grid"
 
 import { useSettings } from "~/features/ui-state/use-settings"
+import { i18n } from "~/utils/i18n"
 
 /**
  * 设置页 = 一张校准台。
@@ -31,25 +32,25 @@ const SettingsPage: React.FC = () => {
         <div className="flex flex-col gap-12 px-4 pt-8 pb-12 sm:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-10 lg:pb-16">
           <section>
             <SectionHeader
-              hint="换一套配色，页面与右侧预览同时切换。"
-              title="主题"
-              eyebrow="theme · 32"
+              hint={i18n("settings_theme_hint")}
+              title={i18n("settings_theme_title")}
+              eyebrow={i18n("settings_theme_eyebrow")}
             />
             <ThemeGrid />
           </section>
           <section>
             <SectionHeader
-              hint="弹出面板是默认形态；手机外形多一圈机身。"
-              title="界面尺寸"
-              eyebrow="frame · 2"
+              hint={i18n("settings_frame_hint")}
+              title={i18n("settings_frame_title")}
+              eyebrow={i18n("settings_frame_eyebrow")}
             />
             <FramePicker />
           </section>
           <section>
             <SectionHeader
-              hint="列表里的服务图标大小。"
-              title="图标风格"
-              eyebrow="icon · 2"
+              hint={i18n("settings_icon_hint")}
+              title={i18n("settings_icon_title")}
+              eyebrow={i18n("settings_icon_eyebrow")}
             />
             <IconPicker />
           </section>

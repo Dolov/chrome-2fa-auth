@@ -6,6 +6,7 @@ import OtpText from "./otp-text"
 import Modal from "~/components/ui/modal"
 import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { ContainerType } from "~/utils/types"
 
@@ -23,7 +24,11 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
   const { containerType } = React.useContext(PopupContext)
   const intake = usePopupIntake()
 
-  const [error, setError] = React.useState<string | null>(null)
+  // kind 供 E2E 区分错误分支（文案会随 i18n / 调整变化，不作为断言依据）
+  const [error, setError] = React.useState<{
+    kind: "file-read" | "invalid-otpauth" | "parse"
+    message: string
+  } | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
@@ -63,12 +68,21 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     try {
       data = await readFromFile(file)
     } catch (e) {
-      setError(`无法读取文件：${e instanceof Error ? e.message : String(e)}`)
+      setError({
+        kind: "file-read",
+        message: i18n(
+          "intake_error_file_read",
+          e instanceof Error ? e.message : String(e)
+        )
+      })
       return
     }
 
     if (!isOtpAuthUrl(data)) {
-      setError("无效的 OTP Auth URL")
+      setError({
+        kind: "invalid-otpauth",
+        message: i18n("popup_modal_upload_invalid_error")
+      })
       return
     }
 
@@ -76,7 +90,10 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       const parsed = parseOtpAuthUrl(data)
       setPreview(parsed)
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      setError({
+        kind: "parse",
+        message: e instanceof Error ? e.message : String(e)
+      })
     }
   }
 
@@ -134,11 +151,12 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
 
   return (
     <Modal
+      testId="upload-modal"
       width={width}
       title={
         <div className="flex items-center gap-2">
           <ImageUp size={18} />
-          <span>上传二维码截图</span>
+          <span>{i18n("popup_modal_upload_title")}</span>
         </div>
       }
       isVisible={isVisible}
@@ -149,20 +167,22 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
         <input
           ref={fileInputRef}
           type="file"
+          data-testid="upload-file-input"
           accept="image/*"
           onChange={handleUploadChange}
           className="file-input file-input-bordered file-input-neutral w-full max-w-xs"
         />
       </div>
       <div className="p-2">
-        <p className="text-sm text-neutral-500">你也可以直接粘贴截图</p>
+        <p className="text-sm text-neutral-500">{i18n("popup_modal_upload_paste_hint")}</p>
         {!account && preview?.secret && (
           <label className="input input-bordered flex items-center mt-6">
             <input
               autoFocus
               type="text"
+              data-testid="upload-account-input"
               className="grow"
-              placeholder="输入账户名称"
+              placeholder={i18n("popup_modal_upload_account_placeholder")}
               value={accountName}
               onKeyDown={handleEnter}
               onChange={(e) => {
@@ -173,6 +193,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
         )}
         {preview && (
           <div
+            data-testid="upload-preview"
             className={cn({ "mt-4": containerType !== ContainerType.PHONE })}>
             <OtpRemaining period={preview.period} />
             <OtpText
@@ -184,7 +205,11 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
         )}
       </div>
       {error && (
-        <div role="alert" className="alert alert-warning flex mb-2">
+        <div
+          role="alert"
+          data-testid="upload-error"
+          data-upload-error={error.kind}
+          className="alert alert-warning flex mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
@@ -197,7 +222,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
           </svg>
-          <span className="align-left">{error}</span>
+          <span className="align-left">{error.message}</span>
         </div>
       )}
     </Modal>

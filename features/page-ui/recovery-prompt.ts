@@ -1,6 +1,7 @@
 import message from "./toast"
 import type { DataProps } from "~/utils/types"
 import { isRecoveryCodesSaved, saveOTP } from "~/features/otp-store/store"
+import { i18n } from "~/utils/i18n"
 import { createGradientTextContainer } from "./gradient-border"
 
 /** 恢复码提示的配置项 */
@@ -26,7 +27,7 @@ export const displayRecoveryCodeSaveMessage = async (
   element.insertAdjacentElement("afterend", container)
 
   const saved = await isRecoveryCodesSaved(parsedData)
-  const savedText = `恢复码已成功保存到 github-2fa 扩展`
+  const savedText = i18n("recovery_prompt_saved")
 
   if (saved) {
     textElement.textContent = savedText
@@ -34,12 +35,12 @@ export const displayRecoveryCodeSaveMessage = async (
   }
 
   const { account, issuer } = parsedData
-  textElement.textContent = `点击将 ${issuer} - ${account} 的恢复码保存到 github-2fa 扩展`
+  textElement.textContent = i18n("recovery_prompt_unsaved", [issuer, account])
   textElement.style.cursor = "pointer"
   container.addEventListener("click", async () => {
     await saveOTP(parsedData)
     textElement.textContent = savedText
-    message.success("保存成功")
+    message.success(i18n("common_toast_saved"))
   })
   return () => container.remove()
 }

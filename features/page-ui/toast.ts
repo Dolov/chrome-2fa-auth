@@ -44,6 +44,9 @@ const showMessage = (
   node.style.zIndex = `${contentBaseZindex + 1}`
   node.style.backgroundColor = COLORS[type]
   node.textContent = text
+  // 暴露 testid + 类型，便于 E2E 黑盒断言（i18n 时只断言 kind，文本会变）
+  node.setAttribute("data-testid", "toast")
+  node.setAttribute("data-testid-toast-kind", type)
 
   document.body.appendChild(node)
 

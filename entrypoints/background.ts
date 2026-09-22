@@ -2,6 +2,7 @@ import type { Browser } from "wxt/browser"
 
 import { ActionType } from "~/utils/types"
 import { registerRuntimeHandler } from "~/features/messaging"
+import { i18n } from "~/utils/i18n"
 
 /** 右键菜单项：extra action 在 onClicked 时调用 */
 type MenuItem = Browser.contextMenus.CreateProperties & {
@@ -14,7 +15,7 @@ type MenuItem = Browser.contextMenus.CreateProperties & {
 const menuList: MenuItem[] = [
   {
     id: "issue",
-    title: "Issues & 需求",
+    title: i18n("background_menu_issue"),
     contexts: ["action"],
     action() {
       browser.tabs.create({
@@ -24,7 +25,7 @@ const menuList: MenuItem[] = [
   },
   {
     id: "source",
-    title: "查看源码",
+    title: i18n("background_menu_source"),
     contexts: ["action"],
     action() {
       browser.tabs.create({
@@ -34,7 +35,7 @@ const menuList: MenuItem[] = [
   },
   {
     id: "settings",
-    title: "设置",
+    title: i18n("background_menu_settings"),
     contexts: ["action"],
     action() {
       browser.tabs.create({

@@ -25,7 +25,7 @@ e2e/
 │   ├── 08-github.spec.ts     # F8 GitHub 集成
 │   ├── 09-npm.spec.ts        # F9 NPM 集成
 │   ├── 10-settings.spec.ts   # F10 设置页
-│   ├── 11-toast.spec.ts      # F11 Toast
+│   ├── 11-toast.spec.ts      # F11 Toast — 删（F11 不实现）
 │   └── 12-background.spec.ts # F12 Background & 迁移
 └── artifacts/                # 测试产物（gitignore）
     └── .gitkeep
@@ -53,7 +53,45 @@ e2e/
 - **时间控制**：用 `page.clock.install()` 控制 fake 时钟；或容忍 ±1s
 - **摄像头 / 选区**：用 `fakeMediaStream` 注入视频流；手动截图选区用 `page.mouse.down/move/up`
 
-## 3. Spec 清单（93 条）
+### 断言策略（核心原则：只关注功能）
+
+> E2E 只验证**功能行为**——文案 / 颜色 / 动效是样式层，进 e2e 是过度测试。
+> 这条原则与「i18n 上线」「主题切换」无关——文案和颜色无论如何都会被调整。
+
+- **✅ 测**（功能层）
+  - 列表项数变化（filter / 搜索 / 增删改后）
+  - OTP 数值（otplib 期望值对比）
+  - progress.value / remaining 秒数 / max
+  - 剪贴板内容（OTP / otpauth URL / 恢复码 value）
+  - 下载事件触发 + `suggestedFilename`
+  - dropdown / modal 打开状态
+  - 表单提交后 list 数据更新 / 持久化层 storage
+  - `chrome.storage.sync` 持久化
+
+- **❌ 不测**（样式 / 文案层）
+  - **UI 文案**：placeholder / 按钮文字 / 弹层标题 / 表单 label / toast 文本
+  - **具体色值**：`rgb(...)` / `getComputedStyle().backgroundColor` 验具体色值
+  - **动效**：`opacity-0 → opacity-100` 的过渡、toast 3s 自动消失、堆叠动画
+
+- **✅ 保留**（daisyUI 语义 className）
+  - `bg-base-300` / `shadow-lg` / `progress-primary|warning|error` /
+    `badge-accent|ghost|secondary` / `animate-pulse` / `line-through`
+  - 理由：这些是**状态分类 token**（主题色切换只改 CSS 变量，不改类名），
+    与具体颜色解耦。
+
+- **定位稳定性**：核心交互元素（菜单 / FAB / 弹层 / ItemActionSheet 各按钮 / 进度条 / OTP）
+  统一用 `data-testid` 定位。`data-tip` 是文案属性，仅为兼容 `07-qr-scan.spec.ts` 保留。
+
+- **假设契约**（被打破时同步更新）：
+  - popup 文案当前未接 i18n 框架（`chrome.i18n` 仅用于扩展元数据 `appName` / `appDescription`）；
+    未来 i18n 重构时组件加 `data-i18n-key`，spec 不需要大改。
+  - 默认 `data-theme="light"`；切主题不影响 className，spec 无需调整。
+
+- **不属于 popup e2e 范围**：
+  - **F11 toast（Case 77-80）不实现**——颜色 / 消失 / 堆叠全是样式层。
+  - toast 节点的 `data-testid="toast"` + `data-testid-toast-kind` 保留，供其他 case 定位 toast 出现。
+
+## 3. Spec 清单（89 条，F11 4 条删除）
 
 > 格式：`<file> > <describe> > <it>`。优先级 P0 = 必须 / P1 = 重要 / P2 = 边界
 
@@ -196,14 +234,17 @@ e2e/
 | 75 | P1 | `settings > 选择持久化` | `关再开 → 选择保留` |
 | 76 | P1 | `settings > title` | `document.title 为 chrome.i18n.getMessage("extensionName")` |
 
-### F11. Toast → `11-toast.spec.ts`
+### F11. Toast → **不实现**
+
+> 按 §2 「断言策略」原则——toast 是样式层（颜色 / 消失 / 堆叠全是 UI 反馈层），
+> 不进 popup e2e。F12 Case 93 的 `chrome.i18n` 验证仍保留在 Background 范畴。
 
 | # | 优先级 | describe/it | Case |
 |---|---|---|---|
-| 77 | P0 | `toast > 4 种类型` | `success/error/info/warning 颜色 + 文字` |
-| 78 | P0 | `toast > 自动消失` | `默认 3s 消失` |
-| 79 | P1 | `toast > 自定义 duration` | `10s 按设定消失` |
-| 80 | P2 | `toast > 多条堆叠` | `多条同时显示` |
+| ~~77~~ | ~~P0~~ | ~~`toast > 4 种类型`~~ | ~~`success/error/info/warning 颜色 + 文字`~~ |
+| ~~78~~ | ~~P0~~ | ~~`toast > 自动消失`~~ | ~~`默认 3s 消失`~~ |
+| ~~79~~ | ~~P1~~ | ~~`toast > 自定义 duration`~~ | ~~`10s 按设定消失`~~ |
+| ~~80~~ | ~~P2~~ | ~~`toast > 多条堆叠`~~ | ~~`多条同时显示`~~ |
 
 ### F12. Background & 迁移 → `12-background.spec.ts`
 
@@ -239,7 +280,7 @@ e2e/
 | 基建 | `playwright.config.ts` + `fixtures/*` + hello-popup | 1 天 | hello-popup 跑通 |
 | P0 第 1 批 | `01/02/03/04/05/06-popup, header, list, crud, otp, recovery` (Case 1-41) | 1.5 天 | 全绿 |
 | P0 第 2 批 | `07-qr-scan` (Case 42-49) + `08-github` (56-63) + `09-npm` (65-69) | 2 天 | 全绿 |
-| P0 第 3 批 | `10-settings` (71-74) + `11-toast` (77-78) + `12-background` (81-88) | 1 天 | 全绿 |
+| P0 第 3 批 | `10-settings` (71-74) + `12-background` (81-88) | 1 天 | 全绿 |
 | P1 收尾 | P1 所有剩余 case (29 条) | 1.5 天 | 全绿 |
 | P2 + CI | P2 (9 条) + `.github/workflows/ci.yml` + README | 1 天 | CI 跑通 |
 

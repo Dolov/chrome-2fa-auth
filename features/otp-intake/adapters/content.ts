@@ -1,5 +1,6 @@
 import { dataStore } from "~/features/otp-store/store"
 import { addOtp } from "~/features/otp-store/otp-crud"
+import { i18n } from "~/utils/i18n"
 import type { OtpAuthConfig } from "~/utils/types"
 import message from "~/features/page-ui/toast"
 
@@ -51,7 +52,8 @@ export const createContentIntake = (opts: {
   const writer = createContentWriter()
   const account: IntakeAccountResolver = {
     promptAccount:
-      opts.promptAccount ?? (async (issuer) => window.prompt(`请输入 ${issuer} 的账号名称`)),
+      opts.promptAccount ??
+      (async (issuer) => window.prompt(i18n("intake_prompt_account_name", issuer))),
     hintAccount: opts.hintAccount
   }
 

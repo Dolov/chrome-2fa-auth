@@ -2,6 +2,7 @@ import React from "react"
 
 import Main from "~/entrypoints/popup/components"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { ContainerType } from "~/utils/types"
 
 interface PreviewProps {
@@ -22,7 +23,7 @@ const Preview: React.FC<PreviewProps> = (props) => {
 
   return (
     <aside
-      aria-label="实时预览"
+      aria-label={i18n("settings_preview_aria_label")}
       className="shrink-0 px-4 pb-16 sm:px-6 lg:w-[440px] lg:overflow-y-auto lg:border-l lg:border-base-300 lg:px-6 lg:py-6">
       <div
         className={cn("mx-auto w-fit overflow-hidden", {

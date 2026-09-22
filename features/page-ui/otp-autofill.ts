@@ -1,6 +1,7 @@
 import message from "./toast"
 import { copyTextToClipboard } from "~/utils/clipboard"
 import { CSS_PREFIX, mountStyle } from "./css-portal"
+import { i18n } from "~/utils/i18n"
 import { generateOtp, getRemainingTime } from "~/utils/libs/totp"
 import { createGradientTextContainer } from "./gradient-border"
 import type { OtpAuthConfig } from "~/utils/types"
@@ -66,7 +67,7 @@ export const startOtpMessageUpdater = (
     const otp = generateOtp(config.secret, config)
 
     if (autoFill && placeholder) {
-      input.placeholder = `请输入 ${otp}`
+      input.placeholder = i18n("otp_autofill_placeholder", otp)
     }
     if (autoFill && !placeholder) {
       input.value = otp
@@ -78,11 +79,7 @@ export const startOtpMessageUpdater = (
 
     const infoHtml = `
       <div style="text-align:center;">
-        2FA 服务由
-        <a class="${CSS_PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">
-          github-2fa
-        </a>
-        扩展提供，感谢使用！(有效期：${timeRemaining}秒)
+        ${i18n("otp_autofill_info_before")}<a class="${CSS_PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">github-2fa</a>${i18n("otp_autofill_info_after", String(timeRemaining))}
       </div>
     `
 
@@ -93,7 +90,7 @@ export const startOtpMessageUpdater = (
   container.addEventListener("click", () => {
     const code = generateOtp(config.secret, config)
     copyTextToClipboard(code)
-    message.success(`已复制 ${code} 到剪贴板`)
+    message.success(i18n("otp_autofill_copied", code))
   })
 
   const intervalId = setInterval(updateOtpMessage, 1000)

@@ -48,7 +48,9 @@ const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
 
   return (
     <Modal title={title} width={width} isVisible={isVisible} onClose={onClose}>
-      <div className="grid grid-cols-2 gap-3">
+      <div
+        data-testid="recovery-codes-modal"
+        className="grid grid-cols-2 gap-3">
         {recoveryCodes.map((item, index) => {
           const { value, copied } = item
           const isCopying = copiedCode === value
@@ -56,6 +58,8 @@ const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
           return (
             <div
               key={`${value}-${index}`}
+              data-testid="recovery-code"
+              data-copied={copied ? "true" : "false"}
               onClick={() => handleCopy(value)}
               className={cn(
                 "badge w-full flex items-center justify-between px-3 py-2",

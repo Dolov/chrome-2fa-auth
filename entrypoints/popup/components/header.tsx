@@ -5,6 +5,7 @@ import Dropdown from "~/components/ui/dropdown"
 import { useOtpList } from "~/features/otp-store"
 import { openSettingsPage } from "~/features/runtime/open-settings"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { ContainerType } from "~/utils/types"
 
 import { PopupContext } from "./context"
@@ -45,9 +46,10 @@ const Header: React.FC<HeaderProps> = (props) => {
     if (filter === "deleted") {
       items.push({
         key: "all",
+        testId: "header-menu-all",
         label: (
           <div>
-            全部
+            {i18n("popup_header_menu_all")}
             <div className="badge badge-primary ml-2">{normalCount}</div>
           </div>
         ),
@@ -58,9 +60,10 @@ const Header: React.FC<HeaderProps> = (props) => {
     if (filter === "normal" && deletedCount > 0) {
       items.push({
         key: "deleted",
+        testId: "header-menu-deleted",
         label: (
           <div>
-            已删除
+            {i18n("popup_header_menu_deleted")}
             <div className="badge badge-neutral ml-2">{deletedCount}</div>
           </div>
         ),
@@ -70,7 +73,8 @@ const Header: React.FC<HeaderProps> = (props) => {
 
     items.push({
       key: "settings",
-      label: "设置",
+      testId: "header-menu-settings",
+      label: i18n("popup_header_menu_settings"),
       onClick: openSettingsPage
     })
 
@@ -85,6 +89,7 @@ const Header: React.FC<HeaderProps> = (props) => {
       <Dropdown trigger="hover" menus={menuItems}>
         <button
           className="btn btn-sm btn-circle btn-ghost relative"
+          data-testid="header-menu-trigger"
           tabIndex={0}>
           {isDeletedFilter && (
             <div>
@@ -101,17 +106,19 @@ const Header: React.FC<HeaderProps> = (props) => {
         {isSearching && (
           <input
             autoFocus
+            data-testid="header-search-input"
             className="input input-sm input-ghost border-none !outline-none"
-            placeholder="搜索"
+            placeholder={i18n("popup_header_search_placeholder")}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
         )}
-        {!isSearching && <span>2FA Auth</span>}
+        {!isSearching && <span>{i18n("popup_header_title")}</span>}
       </div>
       <div className="flex justify-end">
         <button
           onClick={handleSearch}
+          data-testid="header-search-toggle"
           className="btn btn-ghost btn-sm btn-circle">
           {isSearching && <X size={20} />}
           {!isSearching && <Search size={20} />}

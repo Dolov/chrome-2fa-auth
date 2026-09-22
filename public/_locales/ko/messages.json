@@ -1,0 +1,280 @@
+{
+  "appName": {
+    "message": "2FA Auth - 모던 2단계 인증 도구",
+    "description": "확장 프로그램 표시 이름"
+  },
+  "appDescription": {
+    "message": "보안과 효율을 위해 만들어진 오픈소스 무료 2FA 확장 프로그램. QR 코드 자동 스캔, 영역 스캔, 수동 입력, QR 업로드를 지원하며, 여러 플랫폼의 계정을 우아한 UI와 매끄러운 사용 경험으로 관리할 수 있습니다.",
+    "description": "Chrome 웹 스토어에 표시되는 확장 프로그램 설명"
+  },
+  "popup_header_title": {
+    "message": "2FA Auth"
+  },
+  "popup_header_search_placeholder": {
+    "message": "검색"
+  },
+  "popup_header_menu_all": {
+    "message": "전체"
+  },
+  "popup_header_menu_deleted": {
+    "message": "삭제됨"
+  },
+  "popup_header_menu_settings": {
+    "message": "설정"
+  },
+  "popup_list_empty_alt": {
+    "message": "계정이 없습니다"
+  },
+  "popup_list_next_label": {
+    "message": "다음"
+  },
+  "popup_fab_form_tip": {
+    "message": "인증 코드 수동 입력"
+  },
+  "popup_fab_qr_auto_tip": {
+    "message": "QR 코드 자동 스캔"
+  },
+  "popup_fab_qr_manual_tip": {
+    "message": "QR 코드 수동 캡처"
+  },
+  "popup_fab_qr_upload_tip": {
+    "message": "QR 스크린샷 업로드"
+  },
+  "popup_fab_manual_scan_fallback_msg": {
+    "message": "QR을 감지하지 못했습니다 — 수동 캡처 모드로 전환합니다. ESC로 종료."
+  },
+  "popup_fab_manual_scan_msg": {
+    "message": "수동 캡처 모드 — ESC로 종료합니다."
+  },
+  "popup_form_title": {
+    "message": "계정 세부 정보"
+  },
+  "popup_form_issuer_label": {
+    "message": "플랫폼"
+  },
+  "popup_form_issuer_placeholder": {
+    "message": "예: GitHub"
+  },
+  "popup_form_secret_label": {
+    "message": "비밀 키"
+  },
+  "popup_form_secret_placeholder": {
+    "message": "예: JBSWY3DPEHPK3PXP"
+  },
+  "popup_form_account_label": {
+    "message": "계정"
+  },
+  "popup_form_account_placeholder": {
+    "message": "예: octocat"
+  },
+  "popup_form_remark_label": {
+    "message": "메모"
+  },
+  "popup_form_remark_placeholder": {
+    "message": "예: 계정 종류, 용도 등"
+  },
+  "popup_modal_delete_soft_text": {
+    "message": "이 계정을 삭제하시겠습니까?"
+  },
+  "popup_modal_delete_hard_text": {
+    "message": "이 계정은 영구적으로 삭제됩니다. 계속하시겠습니까?"
+  },
+  "popup_modal_delete_ok": {
+    "message": "삭제"
+  },
+  "popup_modal_recovery_title": {
+    "message": "복구 코드"
+  },
+  "popup_modal_qr_copy": {
+    "message": "복사"
+  },
+  "popup_modal_qr_download": {
+    "message": "다운로드"
+  },
+  "popup_modal_upload_title": {
+    "message": "QR 스크린샷 업로드"
+  },
+  "popup_modal_upload_paste_hint": {
+    "message": "스크린샷을 직접 붙여넣을 수도 있습니다."
+  },
+  "popup_modal_upload_account_placeholder": {
+    "message": "계정 이름"
+  },
+  "popup_modal_upload_invalid_error": {
+    "message": "잘못된 OTP Auth URL입니다"
+  },
+  "popup_item_action_share": {
+    "message": "공유"
+  },
+  "popup_item_action_pin": {
+    "message": "고정"
+  },
+  "popup_item_action_unpin": {
+    "message": "해제"
+  },
+  "popup_item_action_qr": {
+    "message": "QR"
+  },
+  "popup_item_action_edit": {
+    "message": "편집"
+  },
+  "popup_item_action_recovery": {
+    "message": "복구 코드"
+  },
+  "popup_item_action_restore": {
+    "message": "복원"
+  },
+  "popup_item_action_delete": {
+    "message": "삭제"
+  },
+  "popup_item_action_close": {
+    "message": "취소"
+  },
+  "popup_item_action_share_title": {
+    "message": "$1의 2FA 구성"
+  },
+  "common_action_confirm": {
+    "message": "확인"
+  },
+  "common_action_close": {
+    "message": "닫기"
+  },
+  "common_toast_copied": {
+    "message": "복사됨"
+  },
+  "common_toast_restored": {
+    "message": "복원됨"
+  },
+  "common_toast_share_link_copied": {
+    "message": "공유 링크 복사됨"
+  },
+  "common_toast_saved": {
+    "message": "저장됨"
+  },
+  "recovery_prompt_saved": {
+    "message": "복구 코드가 2FA Auth에 저장되었습니다"
+  },
+  "recovery_prompt_unsaved": {
+    "message": "클릭하여 $1 — $2 복구 코드를 2FA Auth에 저장"
+  },
+  "settings_theme_title": {
+    "message": "테마"
+  },
+  "settings_theme_hint": {
+    "message": "색상 테마를 변경하면 페이지와 미리보기가 함께 전환됩니다."
+  },
+  "settings_theme_eyebrow": {
+    "message": "theme · 32"
+  },
+  "settings_frame_title": {
+    "message": "창 크기"
+  },
+  "settings_frame_hint": {
+    "message": "기본은 일반 패널. 스마트폰 형태는 테두리가 추가됩니다."
+  },
+  "settings_frame_eyebrow": {
+    "message": "frame · 2"
+  },
+  "settings_frame_standard": {
+    "message": "표준"
+  },
+  "settings_frame_phone": {
+    "message": "스마트폰"
+  },
+  "settings_icon_title": {
+    "message": "아이콘 스타일"
+  },
+  "settings_icon_hint": {
+    "message": "목록의 서비스 아이콘 크기입니다."
+  },
+  "settings_icon_eyebrow": {
+    "message": "icon · 2"
+  },
+  "settings_icon_elegant_label": {
+    "message": "크게"
+  },
+  "settings_icon_elegant_hint": {
+    "message": "브랜드 아이콘을 확대해 장식 효과"
+  },
+  "settings_icon_minimal_label": {
+    "message": "작게"
+  },
+  "settings_icon_minimal_hint": {
+    "message": "크기를 통일해 목록을 간결하게"
+  },
+  "settings_preview_aria_label": {
+    "message": "실시간 미리보기"
+  },
+  "settings_header_brand": {
+    "message": "2FA Auth"
+  },
+  "settings_header_label": {
+    "message": "설정"
+  },
+  "otp_autofill_placeholder": {
+    "message": "$1 입력"
+  },
+  "otp_autofill_info_before": {
+    "message": "2FA 서비스는 "
+  },
+  "otp_autofill_info_after": {
+    "message": " 확장 프로그램에서 제공합니다. 이용해 주셔서 감사합니다! (유효 시간: $1초)"
+  },
+  "otp_autofill_copied": {
+    "message": "$1을(를) 클립보드에 복사했습니다"
+  },
+  "intake_prompt_account_name": {
+    "message": "$1의 계정 이름을 입력하세요"
+  },
+  "background_menu_issue": {
+    "message": "Issues & 피드백"
+  },
+  "background_menu_source": {
+    "message": "소스 보기"
+  },
+  "background_menu_settings": {
+    "message": "설정"
+  },
+  "intake_warn_invalid_qr": {
+    "message": "QR을 감지했지만 형식이 OTPAuth 사양을 따르지 않습니다"
+  },
+  "intake_error_invalid_otpauth": {
+    "message": "잘못된 OTP Auth URL입니다"
+  },
+  "intake_error_file_read": {
+    "message": "파일을 읽을 수 없습니다: $1"
+  },
+  "intake_error_prompt_account": {
+    "message": "계정 이름을 입력해 주세요"
+  },
+  "intake_warn_account_exists": {
+    "message": "이 계정은 이미 존재합니다"
+  },
+  "intake_success_added": {
+    "message": "$1 — $2 추가됨"
+  },
+  "intake_error_add_failed": {
+    "message": "계정을 추가할 수 없습니다: $1"
+  },
+  "site_content_warning_missing_account": {
+    "message": "현재 계정을 가져올 수 없습니다 — QR에 account 필드가 없습니다"
+  },
+  "site_content_warning_invalid_qr": {
+    "message": "QR을 감지했지만 형식 [$1]이 OTPAuth 사양을 따르지 않습니다"
+  },
+  "global_content_error_canvas": {
+    "message": "Canvas 컨텍스트를 가져올 수 없습니다"
+  },
+  "global_content_error_screenshot": {
+    "message": "스크린샷 실패"
+  },
+  "qr_decode_error_not_found": {
+    "message": "QR 코드를 찾을 수 없습니다"
+  },
+  "qr_decode_error_no_valid_qr": {
+    "message": "유효한 QR 코드를 찾을 수 없습니다"
+  },
+  "manual_scan_decode_failed": {
+    "message": "QR 코드 해석 실패: $1"
+  }
+}

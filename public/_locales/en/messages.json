@@ -1,10 +1,280 @@
 {
   "appName": {
-    "message": "2FA Auth",
+    "message": "2FA Auth - Modern Two-Factor Authenticator",
     "description": "Extension display name"
   },
   "appDescription": {
     "message": "A modern, open-source 2FA authenticator. Supports QR auto-scan, region scan, manual input and QR upload. Manage multi-platform accounts with an elegant UI and smooth experience.",
     "description": "Extension description shown in Chrome Web Store"
+  },
+  "popup_header_title": {
+    "message": "2FA Auth"
+  },
+  "popup_header_search_placeholder": {
+    "message": "Search"
+  },
+  "popup_header_menu_all": {
+    "message": "All"
+  },
+  "popup_header_menu_deleted": {
+    "message": "Deleted"
+  },
+  "popup_header_menu_settings": {
+    "message": "Settings"
+  },
+  "popup_list_empty_alt": {
+    "message": "No accounts yet"
+  },
+  "popup_list_next_label": {
+    "message": "Next"
+  },
+  "popup_fab_form_tip": {
+    "message": "Enter account manually"
+  },
+  "popup_fab_qr_auto_tip": {
+    "message": "Auto-scan QR code"
+  },
+  "popup_fab_qr_manual_tip": {
+    "message": "Capture QR region"
+  },
+  "popup_fab_qr_upload_tip": {
+    "message": "Upload QR screenshot"
+  },
+  "popup_fab_manual_scan_fallback_msg": {
+    "message": "No QR detected — switching to manual capture mode. Press ESC to exit."
+  },
+  "popup_fab_manual_scan_msg": {
+    "message": "Manual capture mode — press ESC to exit."
+  },
+  "popup_form_title": {
+    "message": "Account details"
+  },
+  "popup_form_issuer_label": {
+    "message": "Platform"
+  },
+  "popup_form_issuer_placeholder": {
+    "message": "e.g. GitHub"
+  },
+  "popup_form_secret_label": {
+    "message": "Secret"
+  },
+  "popup_form_secret_placeholder": {
+    "message": "e.g. JBSWY3DPEHPK3PXP"
+  },
+  "popup_form_account_label": {
+    "message": "Account"
+  },
+  "popup_form_account_placeholder": {
+    "message": "e.g. octocat"
+  },
+  "popup_form_remark_label": {
+    "message": "Note"
+  },
+  "popup_form_remark_placeholder": {
+    "message": "e.g. account type, purpose, etc."
+  },
+  "popup_modal_delete_soft_text": {
+    "message": "Delete this account?"
+  },
+  "popup_modal_delete_hard_text": {
+    "message": "This account will be permanently removed. Continue?"
+  },
+  "popup_modal_delete_ok": {
+    "message": "Delete"
+  },
+  "popup_modal_recovery_title": {
+    "message": "Recovery codes"
+  },
+  "popup_modal_qr_copy": {
+    "message": "Copy"
+  },
+  "popup_modal_qr_download": {
+    "message": "Download"
+  },
+  "popup_modal_upload_title": {
+    "message": "Upload QR screenshot"
+  },
+  "popup_modal_upload_paste_hint": {
+    "message": "You can also paste a screenshot directly."
+  },
+  "popup_modal_upload_account_placeholder": {
+    "message": "Account name"
+  },
+  "popup_modal_upload_invalid_error": {
+    "message": "Invalid OTP Auth URL"
+  },
+  "popup_item_action_share": {
+    "message": "Share"
+  },
+  "popup_item_action_pin": {
+    "message": "Pin"
+  },
+  "popup_item_action_unpin": {
+    "message": "Unpin"
+  },
+  "popup_item_action_qr": {
+    "message": "QR"
+  },
+  "popup_item_action_edit": {
+    "message": "Edit"
+  },
+  "popup_item_action_recovery": {
+    "message": "Codes"
+  },
+  "popup_item_action_restore": {
+    "message": "Restore"
+  },
+  "popup_item_action_delete": {
+    "message": "Delete"
+  },
+  "popup_item_action_close": {
+    "message": "Cancel"
+  },
+  "popup_item_action_share_title": {
+    "message": "$1 — 2FA configuration"
+  },
+  "common_action_confirm": {
+    "message": "Confirm"
+  },
+  "common_action_close": {
+    "message": "Close"
+  },
+  "common_toast_copied": {
+    "message": "Copied"
+  },
+  "common_toast_restored": {
+    "message": "Restored"
+  },
+  "common_toast_share_link_copied": {
+    "message": "Share link copied"
+  },
+  "common_toast_saved": {
+    "message": "Saved"
+  },
+  "recovery_prompt_saved": {
+    "message": "Recovery codes saved to 2FA Auth"
+  },
+  "recovery_prompt_unsaved": {
+    "message": "Click to save $1 — $2 recovery codes to 2FA Auth"
+  },
+  "settings_theme_title": {
+    "message": "Theme"
+  },
+  "settings_theme_hint": {
+    "message": "Switch palette — page and preview update together."
+  },
+  "settings_theme_eyebrow": {
+    "message": "theme · 32"
+  },
+  "settings_frame_title": {
+    "message": "Window size"
+  },
+  "settings_frame_hint": {
+    "message": "Default is the regular panel; phone shape adds a frame."
+  },
+  "settings_frame_eyebrow": {
+    "message": "frame · 2"
+  },
+  "settings_frame_standard": {
+    "message": "Standard"
+  },
+  "settings_frame_phone": {
+    "message": "Phone"
+  },
+  "settings_icon_title": {
+    "message": "Icon style"
+  },
+  "settings_icon_hint": {
+    "message": "Service icon size used in the list."
+  },
+  "settings_icon_eyebrow": {
+    "message": "icon · 2"
+  },
+  "settings_icon_elegant_label": {
+    "message": "Large"
+  },
+  "settings_icon_elegant_hint": {
+    "message": "Brand icon scaled up as decoration"
+  },
+  "settings_icon_minimal_label": {
+    "message": "Compact"
+  },
+  "settings_icon_minimal_hint": {
+    "message": "Uniform size keeps the list tight"
+  },
+  "settings_preview_aria_label": {
+    "message": "Live preview"
+  },
+  "settings_header_brand": {
+    "message": "2FA Auth"
+  },
+  "settings_header_label": {
+    "message": "Settings"
+  },
+  "otp_autofill_placeholder": {
+    "message": "Enter $1"
+  },
+  "otp_autofill_info_before": {
+    "message": "2FA service provided by "
+  },
+  "otp_autofill_info_after": {
+    "message": " extension. Thanks for using! (valid for $1s)"
+  },
+  "otp_autofill_copied": {
+    "message": "$1 copied to clipboard"
+  },
+  "intake_prompt_account_name": {
+    "message": "Enter the account name for $1"
+  },
+  "background_menu_issue": {
+    "message": "Issues & feedback"
+  },
+  "background_menu_source": {
+    "message": "View source"
+  },
+  "background_menu_settings": {
+    "message": "Settings"
+  },
+  "intake_warn_invalid_qr": {
+    "message": "QR detected, but the format is not OTPAuth-compliant"
+  },
+  "intake_error_invalid_otpauth": {
+    "message": "Invalid OTP Auth URL"
+  },
+  "intake_error_file_read": {
+    "message": "Cannot read file: $1"
+  },
+  "intake_error_prompt_account": {
+    "message": "Please enter an account name"
+  },
+  "intake_warn_account_exists": {
+    "message": "This account already exists"
+  },
+  "intake_success_added": {
+    "message": "$1 — $2 added"
+  },
+  "intake_error_add_failed": {
+    "message": "Could not add account: $1"
+  },
+  "site_content_warning_missing_account": {
+    "message": "Could not fetch current account — QR will be missing the account field"
+  },
+  "site_content_warning_invalid_qr": {
+    "message": "QR detected, but the format [$1] is not OTPAuth-compliant"
+  },
+  "global_content_error_canvas": {
+    "message": "Cannot acquire Canvas context"
+  },
+  "global_content_error_screenshot": {
+    "message": "Screenshot failed"
+  },
+  "qr_decode_error_not_found": {
+    "message": "No QR code found"
+  },
+  "qr_decode_error_no_valid_qr": {
+    "message": "No valid QR code found"
+  },
+  "manual_scan_decode_failed": {
+    "message": "Failed to decode QR: $1"
   }
 }

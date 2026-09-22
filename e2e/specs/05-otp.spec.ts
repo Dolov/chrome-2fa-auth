@@ -145,6 +145,16 @@ test.describe("F5 otp > 数值正确性", () => {
       expect(expected).toMatch(/^\d{8}$/)
 
       await expect(currentOtpOf(cards(popup).first())).toHaveText(expected)
+
+      // TODO `docs/TODO.md`：digits=8 视觉分组断言 — half = ceil(8/2) = 4
+      const otpElement = currentOtpOf(cards(popup).first())
+      const spans = otpElement.locator("span")
+      await expect(spans).toHaveCount(2)
+      const firstSpan = (await spans.nth(0).textContent()) ?? ""
+      const secondSpan = (await spans.nth(1).textContent()) ?? ""
+      expect(firstSpan).toHaveLength(4)
+      expect(secondSpan).toHaveLength(4)
+      expect(firstSpan + secondSpan).toBe(expected)
     } finally {
       await popup.close()
     }
@@ -246,6 +256,109 @@ test.describe("F5 otp > 数值正确性", () => {
         "value",
         String(expectedRemainingTime(FIXED_TIME, 30))
       )
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 32 (P1): fake time 推进后 progress.value 递减（每秒刷新）", async ({
+    helper
+  }) => {
+    // setFixedTime 不会自动推进 fake clock；要触发 useOtpTick 的 setInterval
+    // 必须 fastForward。否则 progress.value 永远是固定值。
+    await helper.seedData([sampleAccount("1", "TestApp", "alice", TEST_SECRET)])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const progress = progressOf(cards(popup).first())
+      const value1 = parseInt((await progress.getAttribute("value")) ?? "0")
+
+      await popup.clock.fastForward(1000)
+      await expect(progress).toHaveAttribute("value", String(value1 - 1), {
+        timeout: 5_000
+      })
+
+      await popup.clock.fastForward(2000)
+      await expect(progress).toHaveAttribute("value", String(value1 - 3), {
+        timeout: 5_000
+      })
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 33 (P1): 点击 OTP 复制 → 剪贴板含 OTP + toast 节点出现", async ({
+    helper
+  }) => {
+    await helper.seedData([sampleAccount("1", "TestApp", "alice", TEST_SECRET)])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const expected = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
+      await currentOtpOf(cards(popup).first()).click()
+
+      // 剪贴板含完整 OTP
+      const clip = (await popup.evaluate(() => navigator.clipboard.readText())).trim()
+      expect(clip).toBe(expected)
+
+      // toast 节点存在（toast.ts 加了 data-testid="toast" + kind 属性）
+      // 不验颜色与文案——进 e2e 的是功能（toast 应该出现），不是样式。
+      const toastNode = popup.locator('[data-testid="toast"]')
+      await expect(toastNode).toBeVisible({ timeout: 5_000 })
+      await expect(toastNode).toHaveAttribute("data-testid-toast-kind", "success")
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 35a (P1): 剩余 >10s → 蓝色 progress-primary", async ({
+    helper
+  }) => {
+    // FIXED_TIME 剩余 23s（>10）→ primary
+    await helper.seedData([sampleAccount("1", "TestApp", "alice", TEST_SECRET)])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+      const progress = progressOf(cards(popup).first())
+      await expect(progress).toHaveClass(/progress-primary/)
+      await expect(progress).not.toHaveClass(/progress-warning/)
+      await expect(progress).not.toHaveClass(/progress-error/)
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 35b (P1): 剩余 ≤10s 且 >3s → 黄色 progress-warning", async ({
+    helper
+  }) => {
+    // FIXED_TIME - 15s → epoch%30=22 → remaining=8 → warning（4 ≤ 8 ≤ 10）
+    const warnTime = new Date(FIXED_TIME.getTime() - 15_000)
+    await helper.seedData([sampleAccount("1", "TestApp", "alice", TEST_SECRET)])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, warnTime)
+      const progress = progressOf(cards(popup).first())
+      await expect(progress).toHaveClass(/progress-warning/)
+      await expect(progress).not.toHaveClass(/progress-primary/)
+      await expect(progress).not.toHaveClass(/progress-error/)
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 35c (P1): 剩余 ≤3s → 红色 progress-error", async ({ helper }) => {
+    // FIXED_TIME + 21s → epoch%30=28 → remaining=2 → error（≤3）
+    const dangerTime = new Date(FIXED_TIME.getTime() + 21_000)
+    await helper.seedData([sampleAccount("1", "TestApp", "alice", TEST_SECRET)])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, dangerTime)
+      const progress = progressOf(cards(popup).first())
+      await expect(progress).toHaveClass(/progress-error/)
+      await expect(progress).not.toHaveClass(/progress-primary/)
+      await expect(progress).not.toHaveClass(/progress-warning/)
     } finally {
       await popup.close()
     }

@@ -4,6 +4,7 @@ import OptionCard from "./option-card"
 
 import { useSettings } from "~/features/ui-state/use-settings"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { ContainerType } from "~/utils/types"
 
 interface FrameOption {
@@ -11,12 +12,6 @@ interface FrameOption {
   label: string
   value: ContainerType
 }
-
-/** 尺寸与 `entrypoints/popup/components/layout/index.tsx` 的壳保持一致 */
-const OPTIONS: FrameOption[] = [
-  { meta: "350 × 600", label: "标准面板", value: ContainerType.DEFAULT },
-  { meta: "378 × 600", label: "手机外形", value: ContainerType.PHONE }
-]
 
 /** 形态示意图：用结构线暗示「等宽面板」与「带机身的手机」，不用真实截图 */
 const FrameSketch = ({ type }: { type: ContainerType }) => {
@@ -45,9 +40,24 @@ const FramePicker: React.FC = () => {
   const [settings, patchSettings] = useSettings()
   const { containerType } = settings
 
+  // 尺寸与 `entrypoints/popup/components/layout/index.tsx` 的壳保持一致
+  // label 用 i18n — 在组件里调用（chrome.i18n 在 settings 页面打开时已可用）
+  const options: FrameOption[] = [
+    {
+      meta: "350 × 600",
+      label: i18n("settings_frame_standard"),
+      value: ContainerType.DEFAULT
+    },
+    {
+      meta: "378 × 600",
+      label: i18n("settings_frame_phone"),
+      value: ContainerType.PHONE
+    }
+  ]
+
   return (
     <div className="flex flex-wrap gap-3">
-      {OPTIONS.map(({ meta, label, value }) => (
+      {options.map(({ meta, label, value }) => (
         <OptionCard
           key={value}
           name="container-type"

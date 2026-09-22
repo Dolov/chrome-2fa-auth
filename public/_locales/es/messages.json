@@ -1,0 +1,280 @@
+{
+  "appName": {
+    "message": "2FA Auth - Autenticador moderno de doble factor",
+    "description": "Nombre visible de la extensión"
+  },
+  "appDescription": {
+    "message": "Un autenticador 2FA gratuito y de código abierto, creado para la seguridad y la eficiencia. Compatible con escaneo automático de códigos QR, escaneo por región, entrada manual y carga de QR. Gestiona cuentas en múltiples plataformas con una interfaz elegante y una experiencia fluida.",
+    "description": "Descripción de la extensión en Chrome Web Store"
+  },
+  "popup_header_title": {
+    "message": "2FA Auth"
+  },
+  "popup_header_search_placeholder": {
+    "message": "Buscar"
+  },
+  "popup_header_menu_all": {
+    "message": "Todos"
+  },
+  "popup_header_menu_deleted": {
+    "message": "Eliminados"
+  },
+  "popup_header_menu_settings": {
+    "message": "Ajustes"
+  },
+  "popup_list_empty_alt": {
+    "message": "Aún no hay cuentas"
+  },
+  "popup_list_next_label": {
+    "message": "Siguiente"
+  },
+  "popup_fab_form_tip": {
+    "message": "Introducir código manualmente"
+  },
+  "popup_fab_qr_auto_tip": {
+    "message": "Escanear QR automáticamente"
+  },
+  "popup_fab_qr_manual_tip": {
+    "message": "Capturar región del QR"
+  },
+  "popup_fab_qr_upload_tip": {
+    "message": "Subir captura de QR"
+  },
+  "popup_fab_manual_scan_fallback_msg": {
+    "message": "No se detectó un QR — cambiando al modo de captura manual. Pulsa ESC para salir."
+  },
+  "popup_fab_manual_scan_msg": {
+    "message": "Modo de captura manual — pulsa ESC para salir."
+  },
+  "popup_form_title": {
+    "message": "Detalles de la cuenta"
+  },
+  "popup_form_issuer_label": {
+    "message": "Plataforma"
+  },
+  "popup_form_issuer_placeholder": {
+    "message": "ej. GitHub"
+  },
+  "popup_form_secret_label": {
+    "message": "Secreto"
+  },
+  "popup_form_secret_placeholder": {
+    "message": "ej. JBSWY3DPEHPK3PXP"
+  },
+  "popup_form_account_label": {
+    "message": "Cuenta"
+  },
+  "popup_form_account_placeholder": {
+    "message": "ej. octocat"
+  },
+  "popup_form_remark_label": {
+    "message": "Nota"
+  },
+  "popup_form_remark_placeholder": {
+    "message": "ej. tipo de cuenta, propósito, etc."
+  },
+  "popup_modal_delete_soft_text": {
+    "message": "¿Eliminar esta cuenta?"
+  },
+  "popup_modal_delete_hard_text": {
+    "message": "Esta cuenta se eliminará de forma permanente. ¿Continuar?"
+  },
+  "popup_modal_delete_ok": {
+    "message": "Eliminar"
+  },
+  "popup_modal_recovery_title": {
+    "message": "Códigos de recuperación"
+  },
+  "popup_modal_qr_copy": {
+    "message": "Copiar"
+  },
+  "popup_modal_qr_download": {
+    "message": "Descargar"
+  },
+  "popup_modal_upload_title": {
+    "message": "Subir captura de QR"
+  },
+  "popup_modal_upload_paste_hint": {
+    "message": "También puedes pegar una captura directamente."
+  },
+  "popup_modal_upload_account_placeholder": {
+    "message": "Nombre de la cuenta"
+  },
+  "popup_modal_upload_invalid_error": {
+    "message": "URL de OTP Auth no válida"
+  },
+  "popup_item_action_share": {
+    "message": "Compartir"
+  },
+  "popup_item_action_pin": {
+    "message": "Fijar"
+  },
+  "popup_item_action_unpin": {
+    "message": "Quitar"
+  },
+  "popup_item_action_qr": {
+    "message": "QR"
+  },
+  "popup_item_action_edit": {
+    "message": "Editar"
+  },
+  "popup_item_action_recovery": {
+    "message": "Códigos"
+  },
+  "popup_item_action_restore": {
+    "message": "Restaurar"
+  },
+  "popup_item_action_delete": {
+    "message": "Eliminar"
+  },
+  "popup_item_action_close": {
+    "message": "Cancelar"
+  },
+  "popup_item_action_share_title": {
+    "message": "Configuración 2FA de $1"
+  },
+  "common_action_confirm": {
+    "message": "Confirmar"
+  },
+  "common_action_close": {
+    "message": "Cerrar"
+  },
+  "common_toast_copied": {
+    "message": "Copiado"
+  },
+  "common_toast_restored": {
+    "message": "Restaurado"
+  },
+  "common_toast_share_link_copied": {
+    "message": "Enlace copiado"
+  },
+  "common_toast_saved": {
+    "message": "Guardado"
+  },
+  "recovery_prompt_saved": {
+    "message": "Códigos de recuperación guardados en 2FA Auth"
+  },
+  "recovery_prompt_unsaved": {
+    "message": "Pulsa para guardar los códigos de recuperación de $1 — $2 en 2FA Auth"
+  },
+  "settings_theme_title": {
+    "message": "Tema"
+  },
+  "settings_theme_hint": {
+    "message": "Cambia la paleta: la página y la vista previa se actualizan a la vez."
+  },
+  "settings_theme_eyebrow": {
+    "message": "theme · 32"
+  },
+  "settings_frame_title": {
+    "message": "Tamaño de ventana"
+  },
+  "settings_frame_hint": {
+    "message": "El panel normal es el predeterminado; el formato teléfono añade un marco."
+  },
+  "settings_frame_eyebrow": {
+    "message": "frame · 2"
+  },
+  "settings_frame_standard": {
+    "message": "Estándar"
+  },
+  "settings_frame_phone": {
+    "message": "Teléfono"
+  },
+  "settings_icon_title": {
+    "message": "Estilo de icono"
+  },
+  "settings_icon_hint": {
+    "message": "Tamaño del icono de servicio en la lista."
+  },
+  "settings_icon_eyebrow": {
+    "message": "icon · 2"
+  },
+  "settings_icon_elegant_label": {
+    "message": "Grande"
+  },
+  "settings_icon_elegant_hint": {
+    "message": "Icono de marca ampliado como decoración"
+  },
+  "settings_icon_minimal_label": {
+    "message": "Compacto"
+  },
+  "settings_icon_minimal_hint": {
+    "message": "Tamaño uniforme para una lista más compacta"
+  },
+  "settings_preview_aria_label": {
+    "message": "Vista previa en directo"
+  },
+  "settings_header_brand": {
+    "message": "2FA Auth"
+  },
+  "settings_header_label": {
+    "message": "Ajustes"
+  },
+  "otp_autofill_placeholder": {
+    "message": "Introduce $1"
+  },
+  "otp_autofill_info_before": {
+    "message": "Servicio 2FA ofrecido por "
+  },
+  "otp_autofill_info_after": {
+    "message": ", una extensión gratuita. ¡Gracias por usarlo! (válido durante $1 s)"
+  },
+  "otp_autofill_copied": {
+    "message": "$1 copiado al portapapeles"
+  },
+  "intake_prompt_account_name": {
+    "message": "Introduce el nombre de la cuenta para $1"
+  },
+  "background_menu_issue": {
+    "message": "Issues & comentarios"
+  },
+  "background_menu_source": {
+    "message": "Ver código fuente"
+  },
+  "background_menu_settings": {
+    "message": "Ajustes"
+  },
+  "intake_warn_invalid_qr": {
+    "message": "Se detectó un QR, pero el formato no cumple la especificación OTPAuth"
+  },
+  "intake_error_invalid_otpauth": {
+    "message": "URL de OTP Auth no válida"
+  },
+  "intake_error_file_read": {
+    "message": "No se pudo leer el archivo: $1"
+  },
+  "intake_error_prompt_account": {
+    "message": "Introduce un nombre de cuenta"
+  },
+  "intake_warn_account_exists": {
+    "message": "Esta cuenta ya existe"
+  },
+  "intake_success_added": {
+    "message": "$1 — $2 añadido"
+  },
+  "intake_error_add_failed": {
+    "message": "No se pudo añadir la cuenta: $1"
+  },
+  "site_content_warning_missing_account": {
+    "message": "No se pudo obtener la cuenta actual — el QR no tendrá el campo account"
+  },
+  "site_content_warning_invalid_qr": {
+    "message": "Se detectó un QR, pero el formato [$1] no cumple la especificación OTPAuth"
+  },
+  "global_content_error_canvas": {
+    "message": "No se puede obtener el contexto de Canvas"
+  },
+  "global_content_error_screenshot": {
+    "message": "Captura de pantalla fallida"
+  },
+  "qr_decode_error_not_found": {
+    "message": "No se encontró ningún código QR"
+  },
+  "qr_decode_error_no_valid_qr": {
+    "message": "No se encontró ningún código QR válido"
+  },
+  "manual_scan_decode_failed": {
+    "message": "No se pudo decodificar el QR: $1"
+  }
+}

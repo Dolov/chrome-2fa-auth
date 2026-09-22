@@ -1,3 +1,4 @@
+import { i18n } from "~/utils/i18n"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { readFromFile } from "~/utils/qr-decode"
 import type { OtpAuthConfig } from "~/utils/types"
@@ -41,9 +42,7 @@ export const intakeOtp = async (
   if (source.kind === "qr-data") {
     const parsed = parseQrString(source.data)
     if (parsed === "not-otpauth") {
-      deps.notifier.warn(
-        "检测到二维码，但其格式不符合 OTPAuth 规范"
-      )
+      deps.notifier.warn(i18n("intake_warn_invalid_qr"))
       return { status: "invalid", reason: "not-otpauth" }
     }
     config = parsed
@@ -52,12 +51,14 @@ export const intakeOtp = async (
     try {
       data = await readFromFile(source.file)
     } catch (error) {
-      deps.notifier.error(`无法读取文件：${(error as Error).message}`)
+      deps.notifier.error(
+        i18n("intake_error_file_read", (error as Error).message)
+      )
       return { status: "invalid", reason: "file-read-error" }
     }
     const parsed = parseQrString(data)
     if (parsed === "not-otpauth") {
-      deps.notifier.error("无效的 OTP Auth URL")
+      deps.notifier.error(i18n("intake_error_invalid_otpauth"))
       return { status: "invalid", reason: "not-otpauth" }
     }
     config = parsed
@@ -72,7 +73,7 @@ export const intakeOtp = async (
     } else {
       const acc = await deps.account.promptAccount(config.issuer ?? "")
       if (!acc) {
-        deps.notifier.error("请输入账号名称")
+        deps.notifier.error(i18n("intake_error_prompt_account"))
         return { status: "cancelled" }
       }
       config.account = acc
@@ -84,18 +85,20 @@ export const intakeOtp = async (
   try {
     persisted = await deps.writer.persist(config)
   } catch (error) {
-    deps.notifier.error(`添加失败：${(error as Error).message}`)
+    deps.notifier.error(
+      i18n("intake_error_add_failed", (error as Error).message)
+    )
     return { status: "invalid", reason: "writer-failed" }
   }
 
   // 4. 通知 + 返回结果
   if (persisted.status === "exists") {
-    deps.notifier.warn("该账户已存在")
+    deps.notifier.warn(i18n("intake_warn_account_exists"))
     return { status: "exists", item: persisted.item }
   }
 
   deps.notifier.success(
-    `${config.issuer} - ${config.account} 添加成功`
+    i18n("intake_success_added", [config.issuer ?? "", config.account ?? ""])
   )
   return { status: "added", item: persisted.item }
 }

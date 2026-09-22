@@ -16,6 +16,7 @@ import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { ContainerType } from "~/utils/types"
 
 import OtpForm from "./otp-form"
@@ -45,15 +46,18 @@ interface FabActionProps {
   isLoading?: boolean
   onTrigger: () => void
   children: React.ReactNode
+  /** E2E 定位锚点；data-tip 保留以兼容 07-qr-scan 现有断言 */
+  testId?: string
 }
 
 const FabAction: React.FC<FabActionProps> = (props) => {
-  const { tip, tone, disabled, isLoading, onTrigger, children } = props
+  const { tip, tone, disabled, isLoading, onTrigger, children, testId } = props
 
   return (
     <div
       className="tooltip tooltip-open tooltip-left before:py-2"
-      data-tip={tip}>
+      data-tip={tip}
+      data-testid={testId}>
       <div className={cn("scale-75 rounded-btn", { "bg-base-300": disabled })}>
         <Button
           isLoadingOnly
@@ -93,7 +97,7 @@ const EntryActions: React.FC = () => {
     try {
       const result = await sendAutoScanToActiveTab()
       if (!result?.success || !result.data) {
-        await handleManualScan("未检测到二维码，开启手动截图模式，ESC 退出")
+        await handleManualScan(i18n("popup_fab_manual_scan_fallback_msg"))
         return
       }
       // 短暂反馈，给用户视觉提示“识别中”
@@ -117,13 +121,15 @@ const EntryActions: React.FC = () => {
           { "opacity-100": isActive }
         )}>
         <FabAction
-          tip="手动输入认证码"
+          tip={i18n("popup_fab_form_tip")}
+          testId="fab-form"
           tone="secondary"
           onTrigger={() => modals.open("form")}>
           <Keyboard />
         </FabAction>
         <FabAction
-          tip="自动扫描二维码"
+          tip={i18n("popup_fab_qr_auto_tip")}
+          testId="fab-qr-auto"
           tone="accent"
           disabled={!canInject}
           isLoading={isScanning}
@@ -131,14 +137,16 @@ const EntryActions: React.FC = () => {
           <QrCode />
         </FabAction>
         <FabAction
-          tip="手动截取二维码"
+          tip={i18n("popup_fab_qr_manual_tip")}
+          testId="fab-qr-manual"
           tone="info"
           disabled={!canInject}
-          onTrigger={() => void handleManualScan("手动截图模式，ESC 退出")}>
+          onTrigger={() => void handleManualScan(i18n("popup_fab_manual_scan_msg"))}>
           <SquareDashedMousePointer />
         </FabAction>
         <FabAction
-          tip="上传二维码截图"
+          tip={i18n("popup_fab_qr_upload_tip")}
+          testId="fab-qr-upload"
           tone="warning"
           onTrigger={() => modals.open("upload")}>
           <ImageUp />
@@ -148,6 +156,7 @@ const EntryActions: React.FC = () => {
       {/* 主按钮 */}
       <button
         onClick={toggle}
+        data-testid="fab-main"
         className={cn("btn btn-circle shadow-2xl transition-all duration-200", {
           "btn-neutral": !isActive,
           "btn-primary": isActive

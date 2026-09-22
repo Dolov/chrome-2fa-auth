@@ -1,6 +1,7 @@
 import { ActionType } from "~/utils/types"
 import { createContentIntake } from "~/features/otp-intake"
 import message from "~/features/page-ui/toast"
+import { i18n } from "~/utils/i18n"
 
 import { captureAndDecode, createScreenshotOverlay } from "./overlay"
 
@@ -30,7 +31,7 @@ export const startManualScreenshot = async (
       await runIntake({ kind: "qr-data", data: qrData })
     } catch (error) {
       const err = error as Error
-      message.error(`解析二维码失败：${err.message}`)
+      message.error(i18n("manual_scan_decode_failed", err.message))
     }
   })
 

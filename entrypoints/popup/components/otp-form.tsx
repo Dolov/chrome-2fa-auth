@@ -2,6 +2,7 @@ import React from "react"
 
 import Modal from "~/components/ui/modal"
 import { useOtpMutators } from "~/features/otp-store"
+import { i18n } from "~/utils/i18n"
 import type { DataProps } from "~/utils/types"
 
 import { useModalWidth } from "./use-modal-width"
@@ -23,7 +24,7 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
   const { isVisible, onClose, data } = props
   const { width } = useModalWidth()
   const { add, update } = useOtpMutators()
-  const title = "输入账户详细信息"
+  const title = i18n("popup_form_title")
   const [form, setForm] = React.useState<Partial<DataProps>>({
     ...EMPTY_FORM,
     ...data
@@ -51,11 +52,12 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
       onClose={onClose}>
       <div className="flex flex-col gap-3 p-1">
         <label className="input input-bordered flex items-center gap-2">
-          平台
+          {i18n("popup_form_issuer_label")}
           <input
             type="text"
+            data-testid="form-issuer"
             className="grow"
-            placeholder="例如：Github"
+            placeholder={i18n("popup_form_issuer_placeholder")}
             value={form.issuer ?? ""}
             onChange={(e) => {
               setForm({ ...form, issuer: e.target.value })
@@ -63,11 +65,12 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
           />
         </label>
         <label className="input input-bordered flex items-center gap-2">
-          密钥
+          {i18n("popup_form_secret_label")}
           <input
             type="text"
+            data-testid="form-secret"
             className="grow"
-            placeholder="例如：N2CNXXJV7GG75PUI"
+            placeholder={i18n("popup_form_secret_placeholder")}
             value={form.secret ?? ""}
             onChange={(e) => {
               setForm({ ...form, secret: e.target.value })
@@ -75,11 +78,12 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
           />
         </label>
         <label className="input input-bordered flex items-center gap-2">
-          帐户
+          {i18n("popup_form_account_label")}
           <input
             type="text"
+            data-testid="form-account"
             className="grow"
-            placeholder="例如：Dolov"
+            placeholder={i18n("popup_form_account_placeholder")}
             value={form.account ?? ""}
             onChange={(e) => {
               setForm({ ...form, account: e.target.value })
@@ -87,11 +91,12 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
           />
         </label>
         <label className="input input-bordered flex items-center gap-2">
-          备注
+          {i18n("popup_form_remark_label")}
           <input
             type="text"
+            data-testid="form-remark"
             className="grow"
-            placeholder="例如：账户类型、用途等"
+            placeholder={i18n("popup_form_remark_placeholder")}
             value={form.remark ?? ""}
             onChange={(e) => {
               setForm({ ...form, remark: e.target.value })

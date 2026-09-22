@@ -1,6 +1,7 @@
 import React from "react"
 
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 
 import Button from "./button"
 import ProgressBar from "./progress"
@@ -34,6 +35,8 @@ export interface ModalProps {
   placeholder?: React.ReactNode
   keyboardEvents?: ModalShortcuts
   isShortcutKeySave?: boolean
+  /** E2E 定位锚点：透传到 <dialog> 的 data-testid */
+  testId?: string
 }
 
 const Modal: React.FC<ModalProps> = (props) => {
@@ -53,10 +56,11 @@ const Modal: React.FC<ModalProps> = (props) => {
     isProgressLoading,
     confirmButtonClassName,
     closeButtonClassName,
-    okText = "Confirm",
+    okText = i18n("common_action_confirm"),
     keyboardEvents,
     isShortcutKeySave,
-    placeholder
+    placeholder,
+    testId
   } = props
 
   const dialogRef = React.useRef<HTMLDialogElement>(null)
@@ -122,6 +126,7 @@ const Modal: React.FC<ModalProps> = (props) => {
         <div className="flex items-center">
           {onOk && (
             <Button
+              data-testid="modal-confirm"
               isLoading={isOkLoading}
               className={cn("btn btn-neutral mr-2", confirmButtonClassName)}
               disabled={isOkDisabled}
@@ -130,9 +135,10 @@ const Modal: React.FC<ModalProps> = (props) => {
             </Button>
           )}
           <button
+            data-testid="modal-close"
             className={cn("btn", closeButtonClassName)}
             onClick={handleClose}>
-            Close
+            {i18n("common_action_close")}
           </button>
         </div>
       </div>
@@ -140,7 +146,11 @@ const Modal: React.FC<ModalProps> = (props) => {
   }
 
   return (
-    <dialog ref={dialogRef} onKeyDown={onKeyDown} className="modal">
+    <dialog
+      ref={dialogRef}
+      onKeyDown={onKeyDown}
+      data-testid={testId}
+      className="modal">
       <ProgressBar
         isLoading={isProgressLoading}
         style={{ width, maxWidth: width, ...style }}
@@ -155,7 +165,7 @@ const Modal: React.FC<ModalProps> = (props) => {
         {renderFooter()}
       </ProgressBar>
       <form method="dialog" className="modal-backdrop">
-        <button>close</button>
+        <button aria-label={i18n("common_action_close")}>close</button>
       </form>
     </dialog>
   )

@@ -1,4 +1,5 @@
 import { contentBaseZindex } from "~/features/page-ui/css-portal"
+import { i18n } from "~/utils/i18n"
 import { readFromCanvas } from "~/utils/qr-decode"
 
 /** 开发模式下 debug canvas 的 class 名 */
@@ -25,7 +26,7 @@ export const cropImage = (
 
       const canvas = document.createElement("canvas")
       const ctx = canvas.getContext("2d")
-      if (!ctx) return reject(new Error("无法获取 Canvas 上下文"))
+      if (!ctx) return reject(new Error(i18n("global_content_error_canvas")))
 
       canvas.width = width * dpr
       canvas.height = height * dpr

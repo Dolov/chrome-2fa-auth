@@ -4,6 +4,7 @@ import message from "~/features/page-ui/toast"
 import { useOtpStepIndex } from "~/features/ui-state/use-otp-tick"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
+import { i18n } from "~/utils/i18n"
 import { generateOtp } from "~/utils/libs/totp"
 import type { OtpAuthConfig } from "~/utils/types"
 
@@ -38,7 +39,7 @@ const OtpText: React.FC<OtpTextProps> = (props) => {
 
   const handleCopy = () => {
     void copyTextToClipboardV2(otp)
-    message.success("复制成功")
+    message.success(i18n("common_toast_copied"))
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

@@ -1,9 +1,12 @@
+import { setDocumentLang } from "~/utils/i18n"
 import React from "react"
 import ReactDOM from "react-dom/client"
 
 import Popup from "./app"
 
 import "~/style.css"
+
+setDocumentLang()
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
