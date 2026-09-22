@@ -1,9 +1,15 @@
 <!doctype html>
+<!--
+  注意：不要再加 <title>。
+  WXT 会把 popup 的 <title> 提升为 manifest 的 action.default_title，
+  并且**覆盖** wxt.config.ts 里手写的 action.default_title。
+  省掉它 → manifest 不带 default_title → Chrome 回退用已本地化的扩展名
+  （manifest.name = __MSG_appName__）当工具栏提示，6 个 locale 自动生效。
+-->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2FA Auth</title>
   </head>
   <body>
     <div id="root"></div>

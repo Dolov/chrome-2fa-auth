@@ -1,6 +1,6 @@
 import message from "~/features/page-ui/toast"
 import { highlightElement } from "~/features/page-ui/highlight"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { waitForElement } from "~/features/site-content/dom/wait-element"
 import { readFromImage, scanPage } from "~/utils/qr-decode"
@@ -32,13 +32,13 @@ export const setupReadQR = async (adapter: SiteAdapter): Promise<() => void> => 
   try {
     parsed = parseOtpAuthUrl(qrData)
   } catch (e) {
-    message.warning(i18n("site_content_warning_invalid_qr", qrData.slice(0, 80)))
+    message.warning(i18n.t("site_content_warning_invalid_qr", [qrData.slice(0, 80)]))
     return () => {}
   }
 
   const hintAccount = await adapter.resolveAccount()
   if (!hintAccount && !parsed.account) {
-    message.warning(i18n("site_content_warning_missing_account"))
+    message.warning(i18n.t("site_content_warning_missing_account"))
   }
 
   const verifySelector =

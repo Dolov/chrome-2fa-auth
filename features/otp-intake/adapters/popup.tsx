@@ -2,7 +2,7 @@ import { useCallback } from "react"
 
 import { useOtpMutators } from "~/features/otp-store"
 import message from "~/features/page-ui/toast"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 
 import { intakeOtp } from "../intake"
 import type {
@@ -53,7 +53,7 @@ export const usePopupIntake = () => {
     ): Promise<IntakeOutcome> => {
       const account: IntakeAccountResolver = {
         promptAccount: async (issuer) =>
-          window.prompt(i18n("intake_prompt_account_name", issuer)),
+          window.prompt(i18n.t("intake_prompt_account_name", [issuer])),
         hintAccount: options.hintAccount
       }
       return intakeOtp(source, {
@@ -81,7 +81,7 @@ export const createPopupIntake = (opts: {
   ): Promise<IntakeOutcome> => {
     const account: IntakeAccountResolver = {
       promptAccount: async (issuer) =>
-        window.prompt(i18n("intake_prompt_account_name", issuer)),
+        window.prompt(i18n.t("intake_prompt_account_name", [issuer])),
       hintAccount: opts.hintAccount
     }
     return intakeOtp(source, {
@@ -95,5 +95,5 @@ export const createPopupIntake = (opts: {
 /** 直接复用：一个 read-only 的 promptAccount 给 unit-style 测试用 */
 export const __test__ = {
   promptForAccount: async (issuer: string): Promise<string | null> =>
-    window.prompt(i18n("intake_prompt_account_name", issuer))
+    window.prompt(i18n.t("intake_prompt_account_name", [issuer]))
 }

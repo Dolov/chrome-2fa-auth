@@ -6,7 +6,7 @@ import OtpText from "./otp-text"
 import Modal from "~/components/ui/modal"
 import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { ContainerType } from "~/utils/types"
 
@@ -70,10 +70,9 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     } catch (e) {
       setError({
         kind: "file-read",
-        message: i18n(
-          "intake_error_file_read",
+        message: i18n.t("intake_error_file_read", [
           e instanceof Error ? e.message : String(e)
-        )
+        ])
       })
       return
     }
@@ -81,7 +80,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     if (!isOtpAuthUrl(data)) {
       setError({
         kind: "invalid-otpauth",
-        message: i18n("popup_modal_upload_invalid_error")
+        message: i18n.t("popup_modal_upload_invalid_error")
       })
       return
     }
@@ -156,7 +155,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       title={
         <div className="flex items-center gap-2">
           <ImageUp size={18} />
-          <span>{i18n("popup_modal_upload_title")}</span>
+          <span>{i18n.t("popup_modal_upload_title")}</span>
         </div>
       }
       isVisible={isVisible}
@@ -174,7 +173,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
         />
       </div>
       <div className="p-2">
-        <p className="text-sm text-neutral-500">{i18n("popup_modal_upload_paste_hint")}</p>
+        <p className="text-sm text-neutral-500">{i18n.t("popup_modal_upload_paste_hint")}</p>
         {!account && preview?.secret && (
           <label className="input input-bordered flex items-center mt-6">
             <input
@@ -182,7 +181,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
               type="text"
               data-testid="upload-account-input"
               className="grow"
-              placeholder={i18n("popup_modal_upload_account_placeholder")}
+              placeholder={i18n.t("popup_modal_upload_account_placeholder")}
               value={accountName}
               onKeyDown={handleEnter}
               onChange={(e) => {

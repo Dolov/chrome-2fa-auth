@@ -25,7 +25,7 @@
 4. **OTPAuth `algorithm` 必须经 `toHmacAlgorithm()` 归一**：规范是大写 `SHA1`，`generateOtp` 要求小写 `sha1|sha256|sha512`。缺省回退 `"sha1"`，绝不能传 `undefined`。
 5. **不引入位图品牌素材**：用 [`components/ui/icon.tsx`](./components/ui/icon.tsx) 的矢量图标，需要新品牌标识先查这个文件。
 6. **核心算法的内联实现必须落 `utils/libs/`**：HMAC / Base32 / OTPAuth URL / TOTP 是项目长期策略（[ADR-0006](./docs/adr/0006-inline-hmac-replaces-otplib.md)），目的是剥离 otplib 及其 Node 垫片（实测 442.5 KB × 3 个 bundle）。**新增第三方库前先问「能否内联 + 黑盒 e2e 兜底」；一旦内联，统一放 `utils/libs/`，不要散落到 `utils/`**。正确性兜底：`e2e/specs/05-otp.spec.ts` 用独立 otplib 算期望值做黑盒断言。
-7. **零硬编码文案**：所有面向用户的字符串一律走 `i18n("key")`（[`utils/i18n.ts`](./utils/i18n.ts)），键写进 `public/_locales/{en,zh_CN,zh_TW,ja,ko,es}/messages.json`。**新增 key 必须 6 个 locale 同步**（缺一个就会回退到 key）；`en` 是 `default_locale`，改完跑 `pnpm build` 看 `.wxt/types/i18n.d.ts` 是否更新。命名 `<模块>_<组件>_<用途>`（snake_case）。
+7. **零硬编码文案**：所有面向用户的字符串一律走 `i18n.t("key")`（来自 `#i18n`，即 WXT 官方 [`@wxt-dev/i18n`](./docs/adr/0009-i18n-via-wxt-dev-i18n.md)）。key 写进 `locales/<lang>.json`（`en` / `zh_CN` / `zh_TW` / `ja` / `ko` / `es`），**新增 key 必须 6 个 locale 同步**。`en` 是 `default_locale`，也是**类型与占位符的唯一来源**——它必须带 `$1..$9`，否则类型层不允许传参；替换值必须传数组（`i18n.t(k, [v])`，裸数字会被当成复数计数）。改完跑 `pnpm build`。语言跟随浏览器 UI 语言，**运行时切语言不支持**（`chrome.i18n` 固有限制，见 ADR-0009）。
 
 ## 测试
 

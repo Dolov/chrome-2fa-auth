@@ -19,11 +19,11 @@
 
 import type { QRCode } from "jsqr"
 
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 
 /** 解码失败时抛出的 i18n 错误文案（惰性取值，避免模块加载期读 chrome.i18n） */
-const canvasContextMissingError = () => new Error(i18n("global_content_error_canvas"))
-const qrNotFoundError = () => new Error(i18n("qr_decode_error_not_found"))
+const canvasContextMissingError = () => new Error(i18n.t("global_content_error_canvas"))
+const qrNotFoundError = () => new Error(i18n.t("qr_decode_error_not_found"))
 
 /** 一条扫码结果 */
 export interface QRScanResult {
@@ -123,5 +123,5 @@ export const scanPage = async (): Promise<QRScanResult> => {
     }
   }
 
-  throw new Error(i18n("qr_decode_error_no_valid_qr"))
+  throw new Error(i18n.t("qr_decode_error_no_valid_qr"))
 }

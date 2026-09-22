@@ -1,4 +1,4 @@
-import { setDocumentLang } from "~/utils/i18n"
+import { setDocumentLang } from "~/utils/document-lang"
 import React from "react"
 import ReactDOM from "react-dom/client"
 

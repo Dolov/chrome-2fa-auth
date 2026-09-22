@@ -16,7 +16,7 @@ import message from "~/features/page-ui/toast"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { generateOtpAuthUrl } from "~/utils/libs/otpauth"
 import type { DataProps } from "~/utils/types"
 
@@ -57,14 +57,14 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
   // 恢复已删除的条目
   const handleRestore = async () => {
     await restore(itemData.id)
-    message.success(i18n("common_toast_restored"))
+    message.success(i18n.t("common_toast_restored"))
     onClose()
   }
 
   const handleShare = async () => {
     const url = generateOtpAuthUrl(itemData)
     const shareData = {
-      title: i18n("popup_item_action_share_title", itemData.issuer),
+      title: i18n.t("popup_item_action_share_title", [itemData.issuer]),
       text: url
     }
 
@@ -79,7 +79,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
     }
 
     await copyTextToClipboardV2(url)
-    message.success(i18n("common_toast_share_link_copied"))
+    message.success(i18n.t("common_toast_share_link_copied"))
   }
 
   const handlePin = async () => {
@@ -123,7 +123,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
       />
       <RecoveryCodesModal
         data={itemData}
-        title={i18n("popup_modal_recovery_title")}
+        title={i18n.t("popup_modal_recovery_title")}
         isVisible={modals.isOpen("recovery")}
         onClose={() => {
           modals.close("recovery")
@@ -159,7 +159,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
               className="btn btn-ghost px-2 hover:text-primary">
               <div className="flex flex-col items-center justify-center gap-1">
                 <Share2 size={18} />
-                <span className="text-xs font-normal">{i18n("popup_item_action_share")}</span>
+                <span className="text-xs font-normal">{i18n.t("popup_item_action_share")}</span>
               </div>
             </button>
           )}
@@ -173,13 +173,13 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
                 {!pinned && (
                   <Fragment>
                     <Pin size={18} />
-                    <span className="text-xs font-normal">{i18n("popup_item_action_pin")}</span>
+                    <span className="text-xs font-normal">{i18n.t("popup_item_action_pin")}</span>
                   </Fragment>
                 )}
                 {pinned && (
                   <Fragment>
                     <PinOff size={18} />
-                    <span className="text-xs font-normal">{i18n("popup_item_action_unpin")}</span>
+                    <span className="text-xs font-normal">{i18n.t("popup_item_action_unpin")}</span>
                   </Fragment>
                 )}
               </div>
@@ -191,7 +191,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
             className="btn btn-ghost px-2 hover:text-accent">
             <div className="flex flex-col items-center justify-center gap-1">
               <QrCode size={18} />
-              <span className="text-xs font-normal">{i18n("popup_item_action_qr")}</span>
+              <span className="text-xs font-normal">{i18n.t("popup_item_action_qr")}</span>
             </div>
           </button>
           {!deleted && (
@@ -201,7 +201,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
               className="btn btn-ghost px-2 hover:text-info">
               <div className="flex flex-col items-center justify-center gap-1">
                 <Pencil size={18} />
-                <span className="text-xs font-normal">{i18n("popup_item_action_edit")}</span>
+                <span className="text-xs font-normal">{i18n.t("popup_item_action_edit")}</span>
               </div>
             </button>
           )}
@@ -212,7 +212,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
               className="btn btn-ghost px-2 hover:text-success">
               <div className="flex flex-col items-center justify-center gap-1">
                 <KeyRound size={18} />
-                <span className="text-xs font-normal">{i18n("popup_item_action_recovery")}</span>
+                <span className="text-xs font-normal">{i18n.t("popup_item_action_recovery")}</span>
               </div>
             </button>
           )}
@@ -223,7 +223,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
               className="btn btn-ghost px-2 hover:text-info">
               <div className="flex flex-col items-center justify-center gap-1">
                 <History size={18} />
-                <span className="text-xs font-normal">{i18n("popup_item_action_restore")}</span>
+                <span className="text-xs font-normal">{i18n.t("popup_item_action_restore")}</span>
               </div>
             </button>
           )}
@@ -233,7 +233,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
             className="btn btn-ghost px-2 hover:text-error">
             <div className="flex flex-col items-center justify-center gap-1">
               <Trash2 size={18} />
-              <span className="text-xs font-normal">{i18n("popup_item_action_delete")}</span>
+              <span className="text-xs font-normal">{i18n.t("popup_item_action_delete")}</span>
             </div>
           </button>
         </div>
@@ -246,7 +246,7 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
             onClick={closeAll}
             data-testid="item-action-close"
             className="btn btn-sm btn-ghost">
-            {i18n("popup_item_action_close")}
+            {i18n.t("popup_item_action_close")}
           </button>
         </div>
       </div>

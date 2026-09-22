@@ -1,5 +1,6 @@
 import { cn } from "~/utils/cn"
-import { i18n, setDocumentLang } from "~/utils/i18n"
+import { i18n } from "#i18n"
+import { setDocumentLang } from "~/utils/document-lang"
 import React from "react"
 import ReactDOM from "react-dom/client"
 
@@ -8,7 +9,7 @@ import Setting from "./app"
 import "~/style.css"
 
 setDocumentLang()
-document.title = `${i18n("settings_header_brand")} - ${i18n("settings_header_label")}`
+document.title = `${i18n.t("settings_header_brand")} - ${i18n.t("settings_header_label")}`
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

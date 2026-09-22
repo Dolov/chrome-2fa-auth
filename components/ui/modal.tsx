@@ -1,7 +1,7 @@
 import React from "react"
 
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 
 import Button from "./button"
 import ProgressBar from "./progress"
@@ -56,7 +56,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     isProgressLoading,
     confirmButtonClassName,
     closeButtonClassName,
-    okText = i18n("common_action_confirm"),
+    okText = i18n.t("common_action_confirm"),
     keyboardEvents,
     isShortcutKeySave,
     placeholder,
@@ -138,7 +138,7 @@ const Modal: React.FC<ModalProps> = (props) => {
             data-testid="modal-close"
             className={cn("btn", closeButtonClassName)}
             onClick={handleClose}>
-            {i18n("common_action_close")}
+            {i18n.t("common_action_close")}
           </button>
         </div>
       </div>
@@ -165,7 +165,7 @@ const Modal: React.FC<ModalProps> = (props) => {
         {renderFooter()}
       </ProgressBar>
       <form method="dialog" className="modal-backdrop">
-        <button aria-label={i18n("common_action_close")}>close</button>
+        <button aria-label={i18n.t("common_action_close")}>close</button>
       </form>
     </dialog>
   )

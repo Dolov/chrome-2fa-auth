@@ -3,7 +3,7 @@ import React from "react"
 import { FaviconMinimal } from "~/components/favicons"
 import Modal from "~/components/ui/modal"
 import { useOtpMutators } from "~/features/otp-store"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import type { DataProps } from "~/utils/types"
 
 import { useModalWidth } from "./use-modal-width"
@@ -31,8 +31,8 @@ const DeleteModal: React.FC<DeleteModalProps> = (props) => {
   }
 
   const text = deleted
-    ? i18n("popup_modal_delete_hard_text")
-    : i18n("popup_modal_delete_soft_text")
+    ? i18n.t("popup_modal_delete_hard_text")
+    : i18n.t("popup_modal_delete_soft_text")
 
   return (
     <Modal
@@ -46,7 +46,7 @@ const DeleteModal: React.FC<DeleteModalProps> = (props) => {
       isVisible={isVisible}
       onClose={onClose}
       onOk={handleDelete}
-      okText={i18n("popup_modal_delete_ok")}
+      okText={i18n.t("popup_modal_delete_ok")}
       confirmButtonClassName="btn-error">
       <div
         data-testid="delete-modal"

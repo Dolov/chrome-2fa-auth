@@ -5,7 +5,7 @@ import { FaviconMinimal } from "~/components/favicons"
 import Modal from "~/components/ui/modal"
 import message from "~/features/page-ui/toast"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { generateOtpAuthUrl } from "~/utils/libs/otpauth"
 import type { DataProps } from "~/utils/types"
 
@@ -26,7 +26,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = (props) => {
 
   const handleCopy = () => {
     void copyTextToClipboardV2(url)
-    message.success(i18n("common_toast_copied"))
+    message.success(i18n.t("common_toast_copied"))
   }
 
   const handleDownload = () => {
@@ -59,13 +59,13 @@ const QRCodeModal: React.FC<QRCodeModalProps> = (props) => {
               onClick={handleCopy}
               data-testid="qr-modal-copy"
               className="btn btn-link">
-              {i18n("popup_modal_qr_copy")}
+              {i18n.t("popup_modal_qr_copy")}
             </button>
             <button
               onClick={handleDownload}
               data-testid="qr-modal-download"
               className="btn btn-link">
-              {i18n("popup_modal_qr_download")}
+              {i18n.t("popup_modal_qr_download")}
             </button>
           </div>
         </div>

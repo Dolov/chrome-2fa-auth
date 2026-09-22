@@ -5,7 +5,7 @@ import Dropdown from "~/components/ui/dropdown"
 import { useOtpList } from "~/features/otp-store"
 import { openSettingsPage } from "~/features/runtime/open-settings"
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { ContainerType } from "~/utils/types"
 
 import { PopupContext } from "./context"
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         testId: "header-menu-all",
         label: (
           <div>
-            {i18n("popup_header_menu_all")}
+            {i18n.t("popup_header_menu_all")}
             <div className="badge badge-primary ml-2">{normalCount}</div>
           </div>
         ),
@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = (props) => {
         testId: "header-menu-deleted",
         label: (
           <div>
-            {i18n("popup_header_menu_deleted")}
+            {i18n.t("popup_header_menu_deleted")}
             <div className="badge badge-neutral ml-2">{deletedCount}</div>
           </div>
         ),
@@ -74,7 +74,7 @@ const Header: React.FC<HeaderProps> = (props) => {
     items.push({
       key: "settings",
       testId: "header-menu-settings",
-      label: i18n("popup_header_menu_settings"),
+      label: i18n.t("popup_header_menu_settings"),
       onClick: openSettingsPage
     })
 
@@ -108,12 +108,12 @@ const Header: React.FC<HeaderProps> = (props) => {
             autoFocus
             data-testid="header-search-input"
             className="input input-sm input-ghost border-none !outline-none"
-            placeholder={i18n("popup_header_search_placeholder")}
+            placeholder={i18n.t("popup_header_search_placeholder")}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
         )}
-        {!isSearching && <span>{i18n("popup_header_title")}</span>}
+        {!isSearching && <span>{i18n.t("popup_header_title")}</span>}
       </div>
       <div className="flex justify-end">
         <button

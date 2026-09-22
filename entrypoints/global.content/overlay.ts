@@ -1,7 +1,7 @@
 import { contentBaseZindex } from "~/features/page-ui/css-portal"
 import { createSelectionBox } from "~/features/page-ui/gradient-border"
 import { sendCaptureScreenshot } from "~/features/messaging"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 
 import { cropImage } from "./crop"
 
@@ -104,7 +104,7 @@ export const captureAndDecode = async (
 ): Promise<string> => {
   const response = await sendCaptureScreenshot()
   if (!response?.success || !response.image) {
-    throw new Error(i18n("global_content_error_screenshot"))
+    throw new Error(i18n.t("global_content_error_screenshot"))
   }
 
   return cropImage(

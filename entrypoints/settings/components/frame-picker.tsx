@@ -4,7 +4,7 @@ import OptionCard from "./option-card"
 
 import { useSettings } from "~/features/ui-state/use-settings"
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { ContainerType } from "~/utils/types"
 
 interface FrameOption {
@@ -45,12 +45,12 @@ const FramePicker: React.FC = () => {
   const options: FrameOption[] = [
     {
       meta: "350 × 600",
-      label: i18n("settings_frame_standard"),
+      label: i18n.t("settings_frame_standard"),
       value: ContainerType.DEFAULT
     },
     {
       meta: "378 × 600",
-      label: i18n("settings_frame_phone"),
+      label: i18n.t("settings_frame_phone"),
       value: ContainerType.PHONE
     }
   ]

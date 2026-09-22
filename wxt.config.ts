@@ -6,16 +6,15 @@ import { defineConfig } from "wxt"
 export default defineConfig({
   srcDir: ".",
   outDir: ".output",
-  modules: ["@wxt-dev/module-react"],
+  modules: ["@wxt-dev/module-react", "@wxt-dev/i18n/module"],
   manifest: {
     name: "__MSG_appName__",
     description: "__MSG_appDescription__",
     default_locale: "en",
     permissions: ["storage", "tabs", "scripting", "activeTab", "contextMenus"],
     host_permissions: ["https://*/*"],
-    action: {
-      default_title: "__MSG_appName__"
-    },
+    // 故意不写 action.default_title：popup 入口的 <title> 会覆盖它。
+    // 省掉两者 → 工具栏提示回退到本地化的 manifest.name。
     icons: {
       "16": "icon/16.png",
       "48": "icon/48.png",

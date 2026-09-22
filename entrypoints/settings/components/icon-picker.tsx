@@ -4,7 +4,7 @@ import OptionCard from "./option-card"
 
 import Favicon from "~/components/favicons"
 import { useSettings } from "~/features/ui-state/use-settings"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { FaviconType } from "~/utils/types"
 
 interface IconOption {
@@ -21,13 +21,13 @@ const IconPicker: React.FC = () => {
   // 视觉样板数据（与语言无关），保持原样。
   const options: IconOption[] = [
     {
-      hint: i18n("settings_icon_elegant_hint"),
-      label: i18n("settings_icon_elegant_label"),
+      hint: i18n.t("settings_icon_elegant_hint"),
+      label: i18n.t("settings_icon_elegant_label"),
       value: FaviconType.ELEGANT
     },
     {
-      hint: i18n("settings_icon_minimal_hint"),
-      label: i18n("settings_icon_minimal_label"),
+      hint: i18n.t("settings_icon_minimal_hint"),
+      label: i18n.t("settings_icon_minimal_label"),
       value: FaviconType.MINIMAL
     }
   ]

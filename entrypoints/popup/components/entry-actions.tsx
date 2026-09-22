@@ -16,7 +16,7 @@ import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
-import { i18n } from "~/utils/i18n"
+import { i18n } from "#i18n"
 import { ContainerType } from "~/utils/types"
 
 import OtpForm from "./otp-form"
@@ -97,7 +97,7 @@ const EntryActions: React.FC = () => {
     try {
       const result = await sendAutoScanToActiveTab()
       if (!result?.success || !result.data) {
-        await handleManualScan(i18n("popup_fab_manual_scan_fallback_msg"))
+        await handleManualScan(i18n.t("popup_fab_manual_scan_fallback_msg"))
         return
       }
       // 短暂反馈，给用户视觉提示“识别中”
@@ -121,14 +121,14 @@ const EntryActions: React.FC = () => {
           { "opacity-100": isActive }
         )}>
         <FabAction
-          tip={i18n("popup_fab_form_tip")}
+          tip={i18n.t("popup_fab_form_tip")}
           testId="fab-form"
           tone="secondary"
           onTrigger={() => modals.open("form")}>
           <Keyboard />
         </FabAction>
         <FabAction
-          tip={i18n("popup_fab_qr_auto_tip")}
+          tip={i18n.t("popup_fab_qr_auto_tip")}
           testId="fab-qr-auto"
           tone="accent"
           disabled={!canInject}
@@ -137,15 +137,15 @@ const EntryActions: React.FC = () => {
           <QrCode />
         </FabAction>
         <FabAction
-          tip={i18n("popup_fab_qr_manual_tip")}
+          tip={i18n.t("popup_fab_qr_manual_tip")}
           testId="fab-qr-manual"
           tone="info"
           disabled={!canInject}
-          onTrigger={() => void handleManualScan(i18n("popup_fab_manual_scan_msg"))}>
+          onTrigger={() => void handleManualScan(i18n.t("popup_fab_manual_scan_msg"))}>
           <SquareDashedMousePointer />
         </FabAction>
         <FabAction
-          tip={i18n("popup_fab_qr_upload_tip")}
+          tip={i18n.t("popup_fab_qr_upload_tip")}
           testId="fab-qr-upload"
           tone="warning"
           onTrigger={() => modals.open("upload")}>
