@@ -16,10 +16,13 @@ import type { SiteAdapter } from "../site-adapter"
  *   找不到就 fall back 到 utils/qr.scanPage()
  *
  * 落库走 intake（候选 A），文案 / 去重 / 补账号与 popup 端统一。
+ *
+ * 返回 `dispose`：清除 verify 输入框上的 OTP updater，供 `dispatch.ts` 在
+ * SPA 路由切换时调用，避免 setInterval 泄漏。
  */
-export const setupReadQR = async (adapter: SiteAdapter) => {
+export const setupReadQR = async (adapter: SiteAdapter): Promise<() => void> => {
   const result = await (adapter.scanQr ?? defaultScan)(adapter)
-  if (!result) return
+  if (!result) return () => {}
 
   const { data: qrData, element } = result
   highlightElement(element)
@@ -31,7 +34,7 @@ export const setupReadQR = async (adapter: SiteAdapter) => {
     message.warning(
       `检测到二维码，但其格式【${qrData.slice(0, 80)}】不符合 OTPAuth 规范`
     )
-    return
+    return () => {}
   }
 
   const hintAccount = await adapter.resolveAccount()
@@ -42,13 +45,20 @@ export const setupReadQR = async (adapter: SiteAdapter) => {
   const verifySelector =
     adapter.selectors.otpVerifyInput ?? adapter.selectors.otpInput
   const verifyInput = document.querySelector<HTMLInputElement>(verifySelector)
-  if (verifyInput) {
-    startOtpMessageUpdater(verifyInput, parsed, {
-      placeholder: true
-    })
-  }
+  const updaterDispose = verifyInput
+    ? startOtpMessageUpdater(verifyInput, parsed, { placeholder: true }).dispose
+    : null
 
-  attachSaveHandler(adapter, parsed, hintAccount ?? "")
+  const saveDispose = await attachSaveHandler(
+    adapter,
+    parsed,
+    hintAccount ?? ""
+  )
+
+  return () => {
+    updaterDispose?.()
+    saveDispose?.()
+  }
 }
 
 const defaultScan = async (adapter: SiteAdapter) => {
@@ -72,19 +82,21 @@ const attachSaveHandler = async (
   adapter: SiteAdapter,
   parsed: ReturnType<typeof parseOtpAuthUrl>,
   hintAccount: string
-) => {
+): Promise<() => void> => {
   const selector = adapter.selectors.qrSaveButton ?? "button[type='submit']"
   const button = await waitForElement<HTMLButtonElement>(selector).catch(
     () => null
   )
-  if (!button) return
+  if (!button) return () => {}
 
   // 该站的 intake：hintAccount 来自 resolveAccount（GitHub meta / NPM URL 段）
   const runIntake = createContentIntake({
     hintAccount: hintAccount || parsed.account || undefined
   })
 
-  button.addEventListener("click", async () => {
+  const onClick = async () => {
     await runIntake({ kind: "parsed", config: parsed })
-  })
+  }
+  button.addEventListener("click", onClick)
+  return () => button.removeEventListener("click", onClick)
 }

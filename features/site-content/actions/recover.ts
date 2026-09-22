@@ -9,18 +9,22 @@ import type { SiteAdapter } from "../site-adapter"
  *
  * - adapter.extractRecoveryCodes 未提供时，按 selectors.recoveryList +
  *   selectors.recoveryItem 读 innerText。
+ *
+ * 返回 `dispose`：移除恢复码提示容器，供 `dispatch.ts` 在 SPA 路由切换时调用。
  */
-export const setupRecoverCodes = async (adapter: SiteAdapter) => {
+export const setupRecoverCodes = async (
+  adapter: SiteAdapter
+): Promise<() => void> => {
   const account = await adapter.resolveAccount()
-  if (!account) return
+  if (!account) return () => {}
 
   const data = await getOTPList(adapter.issuer, account)
-  if (data.length === 0) return
+  if (data.length === 0) return () => {}
 
   const codes = await (adapter.extractRecoveryCodes ?? defaultRecover)(adapter)
-  if (!codes || codes.length === 0) return
+  if (!codes || codes.length === 0) return () => {}
 
-  displayRecoveryCodeSaveMessage(
+  return displayRecoveryCodeSaveMessage(
     document.body,
     {
       ...data[0]!,

@@ -5,6 +5,14 @@ import { generateOtp, getRemainingTime } from "~/utils/libs/totp"
 import { createGradientTextContainer } from "./gradient-border"
 import type { OtpAuthConfig } from "~/utils/types"
 
+/** startOtpMessageUpdater 返回的资源句柄，调用方负责在 SPA cleanup 时调 dispose */
+export interface OtpUpdaterHandle {
+  /** 重复计时器 id */
+  intervalId: ReturnType<typeof setInterval>
+  /** 清除计时器 + 移除 DOM */
+  dispose: () => void
+}
+
 /** OTP 消息更新器的配置选项 */
 export interface OtpAutofillOptions {
   /** 容器的自定义样式 */
@@ -25,13 +33,13 @@ export interface OtpAutofillOptions {
  * 要透传给 `generateOtp` / `getRemainingTime`，否则非默认配置的账户会把
  * **错误的码直接填进目标网站**。
  *
- * @returns setInterval id，调用方可清理
+ * 返回 `dispose`：清掉 `setInterval` + 移除注入的 DOM。SPA 路由切换时调用。
  */
 export const startOtpMessageUpdater = (
   input: HTMLInputElement,
   config: OtpAuthConfig,
   options: OtpAutofillOptions = {}
-) => {
+): OtpUpdaterHandle => {
   const { style = {}, placeholder, account, autoFill = true } = options
 
   mountStyle(
@@ -88,5 +96,12 @@ export const startOtpMessageUpdater = (
     message.success(`已复制 ${code} 到剪贴板`)
   })
 
-  return setInterval(updateOtpMessage, 1000)
+  const intervalId = setInterval(updateOtpMessage, 1000)
+  return {
+    intervalId,
+    dispose: () => {
+      clearInterval(intervalId)
+      container.remove()
+    }
+  }
 }

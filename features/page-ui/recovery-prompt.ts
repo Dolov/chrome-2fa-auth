@@ -12,12 +12,14 @@ export interface RecoveryPromptOptions {
  * 在目标元素之后插入一个浮动提示：
  * 已保存 → 显示静态文案
  * 未保存 → 显示可点击触发保存的提示语
+ *
+ * 返回 `dispose` —— SPA 路由切换时调用，移除注入的 DOM。
  */
 export const displayRecoveryCodeSaveMessage = async (
   element: HTMLElement,
   parsedData: DataProps,
   options: RecoveryPromptOptions = {}
-) => {
+): Promise<() => void> => {
   const { containerStyle } = options
   const { container, textElement } = createGradientTextContainer(containerStyle)
 
@@ -28,7 +30,7 @@ export const displayRecoveryCodeSaveMessage = async (
 
   if (saved) {
     textElement.textContent = savedText
-    return
+    return () => container.remove()
   }
 
   const { account, issuer } = parsedData
@@ -39,4 +41,5 @@ export const displayRecoveryCodeSaveMessage = async (
     textElement.textContent = savedText
     message.success("保存成功")
   })
+  return () => container.remove()
 }
