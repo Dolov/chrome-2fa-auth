@@ -5,7 +5,7 @@
  * 必须先在真实浏览器里证明「独立 chunk 能在运行时被加载并解码」。
  * 自动扫描（42-44）、粘贴（47）、手动截图（50-55）留到后续补全 F7。
  *
- * 三个 case 正好覆盖 `components/home/upload-modal.tsx::processFile` 的三条分支：
+ * 三个 case 正好覆盖 `entrypoints/popup/components/upload-modal.tsx::processFile` 的三条分支：
  *   解码成功 + 是 otpauth   → preview 显示 OTP
  *   解码成功 + 非 otpauth   → 「无效的 OTP Auth URL」
  *   解码失败（无二维码）     → 「无法读取文件：未找到二维码」

@@ -21,23 +21,23 @@ import type { DataProps } from "~/utils/types"
 
 import DeleteModal from "./delete-modal"
 import EditModal from "./otp-form"
-import RecoveryCodeModal from "./recovery-codes"
+import RecoveryCodesModal from "./recovery-codes-modal"
 import { useModalWidth } from "./use-modal-width"
 
 // qrcode.react + 二维码弹层只在用户点开时加载，避免进入 popup 主包
 const QRCodeModal = React.lazy(() => import("./qr-code-modal"))
 
-/** ItemActions 内嵌的 4 个 modal 的统一 key 列表 */
+/** ItemActionSheet 内嵌的 4 个 modal 的统一 key 列表 */
 const ACTION_MODALS = ["qr", "edit", "recovery", "delete"] as const
 type ActionModalKey = (typeof ACTION_MODALS)[number]
 
-interface ItemActionsProps {
+interface ItemActionSheetProps {
   isVisible: boolean
   onClose: () => void
   itemData: DataProps
 }
 
-const ItemActions: React.FC<ItemActionsProps> = (props) => {
+const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
   const { isVisible, onClose, itemData } = props
   const { left, right, top, bottom, radius } = useModalWidth()
   const dataList = useOtpList()
@@ -120,7 +120,7 @@ const ItemActions: React.FC<ItemActionsProps> = (props) => {
           onClose()
         }}
       />
-      <RecoveryCodeModal
+      <RecoveryCodesModal
         data={itemData}
         title="恢复密钥"
         isVisible={modals.isOpen("recovery")}
@@ -242,4 +242,4 @@ const ItemActions: React.FC<ItemActionsProps> = (props) => {
   )
 }
 
-export default ItemActions
+export default ItemActionSheet

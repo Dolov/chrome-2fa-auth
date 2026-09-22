@@ -6,12 +6,12 @@ import { THEMES } from "./themes"
 import { useThemeChange } from "~/features/ui-state/use-theme-change"
 
 /**
- * 主题货架：32 张磁贴 + 当前选中态。
+ * 主题网格：32 张磁贴 + 当前选中态。
  *
  * 选中即写存储，页面自身的 `data-theme` 随之改变（useThemeChange 负责），
  * 所以「选中的那一套」就是此刻页面正在呈现的那一套。
  */
-const ThemeRack: React.FC = () => {
+const ThemeGrid: React.FC = () => {
   const [theme, setTheme] = useThemeChange()
 
   return (
@@ -28,4 +28,4 @@ const ThemeRack: React.FC = () => {
   )
 }
 
-export default ThemeRack
+export default ThemeGrid

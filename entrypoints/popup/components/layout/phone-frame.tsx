@@ -1,12 +1,17 @@
 import { cn } from "~/utils/cn"
 import React from "react"
 
-interface PhoneProps {
+interface PhoneFrameProps {
   children: React.ReactNode
   className?: string
 }
 
-const Phone: React.FC<PhoneProps> = (props) => {
+/**
+ * daisyUI `mockup-phone` 外壳：摄像头 + 屏幕 + 圆角机身。
+ *
+ * `PhoneFrame` 而非 `Phone`——避免与 daisyUI 类名、与设备 API 的 `Phone` 概念混淆。
+ */
+const PhoneFrame: React.FC<PhoneFrameProps> = (props) => {
   const { children, className } = props
   return (
     <div className={cn("flex flex-col", className)}>
@@ -22,4 +27,4 @@ const Phone: React.FC<PhoneProps> = (props) => {
   )
 }
 
-export default Phone
+export default PhoneFrame

@@ -131,7 +131,7 @@ e2e/
 
 | # | 优先级 | describe/it | Case |
 |---|---|---|---|
-| 37 | P0 | `recovery > 弹层显示` | `ItemActions 点恢复码 → 弹层显示所有 codes` |
+| 37 | P0 | `recovery > 弹层显示` | `ItemActionSheet 点恢复码 → 弹层显示所有 codes` |
 | 38 | P0 | `recovery > 复制恢复码` | `剪贴板含该码 → 1s 后图标变 ✓ → 文字划掉` |
 | 39 | P0 | `recovery > 状态持久化` | `刷新 popup → 已复制状态保留` |
 | 40 | P1 | `recovery > 无 codes 时按钮隐藏` | `无 recoveryCodes 不显示按钮` |

@@ -10,7 +10,7 @@ import React from "react"
  * 调用方一次性声明 key 列表，hook 返回 open/close/closeAll。
  *
  * 这不是栈式管理（modal 之间互斥），而是**并行可见性聚合**——
- * 实际 UI 里多个 modal 可同时存在（item-actions.tsx 即如此），
+ * 实际 UI 里多个 modal 可同时存在（item-action-sheet.tsx 即如此），
  * 强行做栈会破坏现有交互。
  */
 export type ModalState<K extends string> = Record<K, boolean>

@@ -12,14 +12,14 @@ import { useModalWidth } from "./use-modal-width"
 /** 复制图标恢复为默认态前的停留时长 */
 const COPY_FEEDBACK_MS = 1000
 
-export interface RecoveryCodesProps {
+export interface RecoveryCodesModalProps {
   data: DataProps
   title: string
   isVisible: boolean
   onClose: () => void
 }
 
-const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
+const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
   const { isVisible, onClose, title, data } = props
   const { width } = useModalWidth()
 
@@ -85,4 +85,4 @@ const RecoveryCodes: React.FC<RecoveryCodesProps> = (props) => {
   )
 }
 
-export default RecoveryCodes
+export default RecoveryCodesModal

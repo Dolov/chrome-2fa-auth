@@ -1,11 +1,11 @@
 import React from "react"
 
 import FramePicker from "./frame-picker"
+import Header from "./header"
 import IconPicker from "./icon-picker"
+import Preview from "./preview"
 import SectionHeader from "./section-header"
-import Specimen from "./specimen"
-import ThemeRack from "./theme-rack"
-import TopBar from "./top-bar"
+import ThemeGrid from "./theme-grid"
 
 import { useSettings } from "~/features/ui-state/use-settings"
 
@@ -25,7 +25,7 @@ const SettingsPage: React.FC = () => {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <TopBar />
+      <Header />
       <div className="mx-auto flex w-full max-w-[1440px] min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         {/* 唯一滚动区 */}
         <div className="flex flex-col gap-12 px-4 pt-8 pb-12 sm:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:px-10 lg:pb-16">
@@ -35,7 +35,7 @@ const SettingsPage: React.FC = () => {
               title="主题"
               eyebrow="theme · 32"
             />
-            <ThemeRack />
+            <ThemeGrid />
           </section>
           <section>
             <SectionHeader
@@ -54,7 +54,7 @@ const SettingsPage: React.FC = () => {
             <IconPicker />
           </section>
         </div>
-        <Specimen containerType={containerType} />
+        <Preview containerType={containerType} />
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import React from "react"
 
-import Main from "~/components/home"
+import Main from "~/entrypoints/popup/components"
 import { OtpProvider } from "~/features/otp-store"
 import { useStorage } from "~/features/ui-state/use-storage"
 import { useThemeChange } from "~/features/ui-state/use-theme-change"

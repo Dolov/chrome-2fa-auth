@@ -20,7 +20,7 @@
 |---|---|---|---|
 | 双端纯原语 | `utils/` | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态 |
 | 页面注入 UI | `features/page-ui/` | 操作宿主页面 DOM 与 CSS（`mountStyle` 是唯一 `<style>` 注入通道） | import React |
-| React 页面状态 | `features/ui-state/`、`components/` | React hooks / 组件 | 被 content script import |
+| React 页面状态 | `features/ui-state/`（hooks）、`components/ui/`（设计原语）、`entrypoints/{popup,settings}/components/`（页面专属组件）、`components/favicons.tsx`（跨页面领域组件） | React hooks / 组件 | 被 content script import |
 | React 业务状态 | `features/otp-store/`；`context.tsx` 是唯一 React 入口 | Provider + mutators | 被 content script import；向 content 侧 re-export `dataStore` |
 | content 专属 | `features/site-content/dom/`、`entrypoints/*.content/` | 依赖宿主页面结构（SPA 路由、DOM 选择器） | 被 popup / settings import |
 
@@ -224,11 +224,11 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 
 ### 12. Layout Container
 
-- **是什么**：popup 的两种视觉容器：`PHONE`（daisyUI `mockup-phone`）和 `DEFAULT`（标准 350×600）。
-- **在哪里**：`components/home/container/{index,phone}.tsx`；通过 `ContainerType` 枚举切换。
-- **典型用法**：`<Container>{children}</Container>`；`useModalWidth()` 根据 `containerType` 返回对话框宽度。
+- **是什么**：popup 的两种视觉壳：`PHONE`（daisyUI `mockup-phone`）和 `DEFAULT`（标准 350×600）。
+- **在哪里**：`entrypoints/popup/components/layout/{index,phone-frame}.tsx`；通过 `ContainerType` 枚举切换。
+- **典型用法**：`<Layout>{children}</Layout>`；`useModalWidth()` 根据 `containerType` 返回对话框宽度。
 - **边界**：
-  - `Container` 是 React 组件名（DOM 容器），与"容器布局"概念同名但与 `chrome.tabs` 等无关。
+  - `Layout` 是 React 组件名（外层壳），与"容器布局"概念同名但与 `chrome.tabs` 等无关。
   - 不要把它与 `ContainerType` 枚举混淆。
 
 ### 13. Message Protocol（候选 B 引入）
@@ -304,10 +304,22 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
   透传到 `generateOtp`，组件改收 `config` 而非 `secret`（ADR-0008）。
   **改任何 OTP 渲染点时先读该 ADR 的「参数透传不变式」。**
 - 2026 前端组件 review 修复：`GlobalContext` → `HomeContext` / `HomeProvider`
-  （`components/home/home-context.tsx`），移除未读的 `source` 字段与 `SourceType`；
+  （旧 `components/home/home-context.tsx`），移除未读的 `source` 字段与 `SourceType`；
   拆分 `item-actions.tsx` 的 modal、抽 `CreateFab`、删除 `useFilter`；OTP 计时改
   共享时钟（见词条 15）；`OtpProvider` / `useStorage` 改用 `useSyncExternalStore`；
   `Modal` 以 ref 驱动 `<dialog>` 并消除 stale `onClose`。
+- 2026 页面专属组件下沉：popup 组件从 `components/home/*` 整体搬到
+  `entrypoints/popup/components/*`；settings 组件从 `components/settings/*`
+  搬到 `entrypoints/settings/components/*`；`OtpText` / `OtpRemaining`
+  从 `components/` 顶层收进 `entrypoints/popup/components/`。
+  理由：popup / settings 各自是单一 mount 点，组件严格按页面归属。
+  **只有跨页面才留在 `components/`**（当前仅 `components/ui/*` 设计原语
+  与 `components/favicons.tsx` 跨页面领域组件）。`HomeProvider` / `HomeContext`
+  → `PopupProvider` / `PopupContext`（与目录对齐），文件 `home-context.tsx`
+  → `context.tsx`（目录已消歧）。`Main` 作为 popup 主视图默认导出名，
+  与两处 import 别名（`entrypoints/popup/app.tsx`、
+  `entrypoints/settings/components/specimen.tsx`）一致。
+  字节级一致：build 产物与重构前完全相同，E2E 20/20 全绿。
 
 ## 维护
 

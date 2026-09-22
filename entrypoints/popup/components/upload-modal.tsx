@@ -1,15 +1,15 @@
 import { ImageUp } from "lucide-react"
 import React from "react"
 
-import OtpRemaining from "~/components/otp-remaining"
-import OtpText from "~/components/otp-text"
+import OtpRemaining from "./otp-remaining"
+import OtpText from "./otp-text"
 import Modal from "~/components/ui/modal"
 import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { cn } from "~/utils/cn"
 import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/otpauth"
 import { ContainerType } from "~/utils/types"
 
-import { HomeContext } from "./home-context"
+import { PopupContext } from "./context"
 import { useModalWidth } from "./use-modal-width"
 
 interface UploadModalProps {
@@ -20,7 +20,7 @@ interface UploadModalProps {
 const UploadModal: React.FC<UploadModalProps> = (props) => {
   const { isVisible, onClose } = props
   const { width } = useModalWidth()
-  const { containerType } = React.useContext(HomeContext)
+  const { containerType } = React.useContext(PopupContext)
   const intake = usePopupIntake()
 
   const [error, setError] = React.useState<string | null>(null)

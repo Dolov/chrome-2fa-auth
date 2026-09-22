@@ -3,7 +3,7 @@ import React from "react"
 import { cn } from "~/utils/cn"
 
 import Button from "./button"
-import QProgress from "./qprogress"
+import ProgressBar from "./progress"
 
 export interface ModalShortcuts {
   Space?: () => void
@@ -141,7 +141,7 @@ const Modal: React.FC<ModalProps> = (props) => {
 
   return (
     <dialog ref={dialogRef} onKeyDown={onKeyDown} className="modal">
-      <QProgress
+      <ProgressBar
         isLoading={isProgressLoading}
         style={{ width, maxWidth: width, ...style }}
         className={cn("modal-box flex flex-col", {
@@ -153,7 +153,7 @@ const Modal: React.FC<ModalProps> = (props) => {
         {title && <h3 className="font-bold text-lg pb-4">{title}</h3>}
         <div className="flex flex-col flex-1 overflow-auto">{children}</div>
         {renderFooter()}
-      </QProgress>
+      </ProgressBar>
       <form method="dialog" className="modal-backdrop">
         <button>close</button>
       </form>

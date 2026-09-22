@@ -12,7 +12,7 @@ interface FrameOption {
   value: ContainerType
 }
 
-/** 尺寸与 `components/home/container/index.tsx` 的容器保持一致 */
+/** 尺寸与 `entrypoints/popup/components/layout/index.tsx` 的壳保持一致 */
 const OPTIONS: FrameOption[] = [
   { meta: "350 × 600", label: "标准面板", value: ContainerType.DEFAULT },
   { meta: "378 × 600", label: "手机外形", value: ContainerType.PHONE }

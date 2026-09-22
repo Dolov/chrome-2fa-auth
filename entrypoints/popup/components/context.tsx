@@ -4,35 +4,35 @@ import { ContainerType } from "~/utils/types"
 
 export type FilterType = "deleted" | "normal"
 
-export interface HomeContextValue {
+export interface PopupContextValue {
   containerType: ContainerType
   filter: FilterType
   setFilter: (filter: FilterType) => void
 }
 
-const defaultContext: HomeContextValue = {
+const defaultContext: PopupContextValue = {
   containerType: ContainerType.DEFAULT,
   filter: "normal",
   setFilter: () => {}
 }
 
-export const HomeContext = React.createContext<HomeContextValue>(defaultContext)
+export const PopupContext = React.createContext<PopupContextValue>(defaultContext)
 
-interface HomeProviderProps {
+interface PopupProviderProps {
   containerType: ContainerType
   children: React.ReactNode
 }
 
-export const HomeProvider = ({
+export const PopupProvider = ({
   children,
   containerType
-}: HomeProviderProps): JSX.Element => {
+}: PopupProviderProps): JSX.Element => {
   const [filter, setFilter] = React.useState<FilterType>("normal")
 
-  const value = React.useMemo<HomeContextValue>(
+  const value = React.useMemo<PopupContextValue>(
     () => ({ containerType, filter, setFilter }),
     [containerType, filter]
   )
 
-  return <HomeContext.Provider value={value}>{children}</HomeContext.Provider>
+  return <PopupContext.Provider value={value}>{children}</PopupContext.Provider>
 }

@@ -1,7 +1,7 @@
 import React from "react"
 
 /** 顶栏只放身份信息：扩展名、页面名、版本号。链接已由右键菜单覆盖，不在这里重复。 */
-const TopBar: React.FC = () => {
+const Header: React.FC = () => {
   const { version } = browser.runtime.getManifest()
 
   return (
@@ -21,4 +21,4 @@ const TopBar: React.FC = () => {
   )
 }
 
-export default TopBar
+export default Header

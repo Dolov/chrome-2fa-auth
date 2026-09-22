@@ -1,7 +1,7 @@
-import Progress from "qier-progress"
+import QierProgress from "qier-progress"
 import React from "react"
 
-interface QProgressProps {
+interface ProgressBarProps {
   isLoading?: boolean
   children: React.ReactNode
   progressHeight?: number
@@ -10,7 +10,13 @@ interface QProgressProps {
   value?: number
 }
 
-const QProgress: React.FC<QProgressProps> = (props) => {
+/**
+ * 顶置进度条包装：传给 `isLoading` 即在容器顶部跑 qier-progress 动画。
+ *
+ * 用法是在 Modal 顶层包一层：children 是 modal-box 本身。Modal 打开期间如果
+ * 想表达「异步加载中」，把 `isLoading` 切 true 就会有一条从左到右的绿色进度。
+ */
+const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const {
     isLoading,
     children,
@@ -19,7 +25,7 @@ const QProgress: React.FC<QProgressProps> = (props) => {
     style,
     value
   } = props
-  const progressRef = React.useRef<Progress | null>(null)
+  const progressRef = React.useRef<QierProgress | null>(null)
 
   React.useEffect(() => {
     if (!progressRef.current) return
@@ -37,7 +43,7 @@ const QProgress: React.FC<QProgressProps> = (props) => {
     }
 
     if (!progressRef.current) {
-      progressRef.current = new Progress({
+      progressRef.current = new QierProgress({
         parentNode: element,
         height: progressHeight
       })
@@ -51,4 +57,4 @@ const QProgress: React.FC<QProgressProps> = (props) => {
   )
 }
 
-export default QProgress
+export default ProgressBar

@@ -7,7 +7,7 @@ import { openSettingsPage } from "~/features/runtime/open-settings"
 import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
 
-import { HomeContext } from "./home-context"
+import { PopupContext } from "./context"
 
 interface HeaderProps {
   keyword: string
@@ -15,7 +15,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = (props) => {
-  const { containerType, filter, setFilter } = React.useContext(HomeContext)
+  const { containerType, filter, setFilter } = React.useContext(PopupContext)
   const accounts = useOtpList()
   const { keyword, setKeyword } = props
   const [isSearching, setIsSearching] = React.useState(false)

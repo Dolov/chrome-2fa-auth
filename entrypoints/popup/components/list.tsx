@@ -3,14 +3,14 @@ import React from "react"
 
 import noData from "~/assets/no-data.svg"
 import Favicon from "~/components/favicons"
-import OtpRemaining from "~/components/otp-remaining"
-import OtpText from "~/components/otp-text"
+import OtpRemaining from "./otp-remaining"
+import OtpText from "./otp-text"
 import { useOtpList } from "~/features/otp-store"
 import { cn } from "~/utils/cn"
 import type { DataProps } from "~/utils/types"
 
-import { HomeContext, type FilterType } from "./home-context"
-import ItemActions from "./item-actions"
+import { PopupContext, type FilterType } from "./context"
+import ItemActionSheet from "./item-action-sheet"
 
 interface ListProps {
   keyword: string
@@ -31,7 +31,7 @@ const matchesKeyword = (item: DataProps, loweredKeyword: string): boolean => {
 
 const List: React.FC<ListProps> = (props) => {
   const data = useOtpList()
-  const { filter } = React.useContext(HomeContext)
+  const { filter } = React.useContext(PopupContext)
 
   const { keyword } = props
   // 搜索：输入保持即时响应，过滤结果延后到空闲时重算
@@ -87,7 +87,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
         className="absolute top-[0px] h-[3px]"
       />
       {pinned && <div className="absolute top-0 left-0 w-2 h-full bg-accent" />}
-      <ItemActions
+      <ItemActionSheet
         isVisible={isActionVisible}
         onClose={() => setIsActionVisible(false)}
         itemData={data}

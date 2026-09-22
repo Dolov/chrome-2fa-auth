@@ -2,10 +2,10 @@ import React from "react"
 
 import { ContainerType } from "~/utils/types"
 
-import { HomeContext } from "./home-context"
+import { PopupContext } from "./context"
 
 export const useModalWidth = () => {
-  const { containerType } = React.useContext(HomeContext)
+  const { containerType } = React.useContext(PopupContext)
 
   if (containerType === ContainerType.PHONE) {
     return {

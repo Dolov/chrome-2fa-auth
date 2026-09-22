@@ -1,10 +1,10 @@
 import React from "react"
 
-import Main from "~/components/home"
+import Main from "~/entrypoints/popup/components"
 import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
 
-interface SpecimenProps {
+interface PreviewProps {
   containerType: ContainerType
 }
 
@@ -16,7 +16,7 @@ interface SpecimenProps {
  * 这是一栏**静态**内容：不吸顶、不跟随左侧滚动，滚轮在它上面也不会动。
  * 只在窗口太矮、600px 的预览确实放不下时，它才会自己滚一点，绝不裁掉预览。
  */
-const Specimen: React.FC<SpecimenProps> = (props) => {
+const Preview: React.FC<PreviewProps> = (props) => {
   const { containerType } = props
   const isPanel = containerType === ContainerType.DEFAULT
 
@@ -34,4 +34,4 @@ const Specimen: React.FC<SpecimenProps> = (props) => {
   )
 }
 
-export default Specimen
+export default Preview

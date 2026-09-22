@@ -18,9 +18,9 @@ import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
 
-import { HomeContext } from "./home-context"
 import OtpForm from "./otp-form"
 import UploadModal from "./upload-modal"
+import { PopupContext } from "./context"
 
 /** FAB + 内嵌 modals 的 key 列表 */
 const FAB_MODALS = ["form", "upload"] as const
@@ -68,8 +68,8 @@ const FabAction: React.FC<FabActionProps> = (props) => {
   )
 }
 
-const CreateFab: React.FC = () => {
-  const { containerType } = React.useContext(HomeContext)
+const EntryActions: React.FC = () => {
+  const { containerType } = React.useContext(PopupContext)
   const intake = usePopupIntake()
   const modals = useModalStack<FabModalKey>(FAB_MODALS)
 
@@ -174,4 +174,4 @@ const CreateFab: React.FC = () => {
   )
 }
 
-export default CreateFab
+export default EntryActions
