@@ -16,10 +16,11 @@ import {
   NO_QR_IMAGE_PATH,
   OTPAUTH_QR_PATH
 } from "../fixtures/qr-fixtures"
-import { TEST_SECRET, expectedOtp } from "../fixtures/test-secret"
-
-/** 固定参考时刻，与 05-otp.spec.ts 同一约定：周期开始后 7 秒 */
-const FIXED_TIME = new Date("2026-01-15T00:00:07.000Z")
+import {
+  FIXED_TIME,
+  TEST_SECRET,
+  expectedOtp
+} from "../fixtures/test-secret"
 
 /** 上传模态框（按标题定位，避免与其它 dialog 混淆） */
 const uploadModalOf = (popup: { locator: (s: string) => any }) =>

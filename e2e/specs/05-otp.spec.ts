@@ -11,18 +11,13 @@
  */
 import { expect, test } from "../fixtures/extension"
 import {
+  FIXED_TIME,
   TEST_SECRET,
   TEST_SECRET_2,
   expectedNextOtp,
   expectedOtp,
   expectedRemainingTime
 } from "../fixtures/test-secret"
-
-/**
- * 固定参考时刻：2026-01-15T00:00:07Z。
- * 选在周期开始后 7 秒（剩余 23 秒），远离 30s 边界，排除边界抖动。
- */
-const FIXED_TIME = new Date("2026-01-15T00:00:07.000Z")
 
 const sampleAccount = (
   id: string,
