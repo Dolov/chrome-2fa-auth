@@ -1,6 +1,6 @@
 import React from "react"
 
-import { getRemainingTime, resolveOtpStep } from "~/utils/totp"
+import { getRemainingTime, resolveOtpStep } from "~/utils/libs/totp"
 
 /**
  * 共享秒级时钟。

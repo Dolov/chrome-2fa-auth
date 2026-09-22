@@ -7,7 +7,7 @@
  * 应当只 import 本文件。
  */
 
-import type { OtpAuthConfig } from "./types"
+import type { OtpAuthConfig } from "../types"
 
 /** 默认 TOTP 步长（秒） */
 export const DEFAULT_OTP_STEP = 30

@@ -1,7 +1,7 @@
 import message from "./toast"
 import { copyTextToClipboard } from "~/utils/clipboard"
 import { CSS_PREFIX, mountStyle } from "./css-portal"
-import { generateOtp, getRemainingTime } from "~/utils/totp"
+import { generateOtp, getRemainingTime } from "~/utils/libs/totp"
 import { createGradientTextContainer } from "./gradient-border"
 import type { OtpAuthConfig } from "~/utils/types"
 

@@ -43,7 +43,7 @@ e2e/
 
 - **加载方式**：`pnpm build` 产物路径 `.output/chrome-mv3`
 - **userDataDir**：每个 spec 用独立 `userDataDir`（隔离 storage）；持久化相关 case 用固定 dir
-- **OTP 断言**：用 `otplib` 独立库计算期望值（不 import 项目 `utils/totp.ts`）。
+- **OTP 断言**：用 `otplib` 独立库计算期望值（不 import 项目 `utils/libs/totp.ts`）。
   数值正确性类断言用 `page.clock.setFixedTime()` 固定时钟做**精确相等**，不用容差；
   只有无法固定时钟的场景才容忍 ±1s。参考 `05-otp.spec.ts`
 - **OTP 参数覆盖**：新增跟 OTP 显示相关的 case 时，至少覆盖一个**非默认配置**

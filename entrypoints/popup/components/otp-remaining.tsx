@@ -2,7 +2,7 @@ import React from "react"
 
 import { useOtpRemaining } from "~/features/ui-state/use-otp-tick"
 import { cn } from "~/utils/cn"
-import { resolveOtpStep } from "~/utils/totp"
+import { resolveOtpStep } from "~/utils/libs/totp"
 
 interface OtpRemainingProps {
   /** OTP 周期（秒）；缺省 / 非法值由 `resolveOtpStep` 归一为 30 */

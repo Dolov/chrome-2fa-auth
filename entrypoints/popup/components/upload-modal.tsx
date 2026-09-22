@@ -6,7 +6,7 @@ import OtpText from "./otp-text"
 import Modal from "~/components/ui/modal"
 import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { cn } from "~/utils/cn"
-import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/otpauth"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { ContainerType } from "~/utils/types"
 
 import { PopupContext } from "./context"

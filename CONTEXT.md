@@ -17,7 +17,8 @@
 
 | 层 | 目录 | 允许 | 禁止 |
 |---|---|---|---|
-| 双端纯原语 | `utils/`（9 个文件：`base32` `clipboard` `cn` `constants` `hmac` `otpauth` `qr-decode` `totp` `types`） | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态 |
+| 双端纯原语（辅助） | `utils/`（5 个文件：`clipboard` `cn` `constants` `qr-decode` `types`） | 纯函数、纯类型、浏览器标准 API | import React；注入持久 DOM 节点；调用 `chrome.*` / `browser.*` 扩展 API；持有业务状态；**内联第三方库替代**（见下一栏） |
+| 双端纯原语（核心算法内联） | `utils/libs/`（4 个文件：`base32` `hmac` `otpauth` `totp`，ADR-0006） | 同上，且**必须替代第三方库** | 同上；动态行为偏离上游（保留怪癖以兼容独立 otplib） |
 | 页面注入 UI | `features/page-ui/` | 操作宿主页面 DOM 与 CSS（`mountStyle` 是唯一 `<style>` 注入通道） | import React |
 | React 页面状态 | `features/ui-state/`（hooks）、`components/ui/`（设计原语）、`entrypoints/{popup,settings}/components/`（页面专属组件）、`components/favicons.tsx`（跨页面领域组件） | React hooks / 组件 | 被 content script import |
 | React 业务状态 | `features/otp-store/`；`context.tsx` 是唯一 React 入口 | Provider + mutators | 被 content script import；向 content 侧 re-export `dataStore` |
@@ -63,19 +64,19 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 ### 1. OTPAuth URL
 
 - **是什么**：RFC 6238 描述的 `otpauth://totp/<label>?secret=...&issuer=...` 字符串。
-- **在哪里**：`utils/otpauth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`；
-  数值生成在 `utils/totp.ts`（内联 HMAC，零依赖，见 ADR-0006）。
+- **在哪里**：`utils/libs/otpauth.ts` 的 `parseOtpAuthUrl` / `isOtpAuthUrl` / `generateOtpAuthUrl`；
+  数值生成在 `utils/libs/totp.ts`（内联 HMAC，零依赖，见 ADR-0006）。
 - **典型用法**：从 GitHub 设置页 QR 解码出来的字符串 → `parseOtpAuthUrl(data)` → `OtpAuthConfig`。
 - **边界**：
   - URL 必须以 `otpauth://` 开头且包含 `secret=`，否则 `isOtpAuthUrl` 返回 false。
   - `parseOtpAuthUrl` 抛异常时调用方负责降级（toast / 重试）。
   - **algorithm 归一不变式**：OTPAuth 规范写的是大写 `SHA1`，而 `generateOtp()`
-    内部要求小写 `sha1 | sha256 | sha512`。因此必须经 `utils/totp.ts` 的
+    内部要求小写 `sha1 | sha256 | sha512`。因此必须经 `utils/libs/totp.ts` 的
     `toHmacAlgorithm()` 归一，**缺省回退 `"sha1"`，绝不能传 `undefined`**。
     违反此不变式会导致 popup 一有数据就白屏。
   - **参数透传不变式**：`digits` / `period` / `algorithm` 必须由调用方从存储条目
     一路传到 `generateOtp`。组件收的是 `config` 而不是 `secret`（ADR-0008）。
-  - `utils/totp.ts` 会对越界的 `digits` / `period` 做防御性归一（导入的脏数据
+  - `utils/libs/totp.ts` 会对越界的 `digits` / `period` 做防御性归一（导入的脏数据
     能绕开 `parseOtpAuthUrl` 的校验）。
 
 ### 2. OtpItem（= `DataProps`）

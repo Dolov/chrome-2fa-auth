@@ -16,7 +16,7 @@ import message from "~/features/page-ui/toast"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
-import { generateOtpAuthUrl } from "~/utils/otpauth"
+import { generateOtpAuthUrl } from "~/utils/libs/otpauth"
 import type { DataProps } from "~/utils/types"
 
 import DeleteModal from "./delete-modal"

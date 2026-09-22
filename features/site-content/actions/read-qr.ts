@@ -1,6 +1,6 @@
 import message from "~/features/page-ui/toast"
 import { highlightElement } from "~/features/page-ui/highlight"
-import { parseOtpAuthUrl } from "~/utils/otpauth"
+import { parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { waitForElement } from "~/features/site-content/dom/wait-element"
 import { readFromImage, scanPage } from "~/utils/qr-decode"
 import { startOtpMessageUpdater } from "~/features/page-ui/otp-autofill"

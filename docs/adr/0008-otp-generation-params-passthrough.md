@@ -18,7 +18,7 @@
 
    两个调用方**本来就持有完整配置**，所以不需要改数据流，只需要不再丢字段。
 
-2. **在 `utils/totp.ts` 做一次防御性归一**（`resolveOtpDigits` / `resolveOtpStep`），
+2. **在 `utils/libs/totp.ts` 做一次防御性归一**（`resolveOtpDigits` / `resolveOtpStep`），
    而不是只在组件里判断。理由是存储里的条目可以绕开 `parseOtpAuthUrl` 的校验
    （导入设置、直接写 storage）。不归一的实际后果：
 
@@ -29,7 +29,7 @@
    `resolveOtpStep` 导出给渲染层算 `progress` 的 `max` 用，保证 max 与 value
    用同一个归一结果。
 
-3. **明确划出本次不支持的边界**（写进 `utils/totp.ts` 头注释，而不是让它悄悄走错）：
+3. **明确划出本次不支持的边界**（写进 `utils/libs/totp.ts` 头注释，而不是让它悄悄走错）：
    - `type=hotp`：otplib 的 `authenticator` 与我们的实现都按时间生成，不支持计数器 UI。
      这是既有行为，需要独立的特性设计（计数器何时递增？UI 在哪？）。
    - `algorithm=MD5`：OTPAuth 规范里有，但 otplib v12 也不支持，回退为 sha1。

@@ -4,7 +4,7 @@ import message from "~/features/page-ui/toast"
 import { useOtpStepIndex } from "~/features/ui-state/use-otp-tick"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
 import { cn } from "~/utils/cn"
-import { generateOtp } from "~/utils/totp"
+import { generateOtp } from "~/utils/libs/totp"
 import type { OtpAuthConfig } from "~/utils/types"
 
 interface OtpTextProps {

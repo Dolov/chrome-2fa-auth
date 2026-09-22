@@ -10,9 +10,9 @@
 
 | 文件 | 职责 |
 |---|---|
-| `utils/base32.ts` | base32 解码（移植 `thirty-two@1.0.2`） |
-| `utils/hmac.ts` | SHA-1/256/512 + HMAC（RFC 2104） |
-| `utils/totp.ts` | TOTP 组装，**公开 API 一个字符不变** |
+| `utils/libs/base32.ts` | base32 解码（移植 `thirty-two@1.0.2`） |
+| `utils/libs/hmac.ts` | SHA-1/256/512 + HMAC（RFC 2104） |
+| `utils/libs/totp.ts` | TOTP 组装，**公开 API 一个字符不变** |
 
 ### 必须逐条复刻的 otplib 语义
 
@@ -30,7 +30,7 @@
 7. **忽略 `type` / `counter` 字段**（otplib 的 `authenticator` 是 TOTP 类，hotp 条目
    也按时间生成）。这是既有行为，不是本次引入的缺陷。
 
-`utils/base32.ts` 同理保留了 `thirty-two` 的怪癖（大小写都收、遇 `=` 即停、
+`utils/libs/base32.ts` 同理保留了 `thirty-two` 的怪癖（大小写都收、遇 `=` 即停、
 `byteTable` 里 `0xff` 的字符不抛错而是产出错误数据、非 ASCII 才抛错）。
 
 ## 后果
@@ -50,7 +50,7 @@
 ## 代价与残留风险
 
 - **维护责任**：手写密码学原语进了仓库。缓解：两组外部参照（node `crypto` + otplib）
-  已在开发期穷尽对拍，且 E2E 用独立 otplib 长期盯着；`utils/hmac.ts` 的常量数组
+  已在开发期穷尽对拍，且 E2E 用独立 otplib 长期盯着；`utils/libs/hmac.ts` 的常量数组
   一旦手误会立刻被对拍发现。
 - **SHA-256/512 无 E2E 覆盖**：`generateOtp` 的 `algorithm` / `digits` / `period`
   参数 UI 只走 SHA1/6/30，黑盒测不到另外两种。这两种算法靠开发期 182,694 项对拍保证。

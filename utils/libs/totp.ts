@@ -39,7 +39,7 @@ import { decodeBase32 } from "./base32"
 import { HMAC_ALGORITHMS, hmac } from "./hmac"
 import type { HmacAlgorithm } from "./hmac"
 import { DEFAULT_OTP_DIGITS, DEFAULT_OTP_STEP } from "./otpauth"
-import type { OtpAuthConfig } from "./types"
+import type { OtpAuthConfig } from "../types"
 
 /** 调用 generateOtp / getRemainingTime 的可选项 */
 export interface OtpGenerateOptions extends Partial<OtpAuthConfig> {

@@ -5,7 +5,7 @@ import { FaviconMinimal } from "~/components/favicons"
 import Modal from "~/components/ui/modal"
 import message from "~/features/page-ui/toast"
 import { copyTextToClipboardV2 } from "~/utils/clipboard"
-import { generateOtpAuthUrl } from "~/utils/otpauth"
+import { generateOtpAuthUrl } from "~/utils/libs/otpauth"
 import type { DataProps } from "~/utils/types"
 
 import { useModalWidth } from "./use-modal-width"

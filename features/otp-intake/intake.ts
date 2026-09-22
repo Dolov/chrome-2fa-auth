@@ -1,4 +1,4 @@
-import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/otpauth"
+import { isOtpAuthUrl, parseOtpAuthUrl } from "~/utils/libs/otpauth"
 import { readFromFile } from "~/utils/qr-decode"
 import type { OtpAuthConfig } from "~/utils/types"
 
