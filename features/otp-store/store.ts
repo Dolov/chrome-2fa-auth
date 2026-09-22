@@ -20,10 +20,8 @@ import { addOtp } from "./otp-crud"
  * 存储区域：
  * - DATA: sync:（与 Plasmo 旧版兼容，避免现有用户数据丢失；
  *   sync 单项 8KB，>10 帐号 约 1-2KB，典型场景足够）
- * - LEGACY_DATA: local:（v1 迁移数据，迁移后清空）
  */
 export const DATA_KEY = `sync:${StorageKey.DATA}` as const
-const LEGACY_KEY = `local:${StorageKey.LEGACY_DATA}` as const
 
 export const dataStore = storage.defineItem<DataProps[]>(DATA_KEY, {
   fallback: []
@@ -180,6 +178,3 @@ export const subscribeOtpList = (listener: () => void): (() => void) => {
     }
   }
 }
-
-// expose legacy key for background migration
-export { LEGACY_KEY }

@@ -7,7 +7,6 @@
 
 export enum StorageKey {
   DATA = "data",
-  LEGACY_DATA = "DATA_SOURCE",
   SETTINGS = "settings"
 }
 

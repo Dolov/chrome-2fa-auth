@@ -213,8 +213,8 @@ e2e/
 | 82 | P0 | `background > 右键→设置` | `新 tab 打开 settings.html` |
 | 83 | P0 | `background > 右键→Issues` | `打开 github issues URL` |
 | 84 | P0 | `background > 右键→源码` | `打开 github 仓库 URL` |
-| 85 | P0 | `background > 旧数据迁移` | `预置 LEGACY_DATA → DATA 数组迁移` |
-| 86 | P0 | `background > 迁移字段处理` | `id 含时间戳；无 value 的 code 被过滤；secret 缺失的整个跳过` |
+| ~~85~~ | ~~P0~~ | ~~`background > 旧数据迁移`~~ | ~~`预置 LEGACY_DATA → DATA 数组迁移`~~ |
+| ~~86~~ | ~~P0~~ | ~~`background > 迁移字段处理`~~ | ~~`id 含时间戳；无 value 的 code 被过滤；secret 缺失的整个跳过`~~ |
 | 87 | P0 | `background > 持久化关 popup` | `关 popup 重开 → 数据仍在` |
 | 88 | P0 | `background > 持久化关浏览器` | `userDataDir 重启 context → 数据仍在` |
 | 89 | P1 | `background > CAPTURE 成功` | `返回 {success:true, image:dataUrl}` |
@@ -222,6 +222,15 @@ e2e/
 | 91 | P1 | `background > saveOTP 三段逻辑` | `软删 + 同 issuer/account 新增 → 旧 deleted，新追加` |
 | 92 | P2 | `background > saveOTP 字段校验` | `缺字段 → 抛错` |
 | 93 | P2 | `background > i18n` | `zh → 中文；en → 英文；7 个 key 都能取到` |
+
+> Case 85 / 86 已删除。核实后判定 v1.7（GitHub v2 分支，1.7.0）和 v3.0.0（当前）
+> 的 `DataProps` 形态完全一致（`sync:data` / `recoveryCodes.copied` /
+> 字段集对得上），v1.7 → v3.0.0 不需要保留 `adaptLegacyData` 迁移函数。
+> `background.ts::adaptLegacyData` + `StorageKey.LEGACY_DATA` + `LEGACY_KEY`
+> + fixture 相关 helper 已一并删除。
+>
+> Case 87 已实现于 `e2e/specs/12-background.spec.ts`（验证 chrome.storage.sync
+> 在 popup 关闭重开后的持久性）。
 
 ## 4. 执行顺序
 

@@ -37,6 +37,12 @@ export type DataProps = {
   recoveryCodes?: Array<{ value: string; copied: boolean }>
 }
 
+/**
+ * v1 存盘形态 — 预留位置。原本用于「v1 → v2」迁移回归，核实 v1.7 与 v3.0.0
+ * 的 `DataProps` 形态完全一致（sync:data / copied / 字段集全部相同）后
+ * 判定不需要迁移，相关 fixture 一并删除。
+ */
+
 export type Helpers = {
   seedData(data: DataProps[]): Promise<void>
   clearStorage(): Promise<void>
@@ -92,6 +98,13 @@ export const test = base.extend<
     // React 渲染期 unhandled rejection / throw 都从这里走出来 —— 验收
     // 「断言绿但页面报 unhandled 错误」这种最常见假阳性。
     const pageErrors: string[] = []
+    const onPage = (page: Page) => {
+      page.on("pageerror", (err) =>
+        pageErrors.push(`pageerror: ${err.message}`)
+      )
+    }
+    for (const page of context.pages()) onPage(page)
+    context.on("page", onPage)
 
     const h: Helpers = {
       seedData: async (data) => {
@@ -115,9 +128,6 @@ export const test = base.extend<
       },
       gotoPopup: async () => {
         const page = await context.newPage()
-        page.on("pageerror", (err) =>
-          pageErrors.push(`pageerror: ${err.message}`)
-        )
         await page.goto(`chrome-extension://${extensionId}/popup.html`)
         await page.waitForLoadState("domcontentloaded")
         return page
@@ -125,6 +135,7 @@ export const test = base.extend<
     }
     await h.clearStorage()
     await use(h)
+    context.off("page", onPage)
     if (pageErrors.length > 0) {
       throw new Error(
         `Unexpected page errors during test:\n  ${pageErrors.join("\n  ")}`
