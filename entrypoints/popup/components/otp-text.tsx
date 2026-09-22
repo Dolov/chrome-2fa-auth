@@ -53,7 +53,8 @@ const OtpText: React.FC<OtpTextProps> = (props) => {
       tabIndex={0}
       onClick={handleCopy}
       onKeyDown={handleKeyDown}
-      className={className}>
+      className={className}
+      data-testid={next ? "otp-next" : "otp-current"}>
       <span
         className={cn({
           "mr-1": small,

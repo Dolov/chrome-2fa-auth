@@ -32,14 +32,20 @@ const sampleAccount = (
 ) => ({ id, type: "totp" as const, secret, issuer, account })
 
 /** 卡片容器（ListItem 的最外层 div） */
-const cards = (popup: { locator: (s: string) => any }) =>
-  popup.locator("div.group")
+const cards = (popup: { getByTestId: (id: string) => any }) =>
+  popup.getByTestId("otp-list-item")
 
-/** 卡片内当前的 OTP 文本（两个 span 拼接，无分隔符） */
-const currentOtpOf = (card: any) => card.locator("div.font-bold")
+/** 卡片内当前的 OTP 文本（两 span 拼接，无分隔符） */
+const currentOtpOf = (card: { getByTestId: (id: string) => any }) =>
+  card.getByTestId("otp-current")
 
 /** 卡片内「下一个」的 OTP 文本 */
-const nextOtpOf = (card: any) => card.locator("div.text-sm")
+const nextOtpOf = (card: { getByTestId: (id: string) => any }) =>
+  card.getByTestId("otp-next")
+
+/** 卡片内的 OTP 进度条 */
+const progressOf = (card: { getByTestId: (id: string) => any }) =>
+  card.getByTestId("otp-progress")
 
 /** 把 popup 的时间固定到指定时刻，并重新加载让首次渲染就用固定时间 */
 const pinTime = async (popup: any, time: Date) => {
@@ -61,8 +67,7 @@ test.describe("F5 otp > 数值正确性", () => {
       const expected = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
       expect(expected).toMatch(/^\d{6}$/)
 
-      const shown = await currentOtpOf(cards(popup).first()).innerText()
-      expect(shown.trim()).toBe(expected)
+      await expect(currentOtpOf(cards(popup).first())).toHaveText(expected)
     } finally {
       await popup.close()
     }
@@ -83,8 +88,8 @@ test.describe("F5 otp > 数值正确性", () => {
       expect(expectedNext).not.toBe(expectedCurrent)
 
       const card = cards(popup).first()
-      expect((await currentOtpOf(card).innerText()).trim()).toBe(expectedCurrent)
-      expect((await nextOtpOf(card).innerText()).trim()).toBe(expectedNext)
+      await expect(currentOtpOf(card)).toHaveText(expectedCurrent)
+      await expect(nextOtpOf(card)).toHaveText(expectedNext)
     } finally {
       await popup.close()
     }
@@ -99,7 +104,7 @@ test.describe("F5 otp > 数值正确性", () => {
       await pinTime(popup, FIXED_TIME)
 
       const expected = expectedRemainingTime(FIXED_TIME)
-      const progress = cards(popup).first().locator("progress")
+      const progress = progressOf(cards(popup).first())
       await expect(progress).toHaveAttribute("max", "30")
       await expect(progress).toHaveAttribute("value", String(expected))
     } finally {
@@ -205,7 +210,7 @@ test.describe("F5 otp > 数值正确性", () => {
       )
 
       // 进度条：max 与剩余秒数都得按 60 走（当前实现把 30 写死了）
-      const progress = card.locator("progress")
+      const progress = progressOf(card)
       await expect(progress).toHaveAttribute("max", "60")
       await expect(progress).toHaveAttribute(
         "value",
@@ -234,12 +239,13 @@ test.describe("F5 otp > 数值正确性", () => {
       // digits=999 若不归一：10**999 为 Infinity，% 不生效 → 渲染出 999 个字符
       const expected = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
       const card = cards(popup).first()
-      const shown = (await currentOtpOf(card).innerText()).trim()
-      expect(shown).toBe(expected)
-      expect(shown).toHaveLength(6)
+      const otpElement = currentOtpOf(card)
+      await expect(otpElement).toHaveText(expected)
+      // 防 digits=999 渲染多字符：归一前会渲出 999 字符的「码」
+      expect(await otpElement.textContent()).toHaveLength(6)
 
       // period=-5 若不归一：counter 变负数 → 垃圾码；progress max 也会是负数
-      const progress = card.locator("progress")
+      const progress = progressOf(card)
       await expect(progress).toHaveAttribute("max", "30")
       await expect(progress).toHaveAttribute(
         "value",

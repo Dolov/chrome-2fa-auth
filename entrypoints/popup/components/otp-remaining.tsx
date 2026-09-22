@@ -37,6 +37,7 @@ const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
         [color]: !deleted,
         "base-content": deleted
       })}
+      data-testid="otp-progress"
     />
   )
 }

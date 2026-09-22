@@ -75,6 +75,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
 
   return (
     <div
+      data-testid="otp-list-item"
       className={cn("group relative py-4 mb-4 rounded-btn overflow-hidden", {
         "shadow-lg": pinned,
         "bg-base-300": deleted,
