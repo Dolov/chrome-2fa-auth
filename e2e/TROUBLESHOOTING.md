@@ -116,3 +116,11 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
 ```
+
+## 9. `headless: true` 跑 E2E 是可行的（反 Playwright 官方 anti-pattern 表）
+
+**现象**：[Playwright `browser-extensions.md` 的 anti-pattern 表](https://playwright.dev/docs/chrome-extensions#anti-patterns-to-avoid)第一条写着「Testing in headless mode → Extensions don't load」，但本项目 `playwright.config.ts` 实际用 `headless: true`，CI 跑得起来。
+
+**根因**：该 anti-pattern 针对的是早期 Playwright + 系统 Chrome —— 当时 bundled chromium 在 headless 下不支持 `--load-extension`。Playwright 1.45+ 的 bundled chromium（`channel: 'chromium'`）在 headless 下同样支持加载 unpacked MV3 扩展。系统 Chrome 仍然不行，所以必须用 bundled（见第 1 条）。
+
+**解决**：本项目保持 `headless: true`；CI 节省资源，本地手动 debug 用 `PW_HEADLESS=false pnpm test:e2e:debug`（fixture 已读此环境变量）开 headed 看真实弹窗。
