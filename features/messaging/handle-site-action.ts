@@ -20,7 +20,11 @@ type RuntimeListener = (
 ) => boolean | void
 
 /**
- * 内部：从 unknown 中安全取出 envelope
+ * 只校验 action。
+ *
+ * 不能要求 `"payload" in env`：Chrome 的消息走 JSON 序列化，发送侧
+ * `{ action, payload: undefined }` 到达对端会被丢弃成 `{ action }`，
+ * 带 undefined payload 的 action（AUTOSCAN / CAPTURE_SCREENSHOT）永远匹配不上。
  */
 const isEnvelopeOf = <K extends keyof MessageMap>(
   message: unknown,
@@ -28,7 +32,7 @@ const isEnvelopeOf = <K extends keyof MessageMap>(
 ): message is { action: K; payload: InboundPayload<K> } => {
   if (typeof message !== "object" || message === null) return false
   const env = message as { action?: unknown; payload?: unknown }
-  return env.action === action && "payload" in env
+  return env.action === action
 }
 
 /**
@@ -64,23 +68,33 @@ const buildListener = <K extends keyof MessageMap>(
   }
 }
 
+/** 提供 onInvalidated 的失效作用域（WXT ContentScriptContext 的子集） */
+interface InvalidationScope {
+  onInvalidated(callback: () => void): () => void
+}
+
 /**
- * 在 WXT ctx.addEventListener 注册某个 action 的 handler
+ * 在 content script 的 ctx 内注册某个 action 的 handler。
  *
- * @param ctx   ContentScriptContext
- * @param target 例如 browser.runtime.onMessage（WXT 会自动在 invalidate 时清理）
+ * 必须用 runtime.onMessage.addListener，不能用 ctx.addEventListener：
+ * 后者是 DOM EventTarget 专用（签名 `(target, type, handler)`），
+ * 传 runtime.onMessage 时 `target.addEventListener` 不存在，会静默 no-op，
+ * listener 根本不会注册（表现为发送端 “Receiving end does not exist”）。
+ *
+ * @param ctx   ContentScriptContext（用于失效时清理）
+ * @param target browser.runtime.onMessage
  * @param action MessageMap 的 key
  * @param handler 业务回调：in 类型自动推断
  */
 export const handleSiteAction = <K extends keyof MessageMap>(
-  ctx: { addEventListener: (target: unknown, listener: unknown) => void },
-  target: unknown,
+  ctx: InvalidationScope,
+  target: typeof browser.runtime.onMessage,
   action: K,
   handler: MessageHandler<K>
 ): void => {
-  const listener = buildListener(action, handler)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ctx.addEventListener(target, listener as any)
+  const listener = buildListener(action, handler) as RuntimeListener
+  target.addListener(listener)
+  ctx.onInvalidated(() => target.removeListener(listener))
 }
 
 /**

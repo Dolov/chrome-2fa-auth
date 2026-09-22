@@ -13,8 +13,8 @@ import { startManualScreenshot } from "./manual-scan"
  *   - AUTOSCAN          → 自动扫描页面 QR
  *   - MANUAL_SCREENSHOT → 手动截图选区识别
  *
- * cleanup：所有 listener 通过 ctx.addEventListener 注册，context
- *         invalidated 时由 WXT 自动清理（inject-use-ctx-invalidated）。
+ * cleanup：所有 listener 通过 browser.runtime.onMessage 注册，
+ *         ctx.onInvalidated 时移除（inject-use-ctx-invalidated 的手动版）。
  */
 export default defineContentScript({
   matches: ["<all_urls>"],

@@ -25,6 +25,14 @@ export const waitForElement = <T extends Element = Element>(
   once = false
 ): Promise<T> => {
   return new Promise((resolve, reject) => {
+    // document_idle 时目标元素往往已在初始 DOM 里；只靠 observer 的
+    // addedNodes 会永远等不到「新增」事件，必须同步先查一次。
+    const existing = document.querySelector<T>(selector)
+    if (existing != null) {
+      resolve(existing)
+      return
+    }
+
     const timer = setTimeout(() => {
       observer.disconnect()
       activeObservers.delete(observer)

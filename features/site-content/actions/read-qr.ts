@@ -62,12 +62,16 @@ export const setupReadQR = async (adapter: SiteAdapter): Promise<() => void> => 
 
 const defaultScan = async (adapter: SiteAdapter) => {
   if (adapter.selectors.qrImage) {
-    const img = await waitForElement<HTMLImageElement>(adapter.selectors.qrImage)
-    try {
-      const data = await readFromImage(img)
-      return { data, element: img }
-    } catch {
-      // fall through to scanPage
+    const img = await waitForElement<HTMLImageElement>(
+      adapter.selectors.qrImage
+    ).catch(() => null)
+    if (img != null) {
+      try {
+        const data = await readFromImage(img)
+        return { data, element: img }
+      } catch {
+        // fall through to scanPage
+      }
     }
   }
   try {
