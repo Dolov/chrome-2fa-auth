@@ -131,17 +131,12 @@ const isCaptureScreenshot = (
 
 export default defineBackground(() => {
   // svc-register-listeners-synchronously：listener 在顶层同步注册
-
-  // 迁移不能只在 onInstalled 里触发：MV3 SW idle 30s 后会被杀，
-  // 下次用户点击扩展 → SW 重启 → 不再 fire onInstalled → 未迁移的用户永远迁不到。
-  // 顶层 fire-and-forget：adaptLegacyData 自身幂等（有新数据则跳过）。
-  void adaptLegacyData()
-
   browser.runtime.onInstalled.addListener(() => {
     menuList.forEach((item) => {
       const { action: _action, ...menuProps } = item
       browser.contextMenus.create(menuProps)
     })
+    adaptLegacyData()
   })
 
   // 监听右键菜单点击
