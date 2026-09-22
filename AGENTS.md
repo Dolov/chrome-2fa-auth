@@ -32,5 +32,6 @@
 - 黑盒 E2E（89 条 spec 索引）：[`e2e/SPECS.md`](./e2e/SPECS.md)
 - 基建踩坑：[`e2e/TROUBLESHOOTING.md`](./e2e/TROUBLESHOOTING.md)
 - 约定：不写单元测试
+- 跑 E2E 的时机：**大改动**或用户明确要求时跑全量；平时只跑改动覆盖到的 spec。
 - 断言策略（**只关注功能**，不测文案 / 颜色）：[`e2e/SPECS.md` §2](./e2e/SPECS.md)
 - 工作状态：[`docs/TODO.md`](./docs/TODO.md)（按需读取，不进 AGENTS.md 上下文）
