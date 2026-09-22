@@ -97,13 +97,12 @@ export const test = base.extend<
         )
       },
       clearStorage: async () => {
-        const [sw] = context.serviceWorkers()
-        if (sw) {
-          await sw.evaluate(() => {
-            chrome.storage.sync.clear()
-            chrome.storage.local.clear()
-          })
-        }
+        // 复用 getSw() 的「先取再等事件」路径：避免首测试启动时
+        // serviceWorkers() 尚为空、storage 残留导致断言失败
+        await getSw().evaluate(() => {
+          chrome.storage.sync.clear()
+          chrome.storage.local.clear()
+        })
       },
       getStorage: async () => {
         return await getSw().evaluate(() => chrome.storage.sync.get(null))
