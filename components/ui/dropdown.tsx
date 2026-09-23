@@ -103,7 +103,7 @@ const Dropdown: React.FC<DropdownProps> = ({
                 }
               }}
               className={cn({
-                "opacity-50 !cursor-not-allowed": item.disabled
+                "opacity-50": item.disabled
               })}>
               {item.label}
             </button>

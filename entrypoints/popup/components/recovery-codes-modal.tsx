@@ -54,6 +54,9 @@ const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
         {recoveryCodes.map((item, index) => {
           const { value, copied } = item
           const isCopying = copiedCode === value
+          // 三种态必须互斥：clsx 不做冲突去重，daisyUI 每行 badge 只允许一个颜色类。
+          const isIdle = !copied && !isCopying
+          const isCopied = copied && !isCopying
           const CopyIcon = isCopying ? CopyCheck : ClipboardCopy
           return (
             <div
@@ -64,9 +67,9 @@ const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
               className={cn(
                 "badge w-full flex items-center justify-between px-3 py-2",
                 {
-                  "badge-accent": !copied,
-                  "!badge-ghost": copied,
-                  "!badge-secondary": isCopying
+                  "badge-ghost": isCopied,
+                  "badge-accent": isIdle,
+                  "badge-secondary": isCopying
                 }
               )}>
               <span

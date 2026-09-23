@@ -43,7 +43,7 @@ const QRCodeModal: React.FC<QRCodeModalProps> = (props) => {
     <Modal
       title={
         <div className="flex items-center justify-center gap-2">
-          <FaviconMinimal className="!text-2xl" issuer={issuer} />
+          <FaviconMinimal className="text-2xl!" issuer={issuer} />
           <span>{account}</span>
         </div>
       }

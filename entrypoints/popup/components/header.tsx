@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = (props) => {
           <input
             autoFocus
             data-testid="header-search-input"
-            className="input input-sm input-ghost border-none !outline-none"
+            className="input input-sm input-ghost border-none outline-none"
             placeholder={i18n.t("popup_header_search_placeholder")}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}

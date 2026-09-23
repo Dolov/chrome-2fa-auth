@@ -39,7 +39,7 @@ const DeleteModal: React.FC<DeleteModalProps> = (props) => {
       width={width}
       title={
         <div className="flex items-center gap-2">
-          <FaviconMinimal className="!text-2xl" issuer={issuer} />
+          <FaviconMinimal className="text-2xl!" issuer={issuer} />
           <span>{account}</span>
         </div>
       }
