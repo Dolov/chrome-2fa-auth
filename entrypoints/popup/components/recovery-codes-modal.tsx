@@ -78,7 +78,7 @@ const RecoveryCodesModal: React.FC<RecoveryCodesModalProps> = (props) => {
               <CopyIcon
                 size={14}
                 className={cn("ml-2 shrink-0 transition", {
-                  "hover:text-white/80 cursor-pointer active:scale-95": !copied
+                  "hover:opacity-80 cursor-pointer active:scale-95": !copied
                 })}
               />
             </div>

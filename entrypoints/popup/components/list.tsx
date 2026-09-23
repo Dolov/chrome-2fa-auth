@@ -77,7 +77,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
   return (
     <div
       data-testid="otp-list-item"
-      className={cn("group relative py-4 mb-4 rounded-btn overflow-hidden", {
+      className={cn("group relative py-4 mb-4 rounded-field overflow-hidden", {
         "shadow-lg": pinned,
         "bg-base-300": deleted,
         "bg-base-200": !deleted,
@@ -97,7 +97,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
       <div className="px-4 relative">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <span className="base-content font-medium text-lg">{issuer}</span>
+            <span className="text-base-content font-medium text-lg">{issuer}</span>
             <button
               data-testid="list-item-cog"
               className="btn btn-circle btn-ghost btn-sm ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -110,7 +110,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
           </div>
           <Favicon className={cn({ grayscale: deleted })} issuer={issuer} />
         </div>
-        <div className="base-content font-medium -translate-y-[2px]">
+        <div className="text-base-content font-medium -translate-y-[2px]">
           {account}
         </div>
         <div className="mt-2 flex justify-between items-center">
@@ -122,7 +122,7 @@ const ListItem = React.memo(function ListItem(props: ListItemProps) {
             })}
           />
           <div>
-            <div className="base-content text-[0.6rem] text-right">{i18n.t("popup_list_next_label")}</div>
+            <div className="text-base-content text-[0.6rem] text-right">{i18n.t("popup_list_next_label")}</div>
             <OtpText
               next
               small

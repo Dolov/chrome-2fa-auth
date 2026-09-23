@@ -51,7 +51,7 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
       isVisible={isVisible}
       onClose={onClose}>
       <div className="flex flex-col gap-3 p-1">
-        <label className="input input-bordered flex items-center gap-2">
+        <label className="input flex items-center gap-2">
           {i18n.t("popup_form_issuer_label")}
           <input
             type="text"
@@ -64,7 +64,7 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
             }}
           />
         </label>
-        <label className="input input-bordered flex items-center gap-2">
+        <label className="input flex items-center gap-2">
           {i18n.t("popup_form_secret_label")}
           <input
             type="text"
@@ -77,7 +77,7 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
             }}
           />
         </label>
-        <label className="input input-bordered flex items-center gap-2">
+        <label className="input flex items-center gap-2">
           {i18n.t("popup_form_account_label")}
           <input
             type="text"
@@ -90,7 +90,7 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
             }}
           />
         </label>
-        <label className="input input-bordered flex items-center gap-2">
+        <label className="input flex items-center gap-2">
           {i18n.t("popup_form_remark_label")}
           <input
             type="text"

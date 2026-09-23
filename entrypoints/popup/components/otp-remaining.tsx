@@ -35,7 +35,7 @@ const OtpRemaining: React.FC<OtpRemainingProps> = (props) => {
       value={timeRemaining}
       className={cn("progress w-full h-[3px] bg-base-200", className, {
         [color]: !deleted,
-        "base-content": deleted
+        "text-base-content": deleted
       })}
       data-testid="otp-progress"
     />

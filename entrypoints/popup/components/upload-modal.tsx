@@ -168,13 +168,13 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
           data-testid="upload-file-input"
           accept="image/*"
           onChange={handleUploadChange}
-          className="file-input file-input-bordered file-input-neutral w-full max-w-xs"
+          className="file-input file-input-neutral w-full max-w-xs"
         />
       </div>
       <div className="p-2">
-        <p className="text-sm text-neutral-500">{i18n.t("popup_modal_upload_paste_hint")}</p>
+        <p className="text-sm text-base-content/60">{i18n.t("popup_modal_upload_paste_hint")}</p>
         {!account && preview?.secret && (
-          <label className="input input-bordered flex items-center mt-6">
+          <label className="input flex items-center mt-6">
             <input
               autoFocus
               type="text"
@@ -207,7 +207,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
           role="alert"
           data-testid="upload-error"
           data-upload-error={error.kind}
-          className="alert alert-warning flex mb-2">
+          className="alert alert-warning mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 shrink-0 stroke-current"
@@ -220,7 +220,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
           </svg>
-          <span className="align-left">{error.message}</span>
+          <span>{error.message}</span>
         </div>
       )}
     </Modal>

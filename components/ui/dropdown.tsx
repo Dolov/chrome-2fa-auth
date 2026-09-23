@@ -52,6 +52,9 @@ const Dropdown: React.FC<DropdownProps> = ({
     onOpenChange?.(next)
   }
 
+  // daisyUI 5 的 `dropdown-hover` 用 `:hover` + `:focus-visible` 控制显隐，
+  // 鼠标点击后（非 keyboard focus）会命中 `:not(:focus-visible)` 隐藏规则，
+  // 菜单一闪即隐。这里用 details.open 作为唯一状态源，hover / click 都可靠。
   React.useEffect(() => {
     const details = detailsRef.current
     if (!details || trigger !== "hover") return

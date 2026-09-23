@@ -20,9 +20,6 @@ importers:
       lucide-react:
         specifier: ^0.483.0
         version: 0.483.0(react@18.2.0)
-      qier-progress:
-        specifier: ^1.0.4
-        version: 1.0.4
       qrcode.react:
         specifier: ^4.2.0
         version: 4.2.0(react@18.2.0)
@@ -1206,10 +1203,6 @@ packages:
     resolution: {integrity: sha512-ovfBOz+cZIOBHZ+oxTfpv1kSGU7ruzy8CXoFGvhXsUbJuty45srGzf1ufEePs69virOWXfFbhZRoNQUdgPvwXA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
-
-  qier-progress@1.0.4:
-    resolution: {integrity: sha512-gCxgoM2wxW7GCo/iEpOlaunVo2cf+/AJfG6wtYIbYz18GXtUhFjgZjX2s+otWh/P8ppVgGULASkWtXfZQEd2FQ==}
-    engines: {node: '>=6.0.0'}
 
   qrcode.react@4.2.0:
     resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
@@ -2409,8 +2402,6 @@ snapshots:
       '@topcli/prompts': 4.0.0
       cac: 7.0.0
       tasuku: 2.3.0
-
-  qier-progress@1.0.4: {}
 
   qrcode.react@4.2.0(react@18.2.0):
     dependencies:
