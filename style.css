@@ -38,3 +38,30 @@
 @source "./components/**/*.{ts,tsx}";
 @source "./utils/**/*.{ts,tsx}";
 @source "./entrypoints/**/*.{ts,tsx,html}";
+
+/*
+ * 手机壳启动画面（PhoneFrame）：淡入 + 轻微拉远定格 → 淡出。
+ * 时长必须与 phone-frame.tsx 的 SPLASH_TOTAL_MS（800ms）保持一致。
+ */
+@theme {
+  --animate-splash: splash 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+
+  @keyframes splash {
+    0% {
+      opacity: 0;
+      transform: scale(1.08);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    62% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+}
