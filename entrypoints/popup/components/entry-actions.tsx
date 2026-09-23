@@ -67,16 +67,14 @@ const FabAction: React.FC<FabActionProps> = (props) => {
       className="tooltip tooltip-open tooltip-left before:py-2"
       data-tip={tip}
       data-testid={testId}>
-      <div className={cn("scale-75 rounded-field", { "bg-base-300": disabled })}>
-        <Button
-          isLoadingOnly
-          isLoading={isLoading}
-          disabled={disabled}
-          onClick={onTrigger}
-          className={cn("btn btn-square shadow-2xl", TONE_CLASSES[tone])}>
-          {children}
-        </Button>
-      </div>
+      <Button
+        isLoadingOnly
+        isLoading={isLoading}
+        disabled={disabled}
+        onClick={onTrigger}
+        className={cn("btn btn-sm btn-square shadow-2xl", TONE_CLASSES[tone])}>
+        {children}
+      </Button>
     </div>
   )
 }
@@ -135,7 +133,7 @@ const EntryActions: React.FC = () => {
       <div
         data-testid="fab-actions"
         className={cn(
-          "flex flex-col items-center transition-transform duration-200 ease-out opacity-0 mb-1",
+          "flex flex-col items-center gap-2.5 transition-transform duration-200 ease-out opacity-0 mb-2",
           { "opacity-100": isActive }
         )}>
         <FabAction
