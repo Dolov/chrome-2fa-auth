@@ -22,11 +22,30 @@ const EXIT_MS = 300
 
 type ToastKind = "info" | "warn" | "error" | "success"
 
-const COLORS: Record<ToastKind, string> = {
-  info: "#2196F3",
-  warn: "#FFC107",
-  error: "#F44336",
-  success: "#4CAF50"
+/**
+ * 各 kind 的背景 / 前景色。
+ *
+ * - 扩展页（popup / settings）：命中 daisyUI 主题变量，跟随 `data-theme` 切换
+ * - 宿主页（content script）：无主题变量，回退 Material 固定色
+ * 前景用配对的 `-content` 变量，避免 wireframe 等浅色主题下文字不可读。
+ */
+const COLORS: Record<ToastKind, { bg: string; fg: string }> = {
+  info: {
+    bg: "var(--color-info, #2196F3)",
+    fg: "var(--color-info-content, #fff)"
+  },
+  warn: {
+    bg: "var(--color-warning, #FFC107)",
+    fg: "var(--color-warning-content, #fff)"
+  },
+  error: {
+    bg: "var(--color-error, #F44336)",
+    fg: "var(--color-error-content, #fff)"
+  },
+  success: {
+    bg: "var(--color-success, #4CAF50)",
+    fg: "var(--color-success-content, #fff)"
+  }
 }
 
 const buildCss = (): string => {
@@ -37,7 +56,7 @@ const buildCss = (): string => {
   const kindRules = (Object.keys(COLORS) as ToastKind[])
     .map(
       (kind) =>
-        `.${CSS_PREFIX}-toast[data-testid-toast-kind="${kind}"]{background-color:${COLORS[kind]};}`
+        `.${CSS_PREFIX}-toast[data-testid-toast-kind="${kind}"]{background-color:${COLORS[kind].bg};color:${COLORS[kind].fg};}`
     )
     .join("\n      ")
   return `
@@ -48,7 +67,6 @@ const buildCss = (): string => {
         padding: 10px 20px;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        color: white;
         font-size: 16px;
         z-index: ${ContentLayer.Surface};
         transform: translateX(100%);
