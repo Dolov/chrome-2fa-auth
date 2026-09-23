@@ -1,6 +1,7 @@
 import React from "react"
 
 import Modal from "~/components/ui/modal"
+import message from "~/features/page-ui/toast"
 import { useOtpMutators } from "~/features/otp-store"
 import { i18n } from "#i18n"
 import type { DataProps } from "~/utils/types"
@@ -23,7 +24,7 @@ interface OtpFormProps {
 const OtpForm: React.FC<OtpFormProps> = (props) => {
   const { isVisible, onClose, data } = props
   const { width } = useModalWidth()
-  const { add, update } = useOtpMutators()
+  const { add, exists, update } = useOtpMutators()
   const title = i18n.t("popup_form_title")
   const [form, setForm] = React.useState<Partial<DataProps>>({
     ...EMPTY_FORM,
@@ -37,6 +38,13 @@ const OtpForm: React.FC<OtpFormProps> = (props) => {
     if (data) {
       await update(data.id, { issuer, secret, account, remark })
     } else {
+      // 只有 type+issuer+secret+account 四元组全等才算「已存在」：
+      // 同账号换密钥是另一条独立条目（可并存），不拦。
+      const isExisting = await exists({ type: "totp", issuer, secret, account })
+      if (isExisting) {
+        message.warning(i18n.t("intake_warn_account_exists"))
+        return
+      }
       await add({ type: "totp", issuer, secret, account, remark })
     }
     onClose()

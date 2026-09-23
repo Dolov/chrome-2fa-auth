@@ -84,7 +84,7 @@ export const intakeOtp = async (
     }
   }
 
-  // 3. 写入：writer 内部处理去重 / 软删合并（utils/otp-crud.addOtp）
+  // 3. 写入：writer 内部处理完全重复（同 type+issuer+account+secret 视为已存在）
   let persisted
   try {
     persisted = await deps.writer.persist(config)

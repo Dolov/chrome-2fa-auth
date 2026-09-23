@@ -135,6 +135,8 @@ e2e/
 | # | 优先级 | describe/it | Case |
 |---|---|---|---|
 | 20 | P0 | `crud > 手动输入` | `填齐 issuer/secret/account → List 多一项` |
+| 20b | P0 | `crud > 同账号多密钥` | `同 issuer/account 不同 secret → 两条并存（旧条目不软删）；身份全等 → warn 不新增` |
+| 20c | P0 | `crud > 同 secret 不同 digits` | `8 位种子 + 缺省 6 位新增 → 两条；参数缺省归一化后再判已存在` |
 | 21 | P0 | `crud > 必填校验` | `issuer/secret/account 缺一 → OK 按钮 disabled` |
 | 22 | P0 | `crud > 编辑` | `改字段 → 保存 → List 内容更新` |
 | 23 | P0 | `crud > 软删` | `deleted=true → 切到"已删除"能看到` |
@@ -264,7 +266,7 @@ e2e/
 | 88 | P0 | `background > 持久化关浏览器` | `userDataDir 重启 context → 数据仍在` |
 | 89 | P1 | `background > CAPTURE 成功` | `返回 {success:true, image:dataUrl}` |
 | 90 | P1 | `background > CAPTURE 失败` | `受限页 → 返回 {success:false}` |
-| 91 | P1 | `background > saveOTP 三段逻辑` | `软删 + 同 issuer/account 新增 → 旧 deleted，新追加` |
+| 91 | P1 | `background > saveOTP 去重逻辑` | `身份全等（7 项）→ 合并同一条；同 issuer/account 不同 secret → 两条并存` |
 | 92 | P2 | `background > saveOTP 字段校验` | `缺字段 → 抛错` |
 | 93 | P2 | `background > i18n` | `zh → 中文；en → 英文；7 个 key 都能取到` |
 

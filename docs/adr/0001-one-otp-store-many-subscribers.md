@@ -6,10 +6,20 @@
 
 - **唯一数据源**：`utils/storage.ts` 的 `dataStore`（`storage.defineItem<DataProps[]>(...)`）。
 - **唯一变更入口**：`features/otp-store/store.ts` 的 `mutateOtpList`，所有写入（`OtpMutators`、`features/otp-intake` 双端 writer、`recovery-prompt.ts` 调用的 `saveOTP`）都走它。**content script 不再是例外**。
-- **写入语义收敛**：`mutateOtpList` 内部基于内存缓存做并发读保护（`ensureOtpListLoaded` + `commitOtpList`），并借助 `addOtp`（`features/otp-store/otp-crud.ts`）处理三档合并：
-  1. 完全匹配 (type+issuer+secret+account) → 字段合并到同一条（`merged: true`，让 writer 区分「已存在」）。
-  2. 同 (type+issuer+account) → 旧条目标记 deleted，新条目附加 recoveryCodes。
-  3. 否则直接追加。
+- **写入语义收敛**：`mutateOtpList` 内部基于内存缓存做并发读保护（`ensureOtpListLoaded` + `commitOtpList`），并借助 `addOtp`（`features/otp-store/otp-crud.ts`）处理两档合并：
+  1. 身份全等（见下）→ 字段合并到同一条（`merged: true`，让 writer 区分「已存在」）。
+  2. 否则直接追加。
+
+  **身份 = 归一化后的 7 项**：`type + issuer + secret + account + algorithm + digits + period`
+  （`algorithm ?? "SHA1"`、`digits ?? 6`、`period ?? 30`；HOTP 的 `counter` 是状态，不进身份）。
+  归一化不可省：否则「手动添加（无 digits）」与「扫同一个 QR（URL 显式写了 digits=6）」
+  会被判成两条行为完全相同的重复条目。判定口径只有一处实现：`findMatchingOtp`
+  （`otpExists` / `addOtp` / 双端 intake writer 全部走它）。
+
+  允许并存的两种情况：同 (issuer+account) 不同 secret（主密钥 / 备份密钥）；
+  同 secret 不同 algorithm/digits/period（同一把密钥的不同参数版本）。
+  旧的「同账号换密钥就软删旧条目」已移除：它会静默把用户已有条目丢进回收站，
+  也让同一账号无法同时持有多个密钥。
 - **跨上下文同步**：provider 注册 `storage.watch`，所有 popup / settings 订阅者同时重渲染；content-side 写入同样经 `dataStore.setValue` 触发订阅。
 
 ## v2 变更（架构报告 friction #6 / 候选 4）

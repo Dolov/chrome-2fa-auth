@@ -98,6 +98,72 @@ test.describe("F4 crud > 表单 / 置顶 / 删除 / QR 弹层", () => {
     }
   })
 
+  test("Case 20b (P0): 同账号不同 secret 可并存；身份全等 → warn 不新增", async ({
+    helper
+  }) => {
+    const popup = await helper.gotoPopup()
+    try {
+      await expect(listItems(popup)).toHaveCount(0, { timeout: 10_000 })
+
+      // 1. 首次添加
+      await clickFab(popup, "fab-form")
+      await fillForm(popup, "GitHub", "JBSWY3DPEHPK3PXP", "alice")
+      await modalOkButton(popup).click()
+      await expect(listItems(popup)).toHaveCount(1, { timeout: 10_000 })
+
+      // 2. 同 issuer/account、不同 secret → 两条并存，旧条目不得进回收站
+      await clickFab(popup, "fab-form")
+      await fillForm(popup, "GitHub", "KRSXG5CTMVRXEZLU", "alice")
+      await modalOkButton(popup).click()
+      await expect(listItems(popup)).toHaveCount(2, { timeout: 10_000 })
+
+      const stored = (await helper.getStorage()) as { data?: DataProps[] }
+      expect((stored.data ?? []).filter((item) => item.deleted)).toHaveLength(0)
+
+      // 3. 四元组全等 → warn 提示、不新增、弹窗保持打开
+      await clickFab(popup, "fab-form")
+      await fillForm(popup, "GitHub", "KRSXG5CTMVRXEZLU", "alice")
+      await modalOkButton(popup).click()
+      await expect(
+        popup.locator('[data-testid="toast"][data-testid-toast-kind="warn"]')
+      ).toHaveCount(1, { timeout: 5_000 })
+      await expect(listItems(popup)).toHaveCount(2)
+      await expect(formIssuer(popup)).toHaveCount(1)
+    } finally {
+      await popup.close()
+    }
+  })
+
+  test("Case 20c (P0): 同 secret 不同 digits → 新条目；缺省参数归一化后视为已存在", async ({
+    helper
+  }) => {
+    // 种子：同 secret 但显式 8 位
+    await helper.seedData([
+      sampleAccount("1", "GitHub", "alice", { digits: 8 })
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await expect(listItems(popup)).toHaveCount(1, { timeout: 10_000 })
+
+      // 手动添加同 secret（不填 digits → 归一化为 6）→ 与 8 位不同身份 → 新增
+      await clickFab(popup, "fab-form")
+      await fillForm(popup, "GitHub", TEST_SECRET, "alice")
+      await modalOkButton(popup).click()
+      await expect(listItems(popup)).toHaveCount(2, { timeout: 10_000 })
+
+      // 再添加一次完全相同（都是缺省 6 位）→ warn、不新增
+      await clickFab(popup, "fab-form")
+      await fillForm(popup, "GitHub", TEST_SECRET, "alice")
+      await modalOkButton(popup).click()
+      await expect(
+        popup.locator('[data-testid="toast"][data-testid-toast-kind="warn"]')
+      ).toHaveCount(1, { timeout: 5_000 })
+      await expect(listItems(popup)).toHaveCount(2)
+    } finally {
+      await popup.close()
+    }
+  })
+
   test("Case 21 (P0): 必填校验 → 缺字段点 OK 后 List 不增加条目", async ({
     helper
   }) => {

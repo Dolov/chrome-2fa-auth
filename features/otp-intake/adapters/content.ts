@@ -1,4 +1,4 @@
-import { addOtp, otpExists } from "~/features/otp-store/otp-crud"
+import { addOtp, findMatchingOtp } from "~/features/otp-store/otp-crud"
 import { mutateOtpList } from "~/features/otp-store/store"
 
 import { intakeOtp } from "../intake"
@@ -27,16 +27,9 @@ export const createContentIntake = (opts: {
   const writer: IntakeWriter = {
     persist: (config) =>
       mutateOtpList<IntakePersistResult>((current) => {
-        if (otpExists(current, config)) {
-          const matched = current.find(
-            (item) =>
-              !item.deleted &&
-              item.type === config.type &&
-              item.issuer === config.issuer &&
-              item.secret === config.secret &&
-              item.account === config.account
-          )
-          return { items: current, result: { status: "exists", item: matched! } }
+        const matched = findMatchingOtp(current, config)
+        if (matched) {
+          return { items: current, result: { status: "exists", item: matched } }
         }
         const { items, inserted } = addOtp(current, config)
         return { items, result: { status: "added", item: inserted } }

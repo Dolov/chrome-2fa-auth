@@ -108,7 +108,9 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 - **边界**：
   - 数据存 `sync:` 区，跨设备同步。
   - 单条上限 8KB（10 条账户约 1–2KB，典型足够）。
-  - 写入前必须经过 `addOtp` 纯函数处理去重 / 软删合并（见 ADR-0001）。
+  - 写入前必须经过 `addOtp` 纯函数处理重复检测（身份 = 归一化后的
+    `type+issuer+secret+account+algorithm+digits+period` 七项全等，判定口径为
+    `findMatchingOtp`；见 ADR-0001）。
   - `store.ts` 还维护进程内缓存与订阅：`getCachedOtpList` / `subscribeOtpList`
     给 React 侧同步读取，`mutateOtpList` 基于最新缓存做纯变更再落库。
     非 React 侧（content / background）仍走 `dataStore` + `saveOTP`，不依赖缓存。
@@ -130,7 +132,7 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 
 ### 5. OtpMutators
 
-- **是什么**：9 个变更原语的接口，封装去重 / 软删合并语义。
+- **是什么**：9 个变更原语的接口，封装重复检测语义（`findMatchingOtp` 的 7 项身份全等）。
 - **在哪里**：`features/otp-store/context.tsx` 的 `OtpMutators` 接口。
 - **典型用法**：
   ```tsx
