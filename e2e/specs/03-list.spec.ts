@@ -120,7 +120,8 @@ test.describe("F3 list > 空态 / 列表项 / 视觉分组", () => {
       await expect(card).toBeVisible({ timeout: 10_000 })
       // 左侧 accent 条（语义类，主题切换不影响 className）
       await expect(card.locator(".bg-accent")).toBeVisible()
-      await expect(card).toHaveClass(/shadow-lg/)
+      // 精确 token：避免 /shadow-lg/ 误匹配无时不在的 hover:shadow-lg
+      await expect(card).toHaveClass(/(?:^|\s)shadow-lg(?:\s|$)/)
     } finally {
       await popup.close()
     }
@@ -132,6 +133,12 @@ test.describe("F3 list > 空态 / 列表项 / 视觉分组", () => {
     ])
     const popup = await helper.gotoPopup()
     try {
+      // 已删除项只在「已删除」视角渲染，normal 视角不显示
+      await menuTrigger(popup).click()
+      await dropdownMenu(popup)
+        .locator('[data-testid="header-menu-deleted"]')
+        .click()
+
       const card = listItems(popup).first()
       await expect(card).toBeVisible({ timeout: 10_000 })
       // bg-base-300 是 deleted 状态语义类（主题切换不影响类名）
@@ -144,15 +151,20 @@ test.describe("F3 list > 空态 / 列表项 / 视觉分组", () => {
   test("Case 17 (P1): 已删除过滤 → 不显示 normal 项", async ({ helper }) => {
     await helper.seedData([
       sampleAccount("1", "GitHub", "alice"),
-      sampleAccount("2", "OldApp", "bob", { deleted: true })
+      sampleAccount("2", "GitLab", "carol"),
+      sampleAccount("3", "OldApp", "bob", { deleted: true })
     ])
     const popup = await helper.gotoPopup()
     try {
+      // normal 视角：只渲染 2 个 normal 项，已删除项被过滤
       await expect(listItems(popup)).toHaveCount(2, { timeout: 10_000 })
 
       await menuTrigger(popup).click()
-      await dropdownMenu(popup).locator('[data-testid="header-menu-deleted"]').click()
+      await dropdownMenu(popup)
+        .locator('[data-testid="header-menu-deleted"]')
+        .click()
 
+      // 已删除视角：只渲染那 1 个 deleted 项，normal 项被过滤
       await expect(listItems(popup)).toHaveCount(1, { timeout: 5_000 })
     } finally {
       await popup.close()

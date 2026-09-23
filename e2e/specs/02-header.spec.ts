@@ -53,7 +53,8 @@ test.describe("F2 header > 菜单 / 搜索 / 过滤", () => {
     ])
     const popup = await helper.gotoPopup()
     try {
-      await expect(listItems(popup)).toHaveCount(2, { timeout: 10_000 })
+      // normal 视角只渲染 normal 项：1 个（已删除项不显示）
+      await expect(listItems(popup)).toHaveCount(1, { timeout: 10_000 })
 
       await menuTrigger(popup).click()
       const menu = dropdownMenu(popup)
@@ -144,7 +145,8 @@ test.describe("F2 header > 菜单 / 搜索 / 过滤", () => {
     ])
     const popup = await helper.gotoPopup()
     try {
-      await expect(listItems(popup)).toHaveCount(3, { timeout: 10_000 })
+      // normal 视角只渲染 1 个 normal 项（2 个已删除项被过滤）
+      await expect(listItems(popup)).toHaveCount(1, { timeout: 10_000 })
 
       // filter=normal → 点「已删除」入口
       await menuTrigger(popup).click()
@@ -164,7 +166,8 @@ test.describe("F2 header > 菜单 / 搜索 / 过滤", () => {
     ])
     const popup = await helper.gotoPopup()
     try {
-      await expect(listItems(popup)).toHaveCount(2, { timeout: 10_000 })
+      // normal 视角只渲染 1 个 normal 项（已删除项不显示）
+      await expect(listItems(popup)).toHaveCount(1, { timeout: 10_000 })
 
       // 先切到「已删除」
       await menuTrigger(popup).click()

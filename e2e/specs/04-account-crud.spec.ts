@@ -44,15 +44,15 @@ const clickFab = async (
   await popup.locator(`[data-testid="${testId}"]`).click()
 }
 
-/** OtpForm 字段 */
+/** OtpForm 字段：只取当前打开（[open]）的 dialog，避免匹配到常驻挂载的隐藏表单 */
 const formIssuer = (popup: { locator: (s: string) => any }) =>
-  popup.locator('[data-testid="form-issuer"]')
+  popup.locator('dialog.modal[open] [data-testid="form-issuer"]')
 
 const formSecret = (popup: { locator: (s: string) => any }) =>
-  popup.locator('[data-testid="form-secret"]')
+  popup.locator('dialog.modal[open] [data-testid="form-secret"]')
 
 const formAccount = (popup: { locator: (s: string) => any }) =>
-  popup.locator('[data-testid="form-account"]')
+  popup.locator('dialog.modal[open] [data-testid="form-account"]')
 
 /** Modal OK 按钮：只取当前打开（[open]）的 dialog，避免匹配到隐藏的弹层 */
 const modalOkButton = (popup: { locator: (s: string) => any }) =>
@@ -265,7 +265,8 @@ test.describe("F4 crud > 表单 / 置顶 / 删除 / QR 弹层", () => {
       // 第 0 项现在应该是 GitLab
       await expect(cards).toHaveCount(3, { timeout: 5_000 })
       await expect(cards.nth(0).locator(".bg-accent")).toBeVisible()
-      await expect(cards.nth(0)).toHaveClass(/shadow-lg/)
+      // 精确 token：避免 /shadow-lg/ 误匹配无时不在的 hover:shadow-lg
+      await expect(cards.nth(0)).toHaveClass(/(?:^|\s)shadow-lg(?:\s|$)/)
     } finally {
       await popup.close()
     }
@@ -294,7 +295,7 @@ test.describe("F4 crud > 表单 / 置顶 / 删除 / QR 弹层", () => {
       // 顺序恢复：accent 条消失
       await expect(cards).toHaveCount(2, { timeout: 5_000 })
       await expect(cards.nth(0).locator(".bg-accent")).toHaveCount(0)
-      await expect(cards.nth(0)).not.toHaveClass(/shadow-lg/)
+      await expect(cards.nth(0)).not.toHaveClass(/(?:^|\s)shadow-lg(?:\s|$)/)
     } finally {
       await popup.close()
     }

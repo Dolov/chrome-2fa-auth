@@ -44,7 +44,9 @@ const progressOf = (card: { getByTestId: (id: string) => any }) =>
 
 /** 把 popup 的时间固定到指定时刻，并重新加载让首次渲染就用固定时间 */
 const pinTime = async (popup: any, time: Date) => {
-  await popup.clock.setFixedTime(time)
+  // 用 install（而非 setFixedTime）：install 安装可控的 fake 时钟，
+  // 让 fastForward 能真正推进 Date.now() 并触发 tick interval（Case 32）。
+  await popup.clock.install({ time })
   await popup.reload()
   await popup.waitForLoadState("domcontentloaded")
   await expect(cards(popup).first()).toBeVisible({ timeout: 10_000 })
