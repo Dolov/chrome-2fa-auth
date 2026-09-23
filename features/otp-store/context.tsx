@@ -3,7 +3,7 @@ import React from "react"
 import { addOtp, otpExists } from "~/features/otp-store/otp-crud"
 import {
   ensureOtpListLoaded,
-  getCachedOtpList,
+  getOtpStoreSnapshot,
   isRecoveryCodesSaved,
   mutateOtpList,
   subscribeOtpList
@@ -33,6 +33,7 @@ export interface OtpMutators {
 export interface OtpContextValue {
   items: DataProps[]
   mutators: OtpMutators
+  isLoaded: boolean
 }
 
 const OtpContext = React.createContext<OtpContextValue | null>(null)
@@ -155,15 +156,15 @@ const mutators: OtpMutators = {
 export const OtpProvider: React.FC<{ children: React.ReactNode }> = ({
   children
 }) => {
-  const items = React.useSyncExternalStore(
+  const { items, isLoaded } = React.useSyncExternalStore(
     subscribeOtpList,
-    getCachedOtpList,
-    getCachedOtpList
+    getOtpStoreSnapshot,
+    getOtpStoreSnapshot
   )
 
   const value = React.useMemo<OtpContextValue>(
-    () => ({ items, mutators }),
-    [items]
+    () => ({ items, mutators, isLoaded }),
+    [items, isLoaded]
   )
 
   return <OtpContext.Provider value={value}>{children}</OtpContext.Provider>
@@ -171,6 +172,9 @@ export const OtpProvider: React.FC<{ children: React.ReactNode }> = ({
 
 /** 读取当前所有 OTP 项 */
 export const useOtpList = (): DataProps[] => useOtpContext().items
+
+/** 列表是否已完成首次存储读取 */
+export const useOtpListLoaded = (): boolean => useOtpContext().isLoaded
 
 /** 读取 OTP 变更方法 */
 export const useOtpMutators = (): OtpMutators => useOtpContext().mutators

@@ -14,7 +14,7 @@ import {
   sendManualScreenshotToActiveTab
 } from "~/features/messaging"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
-import { useOtpList } from "~/features/otp-store"
+import { useOtpList, useOtpListLoaded } from "~/features/otp-store"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
@@ -67,7 +67,7 @@ const FabAction: React.FC<FabActionProps> = (props) => {
       className="tooltip tooltip-open tooltip-left before:py-2"
       data-tip={tip}
       data-testid={testId}>
-      <div className={cn("scale-75 rounded-btn", { "bg-base-300": disabled })}>
+      <div className={cn("scale-75 rounded-field", { "bg-base-300": disabled })}>
         <Button
           isLoadingOnly
           isLoading={isLoading}
@@ -85,13 +85,11 @@ const EntryActions: React.FC = () => {
   const { containerType } = React.useContext(PopupContext)
   const modals = useModalStack<FabModalKey>(FAB_MODALS)
   const items = useOtpList()
+  const isListLoaded = useOtpListLoaded()
 
   const [isActive, setIsActive] = React.useState(false)
   const [canInject, setCanInject] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
-  // 跳过 mount 时首次判断：getCachedOtpList 在异步加载完成前返回
-  // EMPTY_OTP_LIST 单例，老用户的「真实列表非空」状态会被瞬间误判。
-  const skipAutoExpandRef = React.useRef(true)
 
   const hasNoNormalAccounts = React.useMemo(
     () => items.every((item) => item.deleted),
@@ -102,16 +100,12 @@ const EntryActions: React.FC = () => {
     void canInjectContentScript().then(setCanInject)
   }, [])
 
-  // 持续跟随（B+B）：正常账户为空就自动展开 FAB；数据从空 → 非空不主动收。
+  // 列表加载完成后正常账户为空就自动展开 FAB；数据从空 → 非空不主动收。
+  // 必须等 isListLoaded，否则首次安装的「尚未加载」会被误判为空态。
   React.useEffect(() => {
-    if (skipAutoExpandRef.current) {
-      skipAutoExpandRef.current = false
-      return
-    }
-    if (hasNoNormalAccounts) {
-      setIsActive(true)
-    }
-  }, [hasNoNormalAccounts])
+    if (!isListLoaded) return
+    if (hasNoNormalAccounts) setIsActive(true)
+  }, [isListLoaded, hasNoNormalAccounts])
 
   // 点击 FAB 外部区域关闭
   React.useEffect(() => {
@@ -139,6 +133,7 @@ const EntryActions: React.FC = () => {
       })}>
       {/* 额外的按钮，只有在激活时才显示 */}
       <div
+        data-testid="fab-actions"
         className={cn(
           "flex flex-col items-center transition-transform duration-200 ease-out opacity-0 mb-1",
           { "opacity-100": isActive }

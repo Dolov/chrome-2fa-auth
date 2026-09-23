@@ -116,11 +116,15 @@ export const test = base.extend<
         )
       },
       clearStorage: async () => {
-        // 复用 getSw() 的「先取再等事件」路径：避免首测试启动时
-        // serviceWorkers() 尚为空、storage 残留导致断言失败
-        await getSw().evaluate(() => {
-          chrome.storage.sync.clear()
-          chrome.storage.local.clear()
+        // 必须 await clear：否则 evaluate 立即返回，下一个 popup 可能在
+        // 存储清空完成前读到上一条用例的数据（F13 空态引导曾因此间歇失败）。
+        // 仅在非空时写：chrome.storage.sync 有 MAX_WRITE_OPERATIONS_PER_MINUTE
+        // 配额，全量用例密集清写会触发 quota 错误。
+        await getSw().evaluate(async () => {
+          const current = await chrome.storage.sync.get(null)
+          if (Object.keys(current).length > 0) {
+            await chrome.storage.sync.clear()
+          }
         })
       },
       getStorage: async () => {
@@ -141,7 +145,6 @@ export const test = base.extend<
         `Unexpected page errors during test:\n  ${pageErrors.join("\n  ")}`
       )
     }
-    await h.clearStorage()
   },
 
   popup: async ({ helper, sharedContext: _ctx }, use) => {

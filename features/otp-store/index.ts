@@ -10,6 +10,6 @@
  *
  * 刻意不在此 re-export，避免 popup 代码绕过 mutators 直接改 dataStore。
  */
-export { OtpProvider, useOtpList, useOtpMutators } from "./context"
+export { OtpProvider, useOtpList, useOtpListLoaded, useOtpMutators } from "./context"
 export { useUpdateCopiedCodeStatus } from "./hooks"
 export type { OtpMutators, OtpContextValue } from "./context"

@@ -143,6 +143,42 @@ const emitListChange = (): void => {
 /** 同步读取最近一次已知的列表；首次加载完成前返回空数组 */
 export const getCachedOtpList = (): DataProps[] => cachedList ?? EMPTY_OTP_LIST
 
+/**
+ * 列表是否已完成首次存储读取。
+ *
+ * 用于区分「存储尚未加载」与「确实没有数据」——两者当前都表现为空列表，
+ * 消费者（如 FAB 空态自动展开）只有拿到加载信号才能安全地按空列表决策。
+ */
+const isOtpListLoaded = (): boolean => cachedList !== null
+
+/** OTP 存储快照：列表 + 是否已加载 */
+export interface OtpStoreSnapshot {
+  items: DataProps[]
+  isLoaded: boolean
+}
+
+let cachedSnapshot: OtpStoreSnapshot | null = null
+
+/**
+ * 单一快照：items 与 isLoaded 必须一起更新。
+ *
+ * 消费者若分别订阅两者，可能在一个渲染帧里拿到「空 items + 未加载」，
+ * 或反过来；这里按引用缓存，保证复用 React `useSyncExternalStore` 时
+ * `getSnapshot` 稳定且两项同步切换。
+ */
+export const getOtpStoreSnapshot = (): OtpStoreSnapshot => {
+  const items = getCachedOtpList()
+  const isLoaded = isOtpListLoaded()
+  if (
+    cachedSnapshot === null ||
+    cachedSnapshot.items !== items ||
+    cachedSnapshot.isLoaded !== isLoaded
+  ) {
+    cachedSnapshot = { items, isLoaded }
+  }
+  return cachedSnapshot
+}
+
 /** 确保列表至少从存储读取一次；并发调用共享同一个 Promise */
 export const ensureOtpListLoaded = (): Promise<DataProps[]> => {
   if (cachedList !== null) return Promise.resolve(cachedList)

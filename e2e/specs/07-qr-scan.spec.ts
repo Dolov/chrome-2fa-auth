@@ -14,6 +14,7 @@
  * 文案与配色会随 i18n / 主题调整变化，不作为 e2e 断言依据。
  */
 import { expect, test } from "../fixtures/extension"
+import type { Page } from "@playwright/test"
 import {
   NOT_OTPAUTH_QR_PATH,
   NO_QR_IMAGE_PATH,
@@ -135,6 +136,70 @@ test.describe("F7 qr > 上传二维码截图", () => {
       expect(jsQrRequests.length).toBeGreaterThan(0)
       expect(jsQrRequests[0]).toMatch(/jsqr/i)
     } finally {
+      await popup.close()
+    }
+  })
+})
+
+/** 「自动扫描 / 手动截图」按钮：disabled 状态挂在内部 <button> 上 */
+const autoScanButton = (popup: { locator: (s: string) => any }) =>
+  popup.locator('[data-testid="fab-qr-auto"] button')
+
+const manualScanButton = (popup: { locator: (s: string) => any }) =>
+  popup.locator('[data-testid="fab-qr-manual"] button')
+
+/**
+ * 让「另一个 tab」成为当前 active tab，再重载 popup，触发
+ * `canInjectContentScript()` 用真实 active tab 重新探测（popup 自身是
+ * chrome-extension:// 页，新 page 打开后即获得焦点）。
+ */
+const reloadWithActiveTab = async (
+  popup: Page,
+  activeTabUrl: string
+): Promise<Page> => {
+  const activeTab = await popup.context().newPage()
+  await activeTab.route(activeTabUrl, (route) =>
+    route.fulfill({ contentType: "text/html", body: "<h1>mock</h1>" })
+  )
+  await activeTab.goto(activeTabUrl)
+  await popup.reload()
+  await popup.waitForLoadState("domcontentloaded")
+  return activeTab
+}
+
+test.describe("F7 qr > 可注入性门控（自动扫描 / 手动截图）", () => {
+  test("Case 54a (P2): 受限页面 → 两个按钮 disabled", async ({ helper }) => {
+    const popup = await helper.gotoPopup()
+    let restricted: Page | undefined
+    try {
+      restricted = await popup.context().newPage()
+      await restricted.goto("chrome://version/")
+      await popup.reload()
+      await popup.waitForLoadState("domcontentloaded")
+
+      await expect(autoScanButton(popup)).toBeDisabled({ timeout: 10_000 })
+      await expect(manualScanButton(popup)).toBeDisabled()
+      // 不依赖注入的两个入口不受影响
+      await expect(
+        popup.locator('[data-testid="fab-qr-upload"] button')
+      ).toBeEnabled()
+      await expect(popup.locator('[data-testid="fab-form"] button')).toBeEnabled()
+    } finally {
+      await restricted?.close()
+      await popup.close()
+    }
+  })
+
+  test("Case 54b (P2): 可注入页面 → 两个按钮 enabled", async ({ helper }) => {
+    const popup = await helper.gotoPopup()
+    let activeTab: Page | undefined
+    try {
+      activeTab = await reloadWithActiveTab(popup, "https://injectable.test/")
+
+      await expect(autoScanButton(popup)).toBeEnabled({ timeout: 10_000 })
+      await expect(manualScanButton(popup)).toBeEnabled()
+    } finally {
+      await activeTab?.close()
       await popup.close()
     }
   })

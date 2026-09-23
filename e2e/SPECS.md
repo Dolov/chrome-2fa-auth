@@ -26,7 +26,8 @@ e2e/
 │   ├── 09-npm.spec.ts        # F9 NPM 集成
 │   ├── 10-settings.spec.ts   # F10 设置页
 │   ├── 11-toast.spec.ts      # F11 Toast — 删（F11 不实现）
-│   └── 12-background.spec.ts # F12 Background & 迁移
+│   ├── 12-background.spec.ts # F12 Background & 迁移
+│   └── 13-entry-actions.spec.ts # F13 FAB 入口操作（空态自动展开 / 点击空白收起）
 └── artifacts/                # 测试产物（gitignore）
     └── .gitkeep
 ```
@@ -91,7 +92,7 @@ e2e/
   - **F11 toast（Case 77-80）不实现**——颜色 / 消失 / 堆叠全是样式层。
   - toast 节点的 `data-testid="toast"` + `data-testid-toast-kind` 保留，供其他 case 定位 toast 出现。
 
-## 3. Spec 清单（89 条，F11 4 条删除）
+## 3. Spec 清单（92 条，F11 4 条删除）
 
 > 格式：`<file> > <describe> > <it>`。优先级 P0 = 必须 / P1 = 重要 / P2 = 边界
 
@@ -195,7 +196,10 @@ e2e/
 | 55 | P2 | `qr > 上传预览` | `secret 解析后显示 OTP + 进度条` |
 
 > **当前进度**：45 / 46 已实现于 `07-qr-scan.spec.ts`（另有 1 条 jsQR 按需加载断言）。
-> 42-44（自动扫描）、47-49（粘贴 / 缺 account / 重名）、50-55（手动截图）待补，
+> 54 拆成 54a（受限页面 → disabled）/ 54b（可注入页面 → enabled）两条，已实现：
+> 受限页用 `chrome://version/`，可注入页用 mock `https://injectable.test/`；两条都先
+> 让另一个 tab 成为 active tab，再 reload popup 触发 `canInjectContentScript()` 重新探测。
+> 42-44（自动扫描）、47-49（粘贴 / 缺 account / 重名）、50-53（手动截图）待补，
 > 且它们是 content 侧 jsQR 改造的前置条件（ADR-0007）。
 
 ### F8. GitHub 集成 → `08-github.spec.ts`
@@ -272,6 +276,25 @@ e2e/
 >
 > Case 87 已实现于 `e2e/specs/12-background.spec.ts`（验证 chrome.storage.sync
 > 在 popup 关闭重开后的持久性）。
+
+### F13. FAB 入口操作 → `13-entry-actions.spec.ts`
+
+| # | 优先级 | describe/it | Case |
+|---|---|---|---|
+| 94 | P0 | `entry-actions > 空态自动展开` | `首次安装无数据 → 打开 popup 操作项自动展开` |
+| 95 | P0 | `entry-actions > 收起` | `点击 FAB 外部空白 → 操作项收起` |
+| 96 | P1 | `entry-actions > 有数据不展开` | `已有普通账户 → 不自动展开` |
+
+> F13 覆盖 `EntryActions`（右下角 FAB）的状态机。展开 / 收起以操作项容器
+> `[data-testid="fab-actions"]` 的**透明度**为信号（真实显示机制，不依赖色值 / 文案）。
+>
+> 落地时发现并修复两个问题：
+> 1. `entry-actions.tsx` 原 `skipAutoExpandRef` 会连带跳过「首次安装空列表」的
+>    自动展开，导致空态引导只在「删到最后一笔」时触发；改为等
+>    `useOtpListLoaded()`（`features/otp-store` 新增）后再判空。
+> 2. `fixtures/extension.ts::clearStorage` 原为 fire-and-forget（未 await），
+>    下一条用例可能读到上一条的种子数据；改为 await + 非空才写（避开
+>    `chrome.storage.sync` 的 MAX_WRITE_OPERATIONS_PER_MINUTE 配额）。
 
 ## 4. 执行顺序
 
