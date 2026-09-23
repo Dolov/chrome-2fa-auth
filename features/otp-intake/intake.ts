@@ -31,6 +31,12 @@ const parseQrString = (raw: string): OtpAuthConfig | "not-otpauth" => {
  * 调用方只提供三件 dep：account / writer / notifier。
  *
  * 返回 `IntakeOutcome` 而非抛异常：调用方根据 status 走自己的 UI 收尾。
+ *
+ * 唯一支持两种 `source.kind`：
+ * - `qr-data`：纯字符串（`parseQrString` 失败 → 收口为 warn）
+ * - `file`：File（读失败 → 收口为 error）
+ *
+ * 没有 `parsed` 中间态：调用方应该传 raw 字符串，让 intake 自己负责 parse。
  */
 export const intakeOtp = async (
   source: IntakeSource,
@@ -46,7 +52,7 @@ export const intakeOtp = async (
       return { status: "invalid", reason: "not-otpauth" }
     }
     config = parsed
-  } else if (source.kind === "file") {
+  } else {
     let data: string
     try {
       data = await readFromFile(source.file)
@@ -62,8 +68,6 @@ export const intakeOtp = async (
       return { status: "invalid", reason: "not-otpauth" }
     }
     config = parsed
-  } else {
-    config = source.config
   }
 
   // 2. 补账号：hintAccount 优先，否则询问用户

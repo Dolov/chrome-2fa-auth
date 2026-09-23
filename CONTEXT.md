@@ -104,7 +104,7 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 
 - **是什么**：chrome.storage 中所有 OTP 条目的**单一数据源**（`storage.defineItem<DataProps[]>(DATA_KEY, { fallback: [] })`）。
 - **在哪里**：`features/otp-store/store.ts` 的 `dataStore`（存储层与 `context.tsx` 分开：前者无 React，content / background 走深路径）。
-- **典型用法**：永远不直接调用 `dataStore.setValue`，只通过 `OtpProvider` 派发的 mutators。
+- **典型用法**：写入唯一入口为 `mutateOtpList` —— `OtpProvider` 的 9 个 `OtpMutators`、`features/otp-intake` 双端 writer、`recovery-prompt.ts` 的 `saveOTP` 都走它。
 - **边界**：
   - 数据存 `sync:` 区，跨设备同步。
   - 单条上限 8KB（10 条账户约 1–2KB，典型足够）。
@@ -208,16 +208,20 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 
 ### 11. CSS Portal
 
-- **是什么**：内容脚本注入样式的**单一 host `<style>`**（id=`g2fa-portal-style-sheet`），按 dedupe key 幂等。
-- **在哪里**：`features/page-ui/css-portal.ts` 的 `mountStyle`。
+- **是什么**：内容脚本注入样式的**单一 host `<style>`**（id=`g2fa-portal-style-sheet`），按 dedupe key 幂等；同文件还导出 `CSS_PREFIX` 与 `ContentLayer` 两个常量决定注入 UI 的命名/层级。
+- **在哪里**：`features/page-ui/css-portal.ts` 的 `mountStyle` / `ContentLayer`。
 - **典型用法**：
   ```ts
+  import { ContentLayer, CSS_PREFIX, mountStyle } from "~/features/page-ui/css-portal"
+
   mountStyle(`${CSS_PREFIX}-selection-style`, `...CSS...`)
+  node.classList.add(`${CSS_PREFIX}-selection-box`)
+  node.style.zIndex = ContentLayer.Surface.toString()
   ```
 - **边界**：
   - `CSS_PREFIX = "g2fa-portal"`（构建时常量），所有特性共用一个 host。
-  - 重复 `mountStyle` 调用是安全的（dedupe by key）。
-  - **不要**直接在页面 `appendChild(<style>)`。
+  - 重复 `mountStyle` 调用安全（dedupe by key）；**不要**直接 `appendChild(<style>)`。
+  - **类名 / z-index 命名约定详见 [AGENTS.md 硬规则 9](./AGENTS.md)**——本节不重复展开，避免与硬规则走偏。
 
 ### 12. Layout Container
 
@@ -314,7 +318,6 @@ jsQR 按需加载（content 侧受 IIFE 限制未完成）见 `docs/adr/0007-laz
 | `store.ts`（存储层）vs `context.tsx`（React Provider）| 同在 `features/otp-store/`；前者无 React，后者是唯一 React 入口 |
 | `utils/qr-decode.ts` vs「生成二维码」| 库里只有解码没有生成，不要往这里加 encode |
 | `scanPage()`（无上限全量兜底）vs `collectScanCandidates()`（有预算的可视化候选）| 前者是站点自动填充与兜底用的原逻辑，后者只服务粒子动画；别互相替代 |
-| `highlightElement`（彩虹脉冲）vs Scanner Dust（粒子层）| 前者已退为 `prefers-reduced-motion` 与兜底路径的反馈，不再是主路径 |
 
 ## 维护
 

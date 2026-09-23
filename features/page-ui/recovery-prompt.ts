@@ -2,7 +2,7 @@ import message from "./toast"
 import type { DataProps } from "~/utils/types"
 import { isRecoveryCodesSaved, saveOTP } from "~/features/otp-store/store"
 import { i18n } from "#i18n"
-import { createGradientTextContainer } from "./gradient-border"
+import { createCalloutContainer } from "./gradient-border"
 
 /** 恢复码提示的配置项 */
 export interface RecoveryPromptOptions {
@@ -22,7 +22,7 @@ export const displayRecoveryCodeSaveMessage = async (
   options: RecoveryPromptOptions = {}
 ): Promise<() => void> => {
   const { containerStyle } = options
-  const { container, textElement } = createGradientTextContainer(containerStyle)
+  const { container, textElement } = createCalloutContainer(containerStyle)
 
   element.insertAdjacentElement("afterend", container)
 

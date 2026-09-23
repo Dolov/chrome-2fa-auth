@@ -1,49 +1,40 @@
 import { useCallback } from "react"
 
-import { useOtpMutators } from "~/features/otp-store"
-import message from "~/features/page-ui/toast"
-import { i18n } from "#i18n"
+import { addOtp, otpExists } from "~/features/otp-store/otp-crud"
+import { mutateOtpList } from "~/features/otp-store/store"
+import type { DataProps } from "~/utils/types"
 
 import { intakeOtp } from "../intake"
 import type {
   IntakeAccountResolver,
-  IntakeNotifier,
   IntakeOutcome,
+  IntakePersistResult,
   IntakeSource,
   IntakeWriter
 } from "../intake.types"
-
-/** 固定复用：popup 全局共用一个 message notifier */
-const popupNotifier: IntakeNotifier = {
-  success: (text) => message.success(text),
-  warn: (text) => message.warning(text),
-  error: (text) => message.error(text)
-}
+import { createToastNotifier, createWindowPrompt } from "../factory"
 
 /**
- * 在 popup 端构造 Intake 调用方的便利 hook
+ * Popup 端的 Intake 便利 hook
  *
- * 返回一个 `(source, hintAccount?) => Promise<IntakeOutcome>`，
- * 写入走 OtpMutators（OtpProvider 内 React 订阅）。
+ * - writer 与 content 端走同一条路：`mutateOtpList` + `addOtp`。
+ *   这样 exists / added 文案在双端一致，popup 也不再制造 `{ id: "" }` 的假条目
+ *   （架构报告 friction #4）。
+ * - prompt 与 notifier 取自工厂（friction #3 + #5）。
+ * - 写入仍经 OtpStore 的 `mutateOtpList`，让 OtpProvider 的 React 订阅者收到
+ *   `useSyncExternalStore` 通知 —— popup 上下文之所以选这条路径的原因。
  */
 export const usePopupIntake = () => {
-  const mutators = useOtpMutators()
-
   const writer: IntakeWriter = {
-    persist: async (config) => {
-      const exists = await mutators.exists(config)
-      if (exists) {
-        return {
-          status: "exists",
-          item: {
-            ...config,
-            id: ""
-          }
+    persist: (config) =>
+      mutateOtpList<IntakePersistResult>((current) => {
+        if (otpExists(current, config)) {
+          const matched = current.find((item) => exactMatch(item, config))
+          return { items: current, result: { status: "exists", item: matched! } }
         }
-      }
-      const item = await mutators.add(config)
-      return { status: "added", item }
-    }
+        const { items, inserted } = addOtp(current, config)
+        return { items, result: { status: "added", item: inserted } }
+      })
   }
 
   return useCallback(
@@ -52,48 +43,22 @@ export const usePopupIntake = () => {
       options: { hintAccount?: string } = {}
     ): Promise<IntakeOutcome> => {
       const account: IntakeAccountResolver = {
-        promptAccount: async (issuer) =>
-          window.prompt(i18n.t("intake_prompt_account_name", [issuer])),
+        promptAccount: createWindowPrompt(),
         hintAccount: options.hintAccount
       }
       return intakeOtp(source, {
         account,
         writer,
-        notifier: popupNotifier
+        notifier: createToastNotifier()
       })
     },
-    [mutators]
+    [writer]
   )
 }
 
-/**
- * 非 hook 版的 popup 入口：传入 mutators + 可选 notifier。
- *
- * 适用于 popup 内非 React 函数（不太常用，保留备查）。
- */
-export const createPopupIntake = (opts: {
-  writer: IntakeWriter
-  notifier?: IntakeNotifier
-  hintAccount?: string
-}) => {
-  return (
-    source: IntakeSource
-  ): Promise<IntakeOutcome> => {
-    const account: IntakeAccountResolver = {
-      promptAccount: async (issuer) =>
-        window.prompt(i18n.t("intake_prompt_account_name", [issuer])),
-      hintAccount: opts.hintAccount
-    }
-    return intakeOtp(source, {
-      account,
-      writer: opts.writer,
-      notifier: opts.notifier ?? popupNotifier
-    })
-  }
-}
-
-/** 直接复用：一个 read-only 的 promptAccount 给 unit-style 测试用 */
-export const __test__ = {
-  promptForAccount: async (issuer: string): Promise<string | null> =>
-    window.prompt(i18n.t("intake_prompt_account_name", [issuer]))
-}
+const exactMatch = (item: DataProps, config: Parameters<IntakeWriter["persist"]>[0]): boolean =>
+  !item.deleted &&
+  item.type === config.type &&
+  item.issuer === config.issuer &&
+  item.secret === config.secret &&
+  item.account === config.account

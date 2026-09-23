@@ -18,6 +18,11 @@ export default defineConfig({
     icons: {
       "128": "icon/128.png"
     },
+    // 固定 Chrome 扩展 ID = CWS 上架 ID `iibjpaihhbdpicdgckhbikknalgeekph`。
+    // Chrome 用该公钥的 base64(DER) SHA-256 前 16 字节派生 ID;load unpacked
+    // 与 CWS 装出的扩展由此共用同一 ID,OAuth / web_accessible_resources / 用户
+    // 存储全部沿用同一桶。换 key = 换 ID,务必不要改。
+    key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs71xUGGOMHjEYQ32s4oTH687ri45yZceec/qdpRP3/lrEfhwN+7Kv2NSj1nQb1QsWVkccPDN4rGiB+x2GFJN1xq+dBJczDtYJfVQjcqycggj3IaB4mVcztWuIoKJYNRIvYf1p+9zhn1e+fTKJQm8orXBw1kDZ4tBkAgYvmBGBKwgkvJNVsTRAZpktd2gNucTQgZLCXMHhKtE0d6ZMkRWLi+4sNuBfpe6/rDL0TEelIIYpLtYj8OMDBH956nBbSNniUf+NEHLAZZMqQfK9QK00MoKgjjZ9nzpIGqk8qTm0c4EpBlbraJJj2PLfJPpJYD5eO3h/IKBi2DRUQsGLXLHbwIDAQAB",
     web_accessible_resources: [
       {
         resources: ["assets/*"],

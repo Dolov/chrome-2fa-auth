@@ -3,14 +3,17 @@ import type { DataProps, OtpAuthConfig } from "~/utils/types"
 /**
  * Intake 的输入来源
  *
- * - `qr-data`：已从 DOM 取到的字符串（autoScan / manualScreenshot / popup paste）
+ * - `qr-data`：已从 DOM 取到的字符串（autoScan / manualScreenshot / popup paste /
+ *              site-content read-qr 保存按钮回调）
  * - `file`：用户选择的本地图片文件，需走 readFromFile → parse
- * - `parsed`：调用方已经 parse 过，只需补 account
+ *
+ * 不再有 `parsed` 逃生口：调用方只看 raw `data: string`，parse 与落库之间
+ * 不需要再做中间值加工。站点 read-qr 的「灌入 verify 输入框」是
+ * `startOtpMessageUpdater` 的本地职责，不属于 intake 的责任面。
  */
 export type IntakeSource =
   | { kind: "qr-data"; data: string }
   | { kind: "file"; file: File }
-  | { kind: "parsed"; config: OtpAuthConfig }
 
 /**
  * 账号补全：调用方负责在 `config.account` 缺失时如何取账号。

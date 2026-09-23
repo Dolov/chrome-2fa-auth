@@ -8,9 +8,11 @@ import { addOtp } from "./otp-crud"
 /**
  * OtpStore 的存储层：chrome.storage 声明 + React 树外的读写路径。
  *
- * - `dataStore`：全应用单一数据源（ADR-0001）。React 侧经 features/otp-store
- *   的 mutators 写入；content script / background 没有 React 树，直接用它 + 纯函数 addOtp。
- * - `saveOTP` / `getOTPList` / `isRecoveryCodesSaved`：为后者准备的现成入口。
+ * - `dataStore`：全应用单一数据源（ADR-0001）。它**仅供读**和订阅；任何写入
+ *   都应走 `mutateOtpList`（OtpProvider 的 mutators、content script 的 intake
+ *   writer、`saveOTP` 的恢复码路径都走这条）。
+ * - `saveOTP` / `getOTPList` / `isRecoveryCodesSaved`：content script /
+ *   background 用的现成入口。
  *
  * 用 storage.defineItem 提供：
  * - 类型安全的 getValue/setValue
@@ -27,7 +29,32 @@ export const dataStore = storage.defineItem<DataProps[]>(DATA_KEY, {
   fallback: []
 })
 
-export const saveOTP = async (otpData: DataProps) => {
+/**
+ * 写入 OtpStore 的**唯一入口**。
+ *
+ * 任何写入（OtpMutators / content-side intake / `saveOTP` 的恢复码路径）
+ * 都必须走 `mutateOtpList` —— 它基于内存缓存做并发读保护 + 写入 + 通知，
+ * 让 React Provider / content script / background 拿到同一份写入语义与
+ * 「最后写入赢」顺序保证。直调 `dataStore.setValue` 是历史代码的快捷出口，
+ * 不是新调用方应走的路（架构报告 friction #6 + ADR-0001 v2）。
+ */
+export const mutateOtpList = async <T>(
+  mutator: (current: DataProps[]) => { items: DataProps[]; result: T }
+): Promise<T> => {
+  const current = await ensureOtpListLoaded()
+  const { items: next, result } = mutator(current)
+  if (next !== current) await commitOtpList(next)
+  return result
+}
+
+/**
+ * `saveOTP`：恢复码场景的 bridge。
+ *
+ * 走 `mutateOtpList` 而不是直调 dataStore.setValue，让 content script 在
+ * React Provider 不在场的场景下也享受同一份并发保护 —— 也让 ADR-0001
+ * 「单一数据源 / 唯一写入」不变式不再依赖不存在的「content 例外」。
+ */
+export const saveOTP = async (otpData: DataProps): Promise<void> => {
   if (
     !otpData.id ||
     !otpData.type ||
@@ -37,21 +64,22 @@ export const saveOTP = async (otpData: DataProps) => {
   ) {
     throw new Error(`otpData is invalid: ${JSON.stringify(otpData, null, 2)}`)
   }
-  const existingData = await dataStore.getValue()
-  const { items: next } = addOtp(existingData, {
-    type: otpData.type,
-    secret: otpData.secret,
-    issuer: otpData.issuer,
-    account: otpData.account,
-    algorithm: otpData.algorithm,
-    digits: otpData.digits,
-    period: otpData.period,
-    counter: otpData.counter,
-    pinned: otpData.pinned,
-    remark: otpData.remark,
-    recoveryCodes: otpData.recoveryCodes
+  await mutateOtpList((current) => {
+    const { items } = addOtp(current, {
+      type: otpData.type,
+      secret: otpData.secret,
+      issuer: otpData.issuer,
+      account: otpData.account,
+      algorithm: otpData.algorithm,
+      digits: otpData.digits,
+      period: otpData.period,
+      counter: otpData.counter,
+      pinned: otpData.pinned,
+      remark: otpData.remark,
+      recoveryCodes: otpData.recoveryCodes
+    })
+    return { items, result: undefined }
   })
-  return await dataStore.setValue(next)
 }
 
 export const getOTPList = async (
@@ -140,21 +168,6 @@ export const commitOtpList = async (next: DataProps[]): Promise<void> => {
   cachedList = next
   emitListChange()
   await dataStore.setValue(next)
-}
-
-/**
- * 以**最新缓存**为基准做一次纯变更并落库，返回变更附带的结果。
- *
- * 通过“读最新快照 → 同步写缓存”消除并发调用之间的丢更新：
- * 连续两次 `mutateOtpList` 不会再各自基于同一份过期数组互相覆盖。
- */
-export const mutateOtpList = async <T>(
-  mutator: (current: DataProps[]) => { items: DataProps[]; result: T }
-): Promise<T> => {
-  const current = await ensureOtpListLoaded()
-  const { items: next, result } = mutator(current)
-  if (next !== current) await commitOtpList(next)
-  return result
 }
 
 /** 订阅列表变化；首个订阅者负责建立 `storage.watch` 并触发首次加载 */

@@ -40,7 +40,7 @@
   "popup_fab_qr_upload_tip": {
     "message": "Upload QR screenshot"
   },
-  "popup_fab_manual_scan_fallback_msg": {
+  "autoscan_no_qr_fallback_msg": {
     "message": "No QR detected — switching to manual capture mode. Press ESC to exit."
   },
   "popup_fab_manual_scan_msg": {
@@ -270,9 +270,6 @@
   },
   "qr_decode_error_not_found": {
     "message": "No QR code found"
-  },
-  "qr_decode_error_no_valid_qr": {
-    "message": "No valid QR code found"
   },
   "manual_scan_decode_failed": {
     "message": "Failed to decode QR: $1"

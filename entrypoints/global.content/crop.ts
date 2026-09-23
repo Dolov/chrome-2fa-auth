@@ -1,9 +1,9 @@
-import { contentBaseZindex } from "~/features/page-ui/css-portal"
+import { ContentLayer, CSS_PREFIX } from "~/features/page-ui/css-portal"
 import { i18n } from "#i18n"
 import { readFromCanvas } from "~/utils/qr-decode"
 
 /** 开发模式下 debug canvas 的 class 名 */
-const DEBUG_CANVAS_CLASS = "g2fa-portal-debug-canvas"
+const DEBUG_CANVAS_CLASS = `${CSS_PREFIX}-debug-canvas`
 
 /**
  * 裁剪截图区域并解析其中的二维码。
@@ -51,7 +51,7 @@ export const cropImage = (
         canvas.style.position = "fixed"
         canvas.style.top = "0"
         canvas.style.left = "0"
-        canvas.style.zIndex = `${contentBaseZindex + 1}`
+        canvas.style.zIndex = ContentLayer.Surface.toString()
         canvas.style.border = "2px solid #2196F3"
         canvas.addEventListener("click", () => canvas.remove())
         document.body.appendChild(canvas)

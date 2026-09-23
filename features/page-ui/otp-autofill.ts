@@ -1,9 +1,9 @@
 import message from "./toast"
 import { copyTextToClipboard } from "~/utils/clipboard"
-import { CSS_PREFIX, mountStyle } from "./css-portal"
 import { i18n } from "#i18n"
 import { generateOtp, getRemainingTime } from "~/utils/libs/totp"
-import { createGradientTextContainer } from "./gradient-border"
+import { createCalloutContainer } from "./gradient-border"
+import { CSS_PREFIX } from "./css-portal"
 import type { OtpAuthConfig } from "~/utils/types"
 
 /** startOtpMessageUpdater 返回的资源句柄，调用方负责在 SPA cleanup 时调 dispose */
@@ -27,7 +27,7 @@ export interface OtpAutofillOptions {
 }
 
 /**
- * 在 input 之后注入一个浮动盒子，每秒更新 OTP 信息。
+ * 在 input 之后注入一个 Callout 浮动盒子，每秒更新 OTP 信息。
  * 用户点击盒子时复制当前 OTP。
  *
  * `config` 必须传完整条目而不是只传 secret —— `digits` / `period` / `algorithm`
@@ -43,23 +43,7 @@ export const startOtpMessageUpdater = (
 ): OtpUpdaterHandle => {
   const { style = {}, placeholder, account, autoFill = true } = options
 
-  mountStyle(
-    `${CSS_PREFIX}-otp-message-style`,
-    `
-      .${CSS_PREFIX}-gradient-link {
-        color: inherit;
-        text-decoration: none;
-      }
-      .${CSS_PREFIX}-gradient-link:hover {
-        text-decoration: underline;
-        text-decoration-color: #00d3bb;
-        text-decoration-thickness: 1px;
-        text-underline-offset: 3px;
-      }
-    `
-  )
-
-  const { container, textElement } = createGradientTextContainer(style)
+  const { container, textElement } = createCalloutContainer(style)
   input.insertAdjacentElement("afterend", container)
 
   const updateOtpMessage = () => {
@@ -79,7 +63,7 @@ export const startOtpMessageUpdater = (
 
     const infoHtml = `
       <div style="text-align:center;">
-        ${i18n.t("otp_autofill_info_before")}<a class="${CSS_PREFIX}-gradient-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">github-2fa</a>${i18n.t("otp_autofill_info_after", [timeRemaining])}
+        ${i18n.t("otp_autofill_info_before")}<a class="${CSS_PREFIX}-callout-link" href="https://github.com/Dolov/chrome-github-2fa" target="_blank">github-2fa</a>${i18n.t("otp_autofill_info_after", [timeRemaining])}
       </div>
     `
 

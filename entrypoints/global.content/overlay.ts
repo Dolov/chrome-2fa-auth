@@ -1,9 +1,23 @@
-import { contentBaseZindex } from "~/features/page-ui/css-portal"
+import { ContentLayer, CSS_PREFIX, mountStyle } from "~/features/page-ui/css-portal"
 import { createSelectionBox } from "~/features/page-ui/gradient-border"
 import { sendCaptureScreenshot } from "~/features/messaging"
 import { i18n } from "#i18n"
 
 import { cropImage } from "./crop"
+
+const OVERLAY_STYLE_ID = `${CSS_PREFIX}-screenshot-overlay-style`
+
+const buildOverlayCss = (): string => `
+  .${CSS_PREFIX}-screenshot-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    cursor: crosshair;
+    z-index: ${ContentLayer.Background};
+  }
+`
 
 export interface SelectionArea {
   startX: number
@@ -17,22 +31,19 @@ export type SelectionResolve = (area: SelectionArea | null) => void
 /**
  * 在页面上创建全屏选区遮罩 + 选区框，等待用户拖选完成后 resolve。
  *
- * 用户按 ESC、再次点击、或者选中区域后 resolve；resolve(null) 表示取消。
+ * - 遮罩恒为 `ContentLayer.Background`（最底）
+ * - 选区框恒为 `ContentLayer.Surface`（最顶，与 Toast / Callout 同层，DOM 顺序决定）
+ * - 用户按 ESC、再次点击、或者选中区域后 resolve；resolve(null) 表示取消
  *
  * @param onSelect 完成选区后回调，参数是选区坐标
  */
 export const createScreenshotOverlay = (
   onSelect: (area: SelectionArea) => void
 ): { dismiss: () => void } => {
+  mountStyle(OVERLAY_STYLE_ID, buildOverlayCss())
+
   const overlay = document.createElement("div")
-  overlay.style.position = "fixed"
-  overlay.style.top = "0"
-  overlay.style.left = "0"
-  overlay.style.width = "100vw"
-  overlay.style.height = "100vh"
-  overlay.style.zIndex = `${contentBaseZindex}`
-  overlay.style.cursor = "crosshair"
-  overlay.style.background = "rgba(0, 0, 0, 0.5)"
+  overlay.className = `${CSS_PREFIX}-screenshot-overlay`
   document.body.appendChild(overlay)
 
   let startX = 0
@@ -74,7 +85,8 @@ export const createScreenshotOverlay = (
     startY = e.clientY
     isMouseDown = true
 
-    const box = createSelectionBox(startX, startY, contentBaseZindex + 1)
+    // createSelectionBox 内部已固定到 ContentLayer.Surface
+    const box = createSelectionBox(startX, startY)
     selectionBox?.remove()
     selectionBox = box.element
     document.body.appendChild(selectionBox)

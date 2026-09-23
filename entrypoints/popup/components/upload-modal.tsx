@@ -36,12 +36,15 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
   const [preview, setPreview] = React.useState<ReturnType<
     typeof parseOtpAuthUrl
   > | null>(null)
+  /** raw otpauth 字符串，OK 路径走 intake.kind: 'qr-data' 需要 */
+  const [data, setData] = React.useState<string | null>(null)
   const [accountName, setAccountName] = React.useState("")
 
   React.useEffect(() => {
     if (isVisible) return
     // 关闭时清理 preview / account
     setPreview(null)
+    setData(null)
     setAccountName("")
     setError(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
@@ -59,14 +62,15 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
   const processFile = async (file: File) => {
     setError(null)
     setPreview(null)
+    setData(null)
 
     // intake 内部会读文件 + 解析 + 校验 + 落库 + 提示
     // 我们这里只关心是否需要补账号（preview 状态）
     // 因此先用 readFromFile → parseOtpAuthUrl 做预览判断
     const { readFromFile } = await import("~/utils/qr-decode")
-    let data: string
+    let raw: string
     try {
-      data = await readFromFile(file)
+      raw = await readFromFile(file)
     } catch (e) {
       setError({
         kind: "file-read",
@@ -77,7 +81,7 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
       return
     }
 
-    if (!isOtpAuthUrl(data)) {
+    if (!isOtpAuthUrl(raw)) {
       setError({
         kind: "invalid-otpauth",
         message: i18n.t("popup_modal_upload_invalid_error")
@@ -86,8 +90,9 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     }
 
     try {
-      const parsed = parseOtpAuthUrl(data)
+      const parsed = parseOtpAuthUrl(raw)
       setPreview(parsed)
+      setData(raw)
     } catch (e) {
       setError({
         kind: "parse",
@@ -122,19 +127,14 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
   }
 
   const handleOk = async () => {
-    if (!preview || isSubmitting) return
+    if (!preview || !data || isSubmitting) return
     setIsSubmitting(true)
 
-    const candidate = {
-      ...preview,
-      account: preview.account ?? accountName
-    }
-
     const outcome = await intake(
-      { kind: "parsed", config: candidate },
-      // 这里 hintAccount 已是 candidate.account，所以 promptAccount 不会被触发；
-      // 若 candidate.account 为空，则 popup intake 会调 promptAccount
-      { hintAccount: candidate.account || undefined }
+      { kind: "qr-data", data },
+      // hintAccount 取 preview.account（QR 自带）或用户在 modal 里手填的 accountName；
+      // 都为空时 intake 会调 promptAccount。
+      { hintAccount: (preview.account ?? accountName) || undefined }
     )
 
     setIsSubmitting(false)

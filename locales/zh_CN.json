@@ -40,7 +40,7 @@
   "popup_fab_qr_upload_tip": {
     "message": "上传二维码截图"
   },
-  "popup_fab_manual_scan_fallback_msg": {
+  "autoscan_no_qr_fallback_msg": {
     "message": "未检测到二维码，开启手动截图模式，ESC 退出"
   },
   "popup_fab_manual_scan_msg": {
@@ -270,9 +270,6 @@
   },
   "qr_decode_error_not_found": {
     "message": "未找到二维码"
-  },
-  "qr_decode_error_no_valid_qr": {
-    "message": "未找到有效的二维码"
   },
   "manual_scan_decode_failed": {
     "message": "解析二维码失败：$1"

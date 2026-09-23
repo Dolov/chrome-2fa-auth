@@ -40,7 +40,7 @@
   "popup_fab_qr_upload_tip": {
     "message": "QR 스크린샷 업로드"
   },
-  "popup_fab_manual_scan_fallback_msg": {
+  "autoscan_no_qr_fallback_msg": {
     "message": "QR을 감지하지 못했습니다 — 수동 캡처 모드로 전환합니다. ESC로 종료."
   },
   "popup_fab_manual_scan_msg": {
@@ -270,9 +270,6 @@
   },
   "qr_decode_error_not_found": {
     "message": "QR 코드를 찾을 수 없습니다"
-  },
-  "qr_decode_error_no_valid_qr": {
-    "message": "유효한 QR 코드를 찾을 수 없습니다"
   },
   "manual_scan_decode_failed": {
     "message": "QR 코드 해석 실패: $1"

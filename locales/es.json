@@ -40,7 +40,7 @@
   "popup_fab_qr_upload_tip": {
     "message": "Subir captura de QR"
   },
-  "popup_fab_manual_scan_fallback_msg": {
+  "autoscan_no_qr_fallback_msg": {
     "message": "No se detectó un QR — cambiando al modo de captura manual. Pulsa ESC para salir."
   },
   "popup_fab_manual_scan_msg": {
@@ -270,9 +270,6 @@
   },
   "qr_decode_error_not_found": {
     "message": "No se encontró ningún código QR"
-  },
-  "qr_decode_error_no_valid_qr": {
-    "message": "No se encontró ningún código QR válido"
   },
   "manual_scan_decode_failed": {
     "message": "No se pudo decodificar el QR: $1"

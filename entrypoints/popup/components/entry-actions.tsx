@@ -13,8 +13,8 @@ import {
   sendAutoScanToActiveTab,
   sendManualScreenshotToActiveTab
 } from "~/features/messaging"
-import { usePopupIntake } from "~/features/otp-intake/adapters/popup"
 import { canInjectContentScript } from "~/features/runtime/can-inject-content-script"
+import { useOtpList } from "~/features/otp-store"
 import { useModalStack } from "~/features/ui-state/use-modal-stack"
 import { cn } from "~/utils/cn"
 import { ContainerType } from "~/utils/types"
@@ -71,16 +71,50 @@ const FabAction: React.FC<FabActionProps> = (props) => {
 
 const EntryActions: React.FC = () => {
   const { containerType } = React.useContext(PopupContext)
-  const intake = usePopupIntake()
   const modals = useModalStack<FabModalKey>(FAB_MODALS)
+  const items = useOtpList()
 
   const [isActive, setIsActive] = React.useState(false)
-  const [isScanning, setIsScanning] = React.useState(false)
   const [canInject, setCanInject] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  // 跳过 mount 时首次判断：getCachedOtpList 在异步加载完成前返回
+  // EMPTY_OTP_LIST 单例，老用户的「真实列表非空」状态会被瞬间误判。
+  const skipAutoExpandRef = React.useRef(true)
+
+  const hasNoNormalAccounts = React.useMemo(
+    () => items.every((item) => item.deleted),
+    [items]
+  )
 
   React.useEffect(() => {
     void canInjectContentScript().then(setCanInject)
   }, [])
+
+  // 持续跟随（B+B）：正常账户为空就自动展开 FAB；数据从空 → 非空不主动收。
+  React.useEffect(() => {
+    if (skipAutoExpandRef.current) {
+      skipAutoExpandRef.current = false
+      return
+    }
+    if (hasNoNormalAccounts) {
+      setIsActive(true)
+    }
+  }, [hasNoNormalAccounts])
+
+  // 点击 FAB 外部区域关闭
+  React.useEffect(() => {
+    if (!isActive) return
+    const handleMouseDown = (event: MouseEvent) => {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      if (containerRef.current?.contains(target)) return
+      setIsActive(false)
+    }
+    document.addEventListener("mousedown", handleMouseDown)
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown)
+    }
+  }, [isActive])
 
   const toggle = () => setIsActive((prev) => !prev)
 
@@ -89,24 +123,16 @@ const EntryActions: React.FC = () => {
     window.close()
   }
 
-  const handleAutoScan = async () => {
-    setIsScanning(true)
-    try {
-      // 反馈由 content 侧的扫描仪式提供（星点汇聚 → 环绕 / 消散），
-      // 这里不再叠加假等待：await 返回时判定已经发生。
-      const result = await sendAutoScanToActiveTab()
-      if (!result?.success || !result.data) {
-        await handleManualScan(i18n.t("popup_fab_manual_scan_fallback_msg"))
-        return
-      }
-      await intake({ kind: "qr-data", data: result.data })
-    } finally {
-      setIsScanning(false)
-    }
+  const handleAutoScan = () => {
+    // 反馈由 content 侧的 intake notifier 提供（page-side toast）。
+    // 扫描是瞬时的，popup 不等结果立即关闭，避免遮挡页面。
+    void sendAutoScanToActiveTab()
+    window.close()
   }
 
   return (
     <div
+      ref={containerRef}
       className={cn("absolute flex flex-col items-center z-10", {
         "bottom-8 right-8": containerType === ContainerType.PHONE,
         "bottom-4 right-4": containerType !== ContainerType.PHONE
@@ -129,7 +155,6 @@ const EntryActions: React.FC = () => {
           testId="fab-qr-auto"
           tone="accent"
           disabled={!canInject}
-          isLoading={isScanning}
           onTrigger={handleAutoScan}>
           <QrCode />
         </FabAction>
