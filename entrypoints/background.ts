@@ -45,22 +45,10 @@ const menuList: MenuItem[] = [
   }
 ]
 
-interface CaptureScreenshotRequest {
-  action: typeof ActionType.CAPTURE_SCREENSHOT
-}
-
 interface CaptureScreenshotResponse {
   success: boolean
   image?: string
 }
-
-const isCaptureScreenshot = (
-  message: unknown
-): message is CaptureScreenshotRequest =>
-  typeof message === "object" &&
-  message !== null &&
-  "action" in message &&
-  message.action === ActionType.CAPTURE_SCREENSHOT
 
 export default defineBackground(() => {
   // svc-register-listeners-synchronously：listener 在顶层同步注册

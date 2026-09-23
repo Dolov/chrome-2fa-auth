@@ -102,6 +102,10 @@ export const getOTPList = async (
   )
 }
 
+/** recoveryCodes 归一为逗号分隔串，用于比较是否已保存 */
+const formatCodes = (codes: { value: string }[]) =>
+  codes.map(({ value }) => value).join(",")
+
 export const isRecoveryCodesSaved = async (
   parsedData: DataProps
 ): Promise<boolean> => {
@@ -118,9 +122,6 @@ export const isRecoveryCodesSaved = async (
   if (!matchedAccount?.recoveryCodes?.length || !recoveryCodes?.length) {
     return false
   }
-
-  const formatCodes = (codes: { value: string }[]) =>
-    codes.map(({ value }) => value).join(",")
 
   return (
     formatCodes(matchedAccount.recoveryCodes) === formatCodes(recoveryCodes)

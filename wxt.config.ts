@@ -1,5 +1,6 @@
 import { resolve } from "node:path"
 import tailwindcss from "@tailwindcss/vite"
+import oxlintPlugin from "vite-plugin-oxlint"
 import { defineConfig } from "wxt"
 
 // https://wxt.dev/api/config.html
@@ -31,7 +32,16 @@ export default defineConfig({
     ]
   },
   vite: () => ({
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      // lint 工具不进产物（硬规则 #2 不受影响）；dev HMR 时增量检查
+      oxlintPlugin({
+        failOnError: false,
+        failOnWarning: false,
+        lintOnStart: true,
+        lintOnHotUpdate: true
+      })
+    ],
     resolve: {
       alias: {
         "~": resolve(__dirname, ".")

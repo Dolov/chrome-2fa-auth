@@ -56,7 +56,6 @@ const UploadModal: React.FC<UploadModalProps> = (props) => {
     return () => {
       window.removeEventListener("paste", handlePaste)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible])
 
   const processFile = async (file: File) => {

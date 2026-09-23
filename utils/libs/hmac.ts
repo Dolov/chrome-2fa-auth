@@ -262,7 +262,7 @@ const SHA512_K = [
 const sha512 = (message: Uint8Array): Uint8Array => {
   const padded = padMessage(message, 128, 16)
   const state = [...SHA512_INIT]
-  const w = new Array<bigint>(80).fill(0n)
+  const w = Array.from({ length: 80 }, () => 0n)
 
   for (let block = 0; block < padded.length; block += 128) {
     for (let i = 0; i < 16; i++) w[i] = readBigUint64BE(padded, block + i * 8)

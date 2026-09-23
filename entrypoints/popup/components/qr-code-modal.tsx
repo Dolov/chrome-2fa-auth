@@ -32,9 +32,9 @@ const QRCodeModal: React.FC<QRCodeModalProps> = (props) => {
   const handleDownload = () => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const url = canvas.toDataURL("image/png")
+    const dataUrl = canvas.toDataURL("image/png")
     const a = document.createElement("a")
-    a.href = url
+    a.href = dataUrl
     a.download = `${issuer}-${account}-${new Date().toLocaleString()}.png`
     a.click()
   }

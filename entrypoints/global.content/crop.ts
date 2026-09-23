@@ -21,7 +21,7 @@ export const cropImage = (
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.src = dataUrl
-    img.onload = () => {
+    img.addEventListener("load", () => {
       const dpr = window.devicePixelRatio || 1
 
       const canvas = document.createElement("canvas")
@@ -56,7 +56,7 @@ export const cropImage = (
         canvas.addEventListener("click", () => canvas.remove())
         document.body.appendChild(canvas)
       }
-    }
-    img.onerror = reject
+    })
+    img.addEventListener("error", reject)
   })
 }

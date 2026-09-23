@@ -89,14 +89,14 @@ export const readFromImage = async (img: HTMLImageElement): Promise<string> => {
 export const readFromFile = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = (event) => {
+    reader.addEventListener("load", (event) => {
       const img = new Image()
       img.src = event.target?.result as string
-      img.onload = () => {
+      img.addEventListener("load", () => {
         readFromImage(img).then(resolve).catch(reject)
-      }
-    }
-    reader.onerror = reject
+      })
+    })
+    reader.addEventListener("error", reject)
     reader.readAsDataURL(file)
   })
 }
@@ -105,6 +105,8 @@ export const readFromFile = (file: File): Promise<string> => {
 export const scanPage = async (): Promise<QRScanResult> => {
   for (const canvas of Array.from(document.querySelectorAll("canvas"))) {
     try {
+      // 忠实串行：按 DOM 顺序逐个探测，首个命中即返回（见 CONTEXT.md Scan Sequence）
+      // oxlint-disable-next-line no-await-in-loop
       const data = await readFromCanvas(canvas)
       return { data, element: canvas }
     } catch {
@@ -114,6 +116,7 @@ export const scanPage = async (): Promise<QRScanResult> => {
 
   for (const img of Array.from(document.querySelectorAll("img"))) {
     try {
+      // oxlint-disable-next-line no-await-in-loop
       const data = await readFromImage(img)
       return { data, element: img }
     } catch {

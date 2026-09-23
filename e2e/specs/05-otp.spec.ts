@@ -188,6 +188,36 @@ test.describe("F5 otp > 数值正确性", () => {
     }
   })
 
+  test("algorithm=SHA512：与 otplib 的 sha512 结果一致（含 8 位数字）", async ({
+    helper
+  }) => {
+    await helper.seedData([
+      {
+        ...sampleAccount("1", "TestApp", "alice", TEST_SECRET),
+        algorithm: "SHA512"
+      }
+    ])
+    const popup = await helper.gotoPopup()
+    try {
+      await pinTime(popup, FIXED_TIME)
+
+      const expectedSha512 = expectedOtp({
+        secret: TEST_SECRET,
+        algorithm: "sha512",
+        date: FIXED_TIME
+      })
+      const expectedSha1 = expectedOtp({ secret: TEST_SECRET, date: FIXED_TIME })
+      // 两个算法必须算出不同结果，否则这条断言没有区分力
+      expect(expectedSha512).not.toBe(expectedSha1)
+
+      await expect(currentOtpOf(cards(popup).first())).toHaveText(
+        expectedSha512
+      )
+    } finally {
+      await popup.close()
+    }
+  })
+
   test("period=60：码与进度条都按 60 秒周期", async ({ helper }) => {
     await helper.seedData([
       { ...sampleAccount("1", "TestApp", "alice", TEST_SECRET), period: 60 }

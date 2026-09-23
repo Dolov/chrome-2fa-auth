@@ -1,0 +1,54 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "caughtErrors": "none",
+        "varsIgnorePattern": "^_",
+        "argsIgnorePattern": "^_"
+      }
+    ],
+    "no-unused-labels": "error",
+    "no-console": [
+      "error",
+      { "allow": ["warn", "error", "info", "debug"] }
+    ]
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [
+    ".output",
+    ".wxt",
+    "node_modules",
+    "dist",
+    "e2e",
+    "*.config.*",
+    "wxt.config.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["entrypoints/**/*.content/**", "features/otp-intake/index.ts", "features/messaging/index.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/entrypoints/popup/**", "**/entrypoints/settings/**", "**/components/**", "**/features/ui-state/**"],
+                "message": "content script / React-free barrel 禁止 import popup/React 侧（项目硬规则 #1）"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

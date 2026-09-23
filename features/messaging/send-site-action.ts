@@ -40,26 +40,23 @@ export const sendSiteAction = <K extends keyof MessageMap>(
 ): Promise<OutboundPayload<K>> => {
   const envelope = wrap(action, payload)
   const raw = new Promise<unknown>((resolve, reject) => {
-    const dispatch = (targetPort: chrome.tabs.Tab | undefined) => {
-      if (target.kind === "tab") {
-        browser.tabs.sendMessage(target.tabId, envelope, (response) => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message))
-            return
-          }
-          resolve(response)
-        })
-      } else {
-        browser.runtime.sendMessage(envelope, (response) => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message))
-            return
-          }
-          resolve(response)
-        })
-      }
+    if (target.kind === "tab") {
+      browser.tabs.sendMessage(target.tabId, envelope, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message))
+          return
+        }
+        resolve(response)
+      })
+    } else {
+      browser.runtime.sendMessage(envelope, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message))
+          return
+        }
+        resolve(response)
+      })
     }
-    void dispatch(undefined)
   })
   return raw as Promise<OutboundPayload<K>>
 }

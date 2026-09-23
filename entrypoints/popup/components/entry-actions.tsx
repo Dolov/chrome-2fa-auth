@@ -36,6 +36,18 @@ const TONE_CLASSES = {
 
 type FabActionTone = keyof typeof TONE_CLASSES
 
+/** 手动截图扫描：发消息后立即关闭 popup，结果由 content 侧 toast 反馈 */
+const handleManualScan = async (messageText: string) => {
+  await sendManualScreenshotToActiveTab(messageText)
+  window.close()
+}
+
+/** 自动扫描：扫描瞬时完成，不等结果直接关闭 popup，避免遮挡页面 */
+const handleAutoScan = () => {
+  void sendAutoScanToActiveTab()
+  window.close()
+}
+
 interface FabActionProps {
   tip: string
   tone: FabActionTone
@@ -117,18 +129,6 @@ const EntryActions: React.FC = () => {
   }, [isActive])
 
   const toggle = () => setIsActive((prev) => !prev)
-
-  const handleManualScan = async (messageText: string) => {
-    await sendManualScreenshotToActiveTab(messageText)
-    window.close()
-  }
-
-  const handleAutoScan = () => {
-    // 反馈由 content 侧的 intake notifier 提供（page-side toast）。
-    // 扫描是瞬时的，popup 不等结果立即关闭，避免遮挡页面。
-    void sendAutoScanToActiveTab()
-    window.close()
-  }
 
   return (
     <div

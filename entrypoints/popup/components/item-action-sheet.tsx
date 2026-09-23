@@ -32,6 +32,11 @@ const QRCodeModal = React.lazy(() => import("./qr-code-modal"))
 const ACTION_MODALS = ["qr", "edit", "recovery", "delete"] as const
 type ActionModalKey = (typeof ACTION_MODALS)[number]
 
+/** 阻止蒙层点击冒泡，避免触发遮罩关闭 */
+const handleMaskClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  e.stopPropagation()
+}
+
 interface ItemActionSheetProps {
   isVisible: boolean
   onClose: () => void
@@ -44,10 +49,6 @@ const ItemActionSheet: React.FC<ItemActionSheetProps> = (props) => {
   const dataList = useOtpList()
   const { pin, restore } = useOtpMutators()
   const modals = useModalStack<ActionModalKey>(ACTION_MODALS)
-
-  const handleMaskClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-  }
 
   const closeAll = () => {
     modals.closeAll()
