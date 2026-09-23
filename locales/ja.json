@@ -166,6 +166,12 @@
   "settings_theme_eyebrow": {
     "message": "theme · 32"
   },
+  "settings_theme_expand": {
+    "message": "もっと見る"
+  },
+  "settings_theme_collapse": {
+    "message": "折りたたむ"
+  },
   "settings_frame_title": {
     "message": "ウィンドウサイズ"
   },

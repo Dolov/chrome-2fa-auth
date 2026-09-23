@@ -234,7 +234,7 @@ e2e/
 | 71 | P0 | `settings > 加载` | `显示"布局模式 / 主题"两栏` |
 | 72 | P0 | `settings > 切换布局` | `DEFAULT ↔ PHONE 预览图实时变化` |
 | 73 | P0 | `settings > 切换主题` | `实时应用到 html data-theme + popup 同步` |
-| 74 | P0 | `settings > 32 个主题` | `全部可点` |
+| 74 | P0 | `settings > 32 个主题` | `默认 10 张 +「展示更多」→ 32 张全部可点 →「收起」回到 10 张` |
 | 75 | P1 | `settings > 选择持久化` | `关再开 → 选择保留` |
 | 76 | P1 | `settings > title` | `document.title 为 chrome.i18n.getMessage("extensionName")` |
 

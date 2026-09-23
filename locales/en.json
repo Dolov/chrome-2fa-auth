@@ -166,6 +166,12 @@
   "settings_theme_eyebrow": {
     "message": "theme · 32"
   },
+  "settings_theme_expand": {
+    "message": "Show more"
+  },
+  "settings_theme_collapse": {
+    "message": "Show less"
+  },
   "settings_frame_title": {
     "message": "Window size"
   },

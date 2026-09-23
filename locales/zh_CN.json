@@ -166,6 +166,12 @@
   "settings_theme_eyebrow": {
     "message": "theme · 32"
   },
+  "settings_theme_expand": {
+    "message": "展示更多"
+  },
+  "settings_theme_collapse": {
+    "message": "收起"
+  },
   "settings_frame_title": {
     "message": "界面尺寸"
   },
