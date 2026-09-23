@@ -5,8 +5,8 @@ import { i18n } from "#i18n"
 
 import { captureAndDecode, createScreenshotOverlay } from "./overlay"
 
-/** Toast 默认时长 60s（让用户有充分时间完成截图操作） */
-const DEFAULT_TOAST_DURATION_MS = 60_000
+/** Toast 默认时长 10s（让用户有充分时间完成截图操作） */
+const DEFAULT_TOAST_DURATION_MS = 10_000
 
 /** manual-scan 的 content-side intake：popup 已关闭，由 content script 接管 */
 const runIntake = createContentIntake({
